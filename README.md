@@ -204,3 +204,19 @@ Ansible Collection Namespace.
       collections:
         - splunk.es
 ```
+
+### Collection Content
+<!--start collection content-->
+## Httpapi plugins
+Name | Description
+--- | ---
+[splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.splunk.rst)|HttpApi Plugin for Splunk
+## Modules
+Name | Description
+--- | ---
+[splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.adaptive_response_notable_event.rst)|Manage Splunk Enterprise Security Notable Event Adaptive Responses
+[splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search.rst)|Manage Splunk Enterprise Security Correlation Searches
+[splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search_info.rst)|Manage Splunk Enterprise Security Correlation Searches
+[splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_monitor.rst)|Manage Splunk Data Inputs of type Monitor
+[splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_network.rst)|Manage Splunk Data Inputs of type TCP or UDP
+<!--end collection content-->
