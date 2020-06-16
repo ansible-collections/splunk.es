@@ -38,6 +38,14 @@ author: Ansible Security Automation Team (@maxamillion) <https://github.com/ansi
 # FIXME - adaptive response action association is probaby going to need to be a separate module we stitch together in a role
 
 EXAMPLES = """
+- name: Example usage of splunk.es.correlation_search_info
+  splunk.es.correlation_search_info:
+    name: "Name of correlation search"
+  register: scorrelation_search_info
+
+- name: debug display information gathered
+  debug:
+    var: scorrelation_search_info
 """
 
 from ansible.module_utils.basic import AnsibleModule
