@@ -138,6 +138,11 @@ author: Ansible Security Automation Team (@maxamillion) <https://github.com/ansi
 """
 
 EXAMPLES = """
+- name: Example adding data input monitor with splunk.es.data_input_monitor
+  splunk.es.data_input_monitor:
+    name: "/var/log/example.log"
+    state: "present"
+    recursive: True
 """
 
 from ansible.module_utils.basic import AnsibleModule
