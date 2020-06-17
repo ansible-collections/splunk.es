@@ -1,17 +1,32 @@
 # Splunk Enterprise Security Ansible Collection
 
+[![CI](https://zuul-ci.org/gated.svg)](https://dashboard.zuul.ansible.com/t/ansible/project/github.com/ansible-collections/splunk.es) <!--[![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/splunk.es)](https://codecov.io/gh/ansible-collections/splunk.es)-->
+
 ## Tech Preview
 
-Using splunk modules are meant to be used with the [`httpapi` connection
-plugin](https://docs.ansible.com/ansible/latest/plugins/connection/httpapi.html)
-and as such we will set certain attributes in the inventory
+This is the [Ansible
+Collection](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html)
+provided by the [Ansible Security Automation
+Team](https://github.com/ansible-security) for automating actions in
+[Splunk Enterprise Security SIEM](https://www.splunk.com/en_us/software/enterprise-security.html)
+
+This Collection is meant for distribution through
+[Ansible Galaxy](https://galaxy.ansible.com/) as is available for all
+[Ansible](https://github.com/ansible/ansible) users to utilize, contribute to,
+and provide feedback about.
+
+### Supported connections
+
+Use splunk modules with the [`httpapi` connection
+plugin](https://docs.ansible.com/ansible/latest/plugins/connection/httpapi.html).
+Set certain attributes in the inventory as follows:
 
 Example `inventory.ini`:
 
-NOTE: The passwords should be stored in a secure location or an [Ansible
+**NOTE:** The passwords should be stored in a secure location or an [Ansible
 Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html)
 
-NOTE: the default port for Splunk's REST API is 8089
+**NOTE:** the default port for Splunk's REST API is 8089
 
 
     [splunk]
@@ -27,29 +42,41 @@ NOTE: the default port for Splunk's REST API is 8089
     ansible_connection=httpapi
 
 
-Example playbook:
+### Collection Content
+<!--start collection content-->
 
-License
--------
+## Httpapi plugins
+Name | Description
+--- | ---
+[splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.splunk.rst)|HttpApi Plugin for Splunk
+## Modules
+Name | Description
+--- | ---
+[splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.adaptive_response_notable_event.rst)|Manage Splunk Enterprise Security Notable Event Adaptive Responses
+[splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search.rst)|Manage Splunk Enterprise Security Correlation Searches
+[splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search_info.rst)|Manage Splunk Enterprise Security Correlation Searches
+[splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_monitor.rst)|Manage Splunk Data Inputs of type Monitor
+[splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_network.rst)|Manage Splunk Data Inputs of type TCP or UDP
+<!--end collection content-->
 
-GPLv3
+## Installing this collection
 
-Author Information
-------------------
+You can install the splunk collection with the Ansible Galaxy CLI:
 
-[Ansible Security Automation Team](https://github.com/ansible-security)
-This is the [Ansible
-Collection](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html)
-provided by the [Ansible Security Automation
-Team](https://github.com/ansible-security) for automating actions in
-[Splunk Enterprise Security SIEM](https://www.splunk.com/en_us/software/enterprise-security.html)
+    ansible-galaxy collection install splunk.es
 
-This Collection is meant for distribution via
-[Ansible Galaxy](https://galaxy.ansible.com/) as is available for all
-[Ansible](https://github.com/ansible/ansible) users to utilize, contribute to,
-and provide feedback about.
+You can also include it in a `requirements.yml` file and install it with `ansible-galaxy collection install -r requirements.yml`, using the format:
 
-### Using Splunk Enterprise Security Ansible Collection
+```yaml
+---
+collections:
+  - name: splunk.es
+```
+
+
+## Using this collection
+
+**NOTE**: For Ansible 2.9, you may not see deprecation warnings when you run your playbooks with this collection. Use this documentation to track when a module is deprecated.
 
 An example for using this collection to manage a log source with [Splunk Enterprise Security SIEM](https://www.splunk.com/en_us/software/enterprise-security.html) is as follows.
 
@@ -68,7 +95,7 @@ ansible_httpapi_validate_certs=True
 ansible_connection=httpapi
 ```
 
-#### Using the modules with Fully Qualified Collection Name (FQCN)
+### Using the modules with Fully Qualified Collection Name (FQCN)
 
 With [Ansible
 Collections](https://docs.ansible.com/ansible/latest/dev_guide/developing_collections.html)
@@ -77,7 +104,7 @@ the Collection, such as a module, by it's Fully Qualified Collection Name (FQCN)
 as we'll show in this example or by defining a Collection Search Path as the
 examples below will display.
 
-I should be noted that the FQCN method is the recommended method but the
+We recommend the FQCN method  but the
 shorthand options listed below exist for convenience.
 
 `splunk_with_collections_fqcn_example.yml`
@@ -116,11 +143,10 @@ shorthand options listed below exist for convenience.
           - script
 ```
 
-#### Define your collection search path at the Play level
+### Define your collection search path at the Play level
 
 Below we specify our collection at the Play level which allows us to use the
-splunk modules without specifying the need for the
-Ansible Collection Namespace.
+splunk modules without specifying the need for the FQCN.
 
 `splunk_with_collections_example.yml`
 ```
@@ -160,11 +186,11 @@ Ansible Collection Namespace.
           - script
 ```
 
-#### Define your collection search path at the Block level
+### Define your collection search path at the Block level
 
 Below we use the [`block`](https://docs.ansible.com/ansible/latest/user_guide/playbooks_blocks.html)
 level keyword, we are able to use the splunk modules without the need for the
-Ansible Collection Namespace.
+FQCN.
 
 `splunk_with_collections_block_example.yml`
 ```
@@ -205,18 +231,43 @@ Ansible Collection Namespace.
         - splunk.es
 ```
 
-### Collection Content
-<!--start collection content-->
-## Httpapi plugins
-Name | Description
---- | ---
-[splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.splunk.rst)|HttpApi Plugin for Splunk
-## Modules
-Name | Description
---- | ---
-[splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.adaptive_response_notable_event.rst)|Manage Splunk Enterprise Security Notable Event Adaptive Responses
-[splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search.rst)|Manage Splunk Enterprise Security Correlation Searches
-[splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search_info.rst)|Manage Splunk Enterprise Security Correlation Searches
-[splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_monitor.rst)|Manage Splunk Data Inputs of type Monitor
-[splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_network.rst)|Manage Splunk Data Inputs of type TCP or UDP
-<!--end collection content-->
+## Contributing to this collection
+
+We welcome community contributions to this collection. If you find problems, please open an issue or create a PR against the [Splunk collection repository](https://github.com/ansible-collections/splunk.es). See [Contributing to Ansible-maintained collections](https://docs.ansible.com/ansible/devel/community/contributing_maintained_collections.html#contributing-maintained-collections) for complete details.
+
+You can also join us on:
+
+- Freenode IRC - ``#ansible-security`` Freenode channel
+
+See the [Ansible Community Guide](https://docs.ansible.com/ansible/latest/community/index.html) for details on contributing to Ansible.
+
+### Code of Conduct
+This collection follows the Ansible project's
+[Code of Conduct](https://docs.ansible.com/ansible/devel/community/code_of_conduct.html).
+Please read and familiarize yourself with this document.
+
+## Changelogs
+<!--Add a link to a changelog.md file or an external docsite to cover this information. -->
+
+## Roadmap
+
+<!-- Optional. Include the roadmap for this collection, and the proposed release/versioning strategy so users can anticipate the upgrade/update cycle. -->
+
+## More information
+
+- [Ansible network resources](https://docs.ansible.com/ansible/latest/network/getting_started/network_resources.html)
+- [Ansible Collection overview](https://github.com/ansible-collections/overview)
+- [Ansible User guide](https://docs.ansible.com/ansible/latest/user_guide/index.html)
+- [Ansible Developer guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
+- [Ansible Community code of conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html)
+
+## Licensing
+
+GNU General Public License v3.0 or later.
+
+See [LICENSE](https://www.gnu.org/licenses/gpl-3.0.txt) to see the full text.
+
+
+## Author Information
+
+[Ansible Security Automation Team](https://github.com/ansible-security)
