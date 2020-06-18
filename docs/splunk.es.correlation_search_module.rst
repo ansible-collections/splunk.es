@@ -1,13 +1,13 @@
 :orphan:
 
-.. _splunk.es.data_input_monitor_module:
+.. _splunk.es.correlation_search_module:
 
 
 ****************************
-splunk.es.data_input_monitor
+splunk.es.correlation_search
 ****************************
 
-**Manage Splunk Data Inputs of type Monitor**
+**Manage Splunk Enterprise Security Correlation Searches**
 
 
 Version added: 1.0
@@ -19,7 +19,7 @@ Version added: 1.0
 
 Synopsis
 --------
-- This module allows for addition or deletion of File and Directory Monitor Data Inputs in Splunk.
+- This module allows for creation, deletion, and modification of Splunk Enterprise Security Correlation Searches
 
 
 
@@ -38,182 +38,50 @@ Parameters
                     <tr>
                                                                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>blacklist</b>
+                    <b>app</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
                                                                     </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Specify a regular expression for a file path. The file path that matches this regular expression is not indexed.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>check_index</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                                                    </div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"SplunkEnterpriseSecuritySuite"</div>
                                     </td>
-                                <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
                                                                 <td>
-                                            <div>If set to <code>True</code>, the index value is checked to ensure that it is the name of a valid index.</div>
+                                            <div>Splunk app to associate the correlation seach with</div>
                                                         </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>check_path</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                                                    </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>no</li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                            <div>If set to <code>True</code>, the name value is checked to ensure that it exists.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>crc_salt</b>
+                    <b>cron_schedule</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
                                                                     </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>A string that modifies the file tracking identity for files in this input. The magic value &lt;SOURCE&gt; invokes special behavior (see admin documentation).</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>disabled</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                                                    </div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"*/5 * * * *"</div>
                                     </td>
-                                <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
                                                                 <td>
-                                            <div>Indicates if input monitoring is disabled.</div>
+                                            <div>Enter a cron-style schedule.</div>
+                                            <div>For example <code>&#x27;*/5 * * * *&#x27;</code> (every 5 minutes) or <code>&#x27;0 21 * * *&#x27;</code> (every day at 9 PM).</div>
+                                            <div>Real-time searches use a default schedule of <code>&#x27;*/5 * * * *&#x27;</code>.</div>
                                                         </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>followTail</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                                                    </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                            <div>If set to <code>True</code>, files that are seen for the first time is read from the end.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>host</b>
+                    <b>description</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
-                                                                    </div>
+                                                 / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The value to populate in the host field for events from this data input.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>host_regex</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">string</span>
-                                                                    </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Specify a regular expression for a file path. If the path for a file matches this regular expression, the captured value is used to populate the host field for events from this data input. The regular expression must have one capture group.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>host_segment</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">integer</span>
-                                                                    </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Use the specified slash-separate segment of the filepath as the host field value.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>ignore_older_than</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">string</span>
-                                                                    </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Specify a time value. If the modification time of a file being monitored falls outside of this rolling time window, the file is no longer being monitored.</div>
-                                                        </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>index</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">string</span>
-                                                                    </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                            <div>Which index events from this input should be stored in. Defaults to default.</div>
+                                            <div>Description of the coorelation search, this will populate the description field for the web console</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -228,56 +96,78 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The file or directory path to monitor on the system.</div>
+                                            <div>Name of coorelation search</div>
                                                         </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>recursive</b>
+                    <b>schedule_priority</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
+                        <span style="color: purple">string</span>
                                                                     </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>yes</li>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>Default</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>Higher</li>
+                                                                                                                                                                                                <li>Highest</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                            <div>Setting this to False prevents monitoring of any subdirectories encountered within this data input.</div>
+                                            <div>Raise the scheduling priority of a report. Set to &quot;Higher&quot; to prioritize it above other searches of the same scheduling mode, or &quot;Highest&quot; to prioritize it above other searches regardless of mode. Use with discretion.</div>
                                                         </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>rename_source</b>
+                    <b>schedule_window</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
                                                                     </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"0"</div>
+                                    </td>
                                                                 <td>
-                                            <div>The value to populate in the source field for events from this data input. The same source should not be used for multiple data inputs.</div>
+                                            <div>Let report run at any time within a window that opens at its scheduled run time, to improve efficiency when there are many concurrently scheduled reports. The &quot;auto&quot; setting automatically determines the best window width for the report.</div>
                                                         </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>sourcetype</b>
+                    <b>scheduling</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
                                                                     </div>
                                     </td>
                                 <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>real-time</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>continuous</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>Controls the way the scheduler computes the next execution time of a scheduled search.</div>
+                                            <div>Learn more: https://docs.splunk.com/Documentation/Splunk/7.2.3/Report/Configurethepriorityofscheduledreports#Real-time_scheduling_and_continuous_scheduling</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>search</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                 / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>The value to populate in the sourcetype field for incoming events.</div>
+                                            <div>SPL search string</div>
                                                         </td>
             </tr>
                                 <tr>
@@ -293,31 +183,37 @@ Parameters
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li>present</li>
                                                                                                                                                                                                 <li>absent</li>
+                                                                                                                                                                                                <li>enabled</li>
+                                                                                                                                                                                                <li>disabled</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                            <div>Add or remove a data source.</div>
+                                            <div>Add, remove, enable, or disiable a correlation search.</div>
                                                         </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>time_before_close</b>
+                    <b>suppress_alerts</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
-                        <span style="color: purple">integer</span>
+                        <span style="color: purple">boolean</span>
                                                                     </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
-                                            <div>When Splunk software reaches the end of a file that is being read, the file is kept open for a minimum of the number of seconds specified in this value. After this period has elapsed, the file is checked again for more data.</div>
+                                            <div>To suppress alerts from this correlation search or not</div>
                                                         </td>
             </tr>
                                 <tr>
                                                                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>whitelist</b>
+                    <b>throttle_fields_to_group_by</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -326,11 +222,140 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                            <div>Specify a regular expression for a file path. Only file paths that match this regular expression are indexed.</div>
+                                            <div>Type the fields to consider for matching events for throttling.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>throttle_window_duration</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>How much time to ignore other events that match the field values specified in Fields to group by.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>time_earliest</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"-24h"</div>
+                                    </td>
+                                                                <td>
+                                            <div>Earliest time using relative time modifiers.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>time_latest</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"now"</div>
+                                    </td>
+                                                                <td>
+                                            <div>Latest time using relative time modifiers.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>trigger_alert_when</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>number of events</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>number of results</li>
+                                                                                                                                                                                                <li>number of hosts</li>
+                                                                                                                                                                                                <li>number of sources</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>Raise the scheduling priority of a report. Set to &quot;Higher&quot; to prioritize it above other searches of the same scheduling mode, or &quot;Highest&quot; to prioritize it above other searches regardless of mode. Use with discretion.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>trigger_alert_when_condition</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>greater than</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>less than</li>
+                                                                                                                                                                                                <li>equal to</li>
+                                                                                                                                                                                                <li>not equal to</li>
+                                                                                                                                                                                                <li>drops by</li>
+                                                                                                                                                                                                <li>rises by</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>Conditional to pass to <code>trigger_alert_when</code></div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>trigger_alert_when_value</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"10"</div>
+                                    </td>
+                                                                <td>
+                                            <div>Value to pass to <code>trigger_alert_when</code></div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>ui_dispatch_context</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Set an app to use for links such as the drill-down search in a notable event or links in an email adaptive response action. If None, uses the Application Context.</div>
                                                         </td>
             </tr>
                         </table>
     <br/>
+
+
+Notes
+-----
+
+.. note::
+   - The following options are not yet supported: throttle_window_duration, throttle_fields_to_group_by, and adaptive_response_actions
 
 
 
@@ -341,6 +366,12 @@ Examples
 .. code-block:: yaml+jinja
 
     
+    - name: Example of creating a correlation search with splunk.es.coorelation_search
+      splunk.es.correlation_search:
+        name: "Example Coorelation Search From Ansible"
+        description: "Example Coorelation Search From Ansible, description."
+        search: 'source="/var/log/snort.log"'
+        state: "present"
 
 
 

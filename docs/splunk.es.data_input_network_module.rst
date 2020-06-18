@@ -280,6 +280,11 @@ Examples
 .. code-block:: yaml+jinja
 
     
+    - name: Example adding data input network with splunk.es.data_input_network
+      splunk.es.data_input_network:
+        name: "8099"
+        protocol: "tcp"
+        state: "present"
 
 
 

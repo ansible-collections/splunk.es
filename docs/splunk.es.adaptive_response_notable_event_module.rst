@@ -348,6 +348,18 @@ Examples
 .. code-block:: yaml+jinja
 
     
+    - name: Example of using splunk.es.adaptive_response_notable_event module
+      splunk.es.adaptive_response_notable_event:
+        name: "Example notable event from Ansible"
+        correlation_search_name: "Example Correlation Search From Ansible"
+        description: "Example notable event from Ansible, description."
+        state: "present"
+        next_steps:
+          - ping
+          - nslookup
+        recommended_actions:
+          - script
+          - ansiblesecurityautomation
 
 
 

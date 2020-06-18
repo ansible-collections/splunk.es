@@ -15,6 +15,33 @@ This Collection is meant for distribution through
 [Ansible](https://github.com/ansible/ansible) users to utilize, contribute to,
 and provide feedback about.
 
+<!--start requires_ansible-->
+## Ansible version compatibility
+
+This collection has been tested against following Ansible versions: **>=2.9,<2.11**.
+
+Plugins and modules within a collection may be tested with only specific Ansible versions. 
+A collection may contain metadata that identifies these versions. 
+PEP440 is the schema used to describe the versions of Ansible.
+<!--end requires_ansible-->
+
+## Collection Content
+<!--start collection content-->
+### Httpapi plugins
+Name | Description
+--- | ---
+[splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.splunk_httpapi.rst)|HttpApi Plugin for Splunk
+### Modules
+Name | Description
+--- | ---
+[splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.adaptive_response_notable_event_module.rst)|Manage Splunk Enterprise Security Notable Event Adaptive Responses
+[splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search_module.rst)|Manage Splunk Enterprise Security Correlation Searches
+[splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search_info_module.rst)|Manage Splunk Enterprise Security Correlation Searches
+[splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_monitor_module.rst)|Manage Splunk Data Inputs of type Monitor
+[splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_network_module.rst)|Manage Splunk Data Inputs of type TCP or UDP
+<!--end collection content-->
+
+
 ### Supported connections
 
 Use splunk modules with the [`httpapi` connection
@@ -41,23 +68,6 @@ Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html)
     ansible_httpapi_validate_certs=True
     ansible_connection=httpapi
 
-
-### Collection Content
-<!--start collection content-->
-
-## Httpapi plugins
-Name | Description
---- | ---
-[splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.splunk.rst)|HttpApi Plugin for Splunk
-## Modules
-Name | Description
---- | ---
-[splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.adaptive_response_notable_event.rst)|Manage Splunk Enterprise Security Notable Event Adaptive Responses
-[splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search.rst)|Manage Splunk Enterprise Security Correlation Searches
-[splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search_info.rst)|Manage Splunk Enterprise Security Correlation Searches
-[splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_monitor.rst)|Manage Splunk Data Inputs of type Monitor
-[splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_network.rst)|Manage Splunk Data Inputs of type TCP or UDP
-<!--end collection content-->
 
 ## Installing this collection
 
