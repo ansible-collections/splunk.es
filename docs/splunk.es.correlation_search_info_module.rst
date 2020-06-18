@@ -62,6 +62,14 @@ Examples
 .. code-block:: yaml+jinja
 
     
+    - name: Example usage of splunk.es.correlation_search_info
+      splunk.es.correlation_search_info:
+        name: "Name of correlation search"
+      register: scorrelation_search_info
+
+    - name: debug display information gathered
+      debug:
+        var: scorrelation_search_info
 
 
 
