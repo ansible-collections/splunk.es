@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # https://github.com/ansible/ansible/issues/65816
 # https://github.com/PyCQA/pylint/issues/214
-# pylint: skip-file
 
 # (c) 2018, Adam Miller (admiller@redhat.com)
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
