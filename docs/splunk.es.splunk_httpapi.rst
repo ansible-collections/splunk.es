@@ -1,4 +1,3 @@
-
 .. _splunk.es.splunk_httpapi:
 
 

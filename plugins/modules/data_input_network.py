@@ -17,7 +17,7 @@ module: data_input_network
 short_description: Manage Splunk Data Inputs of type TCP or UDP
 description:
   - This module allows for addition or deletion of TCP and UDP Data Inputs in Splunk.
-version_added: "1.0"
+version_added: "1.0.0"
 options:
   protocol:
     description:

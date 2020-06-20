@@ -19,7 +19,7 @@ description:
   - This module allows for creation, deletion, and modification of Splunk
     Enterprise Security Notable Event Adaptive Responses that are associated
     with a correlation search
-version_added: "1.0"
+version_added: "1.0.0"
 options:
   name:
     description:
