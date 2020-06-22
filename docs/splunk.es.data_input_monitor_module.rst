@@ -1,5 +1,3 @@
-:orphan:
-
 .. _splunk.es.data_input_monitor_module:
 
 
@@ -10,7 +8,7 @@ splunk.es.data_input_monitor
 **Manage Splunk Data Inputs of type Monitor**
 
 
-Version added: 1.0
+Version added: 1.0.0
 
 .. contents::
    :local:
@@ -361,5 +359,3 @@ Authors
 - Ansible Security Automation Team (@maxamillion) <https://github.com/ansible-security>
 
 
-.. hint::
-    Configuration entries for each entry type have a low to high priority order. For example, a variable that is lower in the list will override a variable that is higher up.

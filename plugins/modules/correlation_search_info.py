@@ -16,7 +16,7 @@ module: correlation_search_info
 short_description: Manage Splunk Enterprise Security Correlation Searches
 description:
   - This module allows for the query of Splunk Enterprise Security Correlation Searches
-version_added: "1.0"
+version_added: "1.0.0"
 options:
   name:
     description:

@@ -16,7 +16,7 @@ module: correlation_search
 short_description: Manage Splunk Enterprise Security Correlation Searches
 description:
   - This module allows for creation, deletion, and modification of Splunk Enterprise Security Correlation Searches
-version_added: "1.0"
+version_added: "1.0.0"
 options:
   name:
     description:

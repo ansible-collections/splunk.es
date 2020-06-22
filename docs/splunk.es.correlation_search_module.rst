@@ -1,5 +1,3 @@
-:orphan:
-
 .. _splunk.es.correlation_search_module:
 
 
@@ -10,7 +8,7 @@ splunk.es.correlation_search
 **Manage Splunk Enterprise Security Correlation Searches**
 
 
-Version added: 1.0
+Version added: 1.0.0
 
 .. contents::
    :local:
@@ -387,5 +385,3 @@ Authors
 - Ansible Security Automation Team (@maxamillion) <https://github.com/ansible-security>
 
 
-.. hint::
-    Configuration entries for each entry type have a low to high priority order. For example, a variable that is lower in the list will override a variable that is higher up.

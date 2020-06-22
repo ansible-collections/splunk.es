@@ -1,5 +1,3 @@
-:orphan:
-
 .. _splunk.es.adaptive_response_notable_event_module:
 
 
@@ -10,7 +8,7 @@ splunk.es.adaptive_response_notable_event
 **Manage Splunk Enterprise Security Notable Event Adaptive Responses**
 
 
-Version added: 1.0
+Version added: 1.0.0
 
 .. contents::
    :local:
@@ -375,5 +373,3 @@ Authors
 - Ansible Security Automation Team (@maxamillion) <https://github.com/ansible-security>
 
 
-.. hint::
-    Configuration entries for each entry type have a low to high priority order. For example, a variable that is lower in the list will override a variable that is higher up.

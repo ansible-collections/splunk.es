@@ -2,8 +2,6 @@
 
 [![CI](https://zuul-ci.org/gated.svg)](https://dashboard.zuul.ansible.com/t/ansible/project/github.com/ansible-collections/splunk.es) <!--[![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/splunk.es)](https://codecov.io/gh/ansible-collections/splunk.es)-->
 
-## Tech Preview
-
 This is the [Ansible
 Collection](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html)
 provided by the [Ansible Security Automation
@@ -20,8 +18,8 @@ and provide feedback about.
 
 This collection has been tested against following Ansible versions: **>=2.9,<2.11**.
 
-Plugins and modules within a collection may be tested with only specific Ansible versions. 
-A collection may contain metadata that identifies these versions. 
+Plugins and modules within a collection may be tested with only specific Ansible versions.
+A collection may contain metadata that identifies these versions.
 PEP440 is the schema used to describe the versions of Ansible.
 <!--end requires_ansible-->
 
@@ -31,6 +29,7 @@ PEP440 is the schema used to describe the versions of Ansible.
 Name | Description
 --- | ---
 [splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.splunk_httpapi.rst)|HttpApi Plugin for Splunk
+
 ### Modules
 Name | Description
 --- | ---
@@ -39,6 +38,7 @@ Name | Description
 [splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search_info_module.rst)|Manage Splunk Enterprise Security Correlation Searches
 [splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_monitor_module.rst)|Manage Splunk Data Inputs of type Monitor
 [splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_network_module.rst)|Manage Splunk Data Inputs of type TCP or UDP
+
 <!--end collection content-->
 
 

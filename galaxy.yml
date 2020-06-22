@@ -7,6 +7,8 @@ name: es
 authors:
   - 'Ansible Security Automation Team (https://github.com/ansible-security)'
 
+version: 1.0.0
+
 ### optional but strongly advised
 # short summary of the collection
 description: Ansible Collection of content aiming to automate common tasks of Information Security Professionals using Splunk Enterprise Security SIEM
