@@ -28,16 +28,16 @@ PEP440 is the schema used to describe the versions of Ansible.
 ### Httpapi plugins
 Name | Description
 --- | ---
-[splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.splunk_httpapi.rst)|HttpApi Plugin for Splunk
+[splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_httpapi.rst)|HttpApi Plugin for Splunk
 
 ### Modules
 Name | Description
 --- | ---
-[splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.adaptive_response_notable_event_module.rst)|Manage Splunk Enterprise Security Notable Event Adaptive Responses
-[splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search_module.rst)|Manage Splunk Enterprise Security Correlation Searches
-[splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.correlation_search_info_module.rst)|Manage Splunk Enterprise Security Correlation Searches
-[splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_monitor_module.rst)|Manage Splunk Data Inputs of type Monitor
-[splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/master/docs/splunk.es.data_input_network_module.rst)|Manage Splunk Data Inputs of type TCP or UDP
+[splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.adaptive_response_notable_event_module.rst)|Manage Splunk Enterprise Security Notable Event Adaptive Responses
+[splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_module.rst)|Manage Splunk Enterprise Security Correlation Searches
+[splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_info_module.rst)|Manage Splunk Enterprise Security Correlation Searches
+[splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_monitor_module.rst)|Manage Splunk Data Inputs of type Monitor
+[splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_network_module.rst)|Manage Splunk Data Inputs of type TCP or UDP
 
 <!--end collection content-->
 
@@ -256,8 +256,9 @@ This collection follows the Ansible project's
 [Code of Conduct](https://docs.ansible.com/ansible/devel/community/code_of_conduct.html).
 Please read and familiarize yourself with this document.
 
-## Changelogs
-<!--Add a link to a changelog.md file or an external docsite to cover this information. -->
+## Release notes
+
+Release notes are available [here](https://github.com/ansible-collections/splunk.es/blob/main/changelogs/CHANGELOG.rst).
 
 ## Roadmap
 
