@@ -23,3 +23,8 @@ releases:
       release_summary:
       - Releasing 1.0.1 with updated changelog.
     release_date: '2020-08-28'
+  1.0.2:
+    changes:
+      release_summary:
+      - Re-releasing 1.0.1 with updated galaxy file.
+    release_date: '2020-09-1'

@@ -5,13 +5,12 @@ namespace: splunk
 name: es
 # a list of the collection's content authors: 'Full Name <email> (http://site) @nicks:irc/im/site#channel'
 authors:
-  - 'Ansible Security Automation Team (https://github.com/ansible-security)'
-
-version: 1.0.0
+  - 'Ansible Seurity Team (https://github.com/ansible-security)'
 
 ### optional but strongly advised
 # short summary of the collection
-description: Ansible Collection of content aiming to automate common tasks of Information Security Professionals using Splunk Enterprise Security SIEM
+
+description: Ansible Security Collection for Splunk Enterprise Security SIEM
 # a valid SPDX license identifier https://spdx.org/licenses/
 license:
   - 'GPL-3.0-or-later'

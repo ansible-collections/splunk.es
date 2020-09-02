@@ -4,6 +4,14 @@ Splunk ES Collection Release Notes
 
 .. contents:: Topics
 
+v1.0.2
+======
+
+Release Summary
+---------------
+
+- Re-releasing the 1.0.2 with updated galaxy file
+
 v1.0.1
 ======
 
