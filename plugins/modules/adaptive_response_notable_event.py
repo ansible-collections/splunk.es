@@ -120,6 +120,7 @@ options:
       - List of adaptive responses that should be run next
       - Describe next steps and response actions that an analyst could take to address this threat.
     type: list
+    elements: str
     required: False
   recommended_actions:
     description:
@@ -128,12 +129,14 @@ options:
         for the analyst when looking at the list of response actions available,
         making it easier to find them among the longer list of available actions.
     type: list
+    elements: str
     required: False
   asset_extraction:
     description:
       - list of assets to extract, select any one or many of the available choices
       - defaults to all available choices
     type: list
+    elements: str
     choices:
       - src
       - dest
@@ -150,6 +153,7 @@ options:
       - list of identity fields to extract, select any one or many of the available choices
       - defaults to all available choices
     type: list
+    elements: str
     choices:
       - user
       - src_user
@@ -177,19 +181,14 @@ EXAMPLES = """
       - ansiblesecurityautomation
 """
 
+import json
+
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_text
-
-from ansible.module_utils.urls import Request
 from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
-from ansible.module_utils.six.moves.urllib.error import HTTPError
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
-    parse_splunk_args,
 )
-
-import copy
-import json
 
 
 def main():
@@ -231,17 +230,19 @@ def main():
             required=False, type="str", default="$info_max_time$"
         ),
         investigation_profiles=dict(required=False, type="str"),
-        next_steps=dict(required=False, type="list", default=[]),
-        recommended_actions=dict(required=False, type="list", default=[]),
+        next_steps=dict(required=False, type="list", elements="str", default=[]),
+        recommended_actions=dict(required=False, type="list", elements="str", default=[]),
         asset_extraction=dict(
             required=False,
             type="list",
+            elements="str",
             default=["src", "dest", "dvc", "orig_host"],
             choices=["src", "dest", "dvc", "orig_host"],
         ),
         identity_extraction=dict(
             required=False,
             type="list",
+            elements="str",
             default=["user", "src_user"],
             choices=["user", "src_user"],
         ),
@@ -342,7 +343,7 @@ def main():
                 request_post_data["actions"] = "notable"
     else:
         module.fail_json(
-            msg="Unable to find correlation search: {0}", splunk_data=splunk_data
+            msg="Unable to find correlation search: {0}", splunk_data=query_dict
         )
 
     if module.params["state"] == "present":
