@@ -17,7 +17,6 @@ version_added: "1.0"
 """
 
 import json
-import sys
 
 from ansible.module_utils.basic import to_text
 from ansible.errors import AnsibleConnectionFailure
