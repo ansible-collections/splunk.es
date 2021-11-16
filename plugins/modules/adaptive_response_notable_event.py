@@ -231,7 +231,9 @@ def main():
         ),
         investigation_profiles=dict(required=False, type="str"),
         next_steps=dict(required=False, type="list", elements="str", default=[]),
-        recommended_actions=dict(required=False, type="list", elements="str", default=[]),
+        recommended_actions=dict(
+            required=False, type="list", elements="str", default=[]
+        ),
         asset_extraction=dict(
             required=False,
             type="list",
