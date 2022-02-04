@@ -9,7 +9,8 @@ authors:
 
 ### optional but strongly advised
 # short summary of the collection
-
+dependencies:
+  "ansible.netcommon": ">=2.5.0"
 description: Ansible Security Collection for Splunk Enterprise Security SIEM
 # a valid SPDX license identifier https://spdx.org/licenses/
 license:
