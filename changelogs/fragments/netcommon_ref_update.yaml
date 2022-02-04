@@ -1,0 +1,3 @@
+---
+major_changes:
+  - "Updated base plugin references to ansible.netcommon."
