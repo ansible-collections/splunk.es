@@ -7,11 +7,14 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from ansible.errors import AnsibleActionFail
 from ansible.module_utils.urls import CertificateError
 from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.module_utils.connection import ConnectionError
 from ansible.module_utils.connection import Connection
 from ansible.module_utils._text import to_text
+from ansible.module_utils.six import iteritems
+import q
 
 
 def parse_splunk_args(module):
@@ -26,25 +29,53 @@ def parse_splunk_args(module):
     try:
         splunk_data = {}
         for argspec in module.argument_spec:
-            if (
-                "default" in module.argument_spec[argspec]
-                and module.argument_spec[argspec]["default"] is None
-                and module.params[argspec] is not None
-            ):
+            if "default" in module.argument_spec[argspec] and module.argument_spec[argspec]["default"] is None and module.params[argspec] is not None:
                 splunk_data[argspec] = module.params[argspec]
         return splunk_data
     except TypeError as e:
-        module.fail_json(
-            msg="Invalid data type provided for splunk module_util.parse_splunk_args: {0}".format(
-                e
-            )
-        )
+        module.fail_json(msg="Invalid data type provided for splunk module_util.parse_splunk_args: {0}".format(e))
+
+
+def remove_get_keys_from_payload_dict(payload_dict, remove_key_list):
+    for each_key in remove_key_list:
+        if each_key in payload_dict:
+            payload_dict.pop(each_key)
+    return payload_dict
+
+
+def map_params_to_obj(module_params, key_transform):
+    """The fn to convert the api returned params to module params
+    :param module_params: Module params
+    :param key_transform: Dict with module equivalent API params
+    :rtype: A dict
+    :returns: dict with module prams transformed having API expected params
+    """
+
+    obj = {}
+    for k, v in iteritems(key_transform):
+        if k in module_params and (module_params.get(k) or module_params.get(k) == 0 or module_params.get(k) is False):
+            obj[v] = module_params.pop(k)
+    return obj
+
+
+def map_obj_to_params(module_return_params, key_transform):
+    """The fn to convert the module params to api return params
+    :param module_return_params: API returned response params
+    :param key_transform: Module params
+    :rtype: A dict
+    :returns: dict with api returned value to module param value
+    """
+    temp = {}
+    for k, v in iteritems(key_transform):
+        if v in module_return_params and (module_return_params.get(v) or module_return_params.get(v) == 0 or module_return_params.get(v) is False):
+            temp[k] = module_return_params.pop(v)
+    return temp
 
 
 class SplunkRequest(object):
-    def __init__(self, module, headers=None, keymap=None, not_rest_data_keys=None):
+    def __init__(self, conn, headers=None, keymap=None, not_rest_data_keys=None):
 
-        self.module = module
+        self.module = conn
         self.connection = Connection(self.module._socket_path)
 
         # The Splunk REST API endpoints often use keys that aren't pythonic so
@@ -64,28 +95,21 @@ class SplunkRequest(object):
         self.not_rest_data_keys.append("validate_certs")
 
     def _httpapi_error_handle(self, method, uri, payload=None):
-
         try:
             code, response = self.connection.send_request(method, uri, payload=payload)
         except ConnectionError as e:
-            self.module.fail_json(msg="connection error occurred: {0}".format(e))
+            raise AnsibleActionFail("connection error occurred: {0}".format(e))
         except CertificateError as e:
-            self.module.fail_json(msg="certificate error occurred: {0}".format(e))
+            raise AnsibleActionFail("certificate error occurred: {0}".format(e))
         except ValueError as e:
-            self.module.fail_json(msg="certificate not found: {0}".format(e))
+            raise AnsibleActionFail("certificate not found: {0}".format(e))
 
         if code == 404:
-            if to_text(u"Object not found") in to_text(response) or to_text(
-                u"Could not find object"
-            ) in to_text(response):
+            if to_text("Object not found") in to_text(response) or to_text("Could not find object") in to_text(response):
                 return {}
 
         if not (code >= 200 and code < 300):
-            self.module.fail_json(
-                msg="Splunk httpapi returned error {0} with message {1}".format(
-                    code, response
-                )
-            )
+            raise AnsibleActionFail("Splunk httpapi returned error {0} with message {1}".format(code, response))
 
         return response
 
@@ -101,7 +125,7 @@ class SplunkRequest(object):
     def delete(self, url, **kwargs):
         return self._httpapi_error_handle("DELETE", url, **kwargs)
 
-    def get_data(self):
+    def get_data(self, config):
         """
         Get the valid fields that should be passed to the REST API as urlencoded
         data so long as the argument specification to the module follows the
@@ -111,21 +135,26 @@ class SplunkRequest(object):
         """
         try:
             splunk_data = {}
-            for param in self.module.params:
-                if (self.module.params[param]) is not None and (
-                    param not in self.not_rest_data_keys
-                ):
+            # for param in self.module.params:
+            #     if (self.module.params[param]) is not None and (param not in self.not_rest_data_keys):
+            #         if param in self.keymap:
+            #             splunk_data[self.keymap[param]] = self.module.params[param]
+            #         else:
+            #             splunk_data[param] = self.module.params[param]
+
+            for param in config:
+                if (config[param]) is not None and (param not in self.not_rest_data_keys):
                     if param in self.keymap:
-                        splunk_data[self.keymap[param]] = self.module.params[param]
+                        splunk_data[self.keymap[param]] = config[param]
                     else:
-                        splunk_data[param] = self.module.params[param]
+                        splunk_data[param] = config[param]
             return splunk_data
 
         except TypeError as e:
-            self.module.fail_json(msg="invalid data type provided: {0}".format(e))
+            raise AnsibleActionFail("invalid data type provided: {0}".format(e))
 
-    def get_urlencoded_data(self):
-        return urlencode(self.get_data())
+    def get_urlencoded_data(self, config):
+        return urlencode(self.get_data(config))
 
     def get_by_path(self, rest_path):
         """
@@ -146,5 +175,5 @@ class SplunkRequest(object):
         Create or Update a file/directory monitor data input in Splunk
         """
         if data is not None:
-            data = self.get_urlencoded_data()
+            data = self.get_urlencoded_data(data)
         return self.post("/{0}?output_mode=json".format(rest_path), payload=data)
