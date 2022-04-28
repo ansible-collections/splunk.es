@@ -57,7 +57,7 @@ options:
         choices:
           - "cooked"
           - "raw"
-          - "splunktcpkey"
+          - "splunktcptoken"
           - "ssl"
         default: "raw"
         required: False
@@ -183,37 +183,233 @@ options:
     choices:
     - merged
     - replaced
-    - overridden
     - deleted
     - gathered
-    - rendered
-    - parsed
     default: merged
 
 author: Pranav Bhatt (@pranav-bhatt)
 """
 
 EXAMPLES = """
-- name: Example adding data input monitor with splunk.es.data_input_monitor
+# _________________________________________________________________
+# Using gathered
+
+- name: Gathering information about TCP Cooked inputs using splunk.es.data_inputs_networks
   splunk.es.data_inputs_networks:
     config:
       - protocol: tcp
         datatype: cooked
     state: gathered
+# 
+# Output:
+#
+# "changed": false,
+# "gathered": [
+#     {
+#         "connection_host": "ip",
+#         "disabled": true,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "8101"
+#     },
+#     {
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "9997"
+#     },
+#     {
+#         "connection_host": "ip",
+#         "disabled": true,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "default:8101",
+#         "restrict_to_host": "default"
+#     }
+# ]
+#
+# ------------------------------
+- name: Gathering information about TCP Cooked inputs using splunk.es.data_inputs_networks
+  splunk.es.data_inputs_networks:
+    config:
+      - protocol: tcp
+        datatype: cooked
+        name: 9997
+    state: gathered
+#
+# Output:
+#
+# "changed": false,
+# "gathered": [
+#     {
+#         "datatype": "cooked",
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "name": "9997",
+#         "protocol": "tcp"
+#     }
+# ]
+#
+# ------------------------------
+- name: Gathering information about TCP raw inputs using splunk.es.data_inputs_networks
+  splunk.es.data_inputs_networks:
+    config:
+      - protocol: tcp
+        datatype: raw
+    state: gathered
+#
+# "changed": false,
+# "gathered": [
+#     {
+#         "connection_host": "ip",
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "8099",
+#         "queue": "parsingQueue",
+#         "raw_tcp_done_timeout": 10
+#     },
+#     {
+#         "connection_host": "ip",
+#         "disabled": true,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "default:8100",
+#         "queue": "parsingQueue",
+#         "raw_tcp_done_timeout": 10,
+#         "restrict_to_host": "default",
+#         "source": "test_source",
+#         "sourcetype": "test_source_type"
+#     }
+# ]
+#
+# ------------------------------
+- name: Gathering information about TCP raw inputs using splunk.es.data_inputs_networks
+  splunk.es.data_inputs_networks:
+    config:
+      - protocol: tcp
+        datatype: raw
+        name: 8099
+    state: gathered
+#
+# Output:
+#
+# "changed": false,
+# "gathered": [
+#     {
+#         "connection_host": "ip",
+#         "datatype": "raw",
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "8099",
+#         "protocol": "tcp",
+#         "queue": "parsingQueue",
+#         "raw_tcp_done_timeout": 10
+#     }
+# ]
+#
+# ------------------------------
+- name: Gathering information about TCP SSL configuration using splunk.es.data_inputs_networks
+  splunk.es.data_inputs_networks:
+    config:
+      - protocol: tcp
+        datatype: ssl
+    state: gathered
+# 
+# Output:
+#
+# "changed": false,
+# "gathered": [
+#     {
+#         "cipher_suite": <cipher-suites>,
+#         "disabled": true,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "test_host"
+#     }
+# ]
+# 
+# ------------------------------
+- name: Gathering information about TCP SplunkTcpTokens using splunk.es.data_inputs_networks
+  splunk.es.data_inputs_networks:
+    config:
+      - protocol: tcp
+        datatype: splunktcptoken
+    state: gathered
+#
+# Output:
+#
+# "changed": false,
+# "gathered": [
+#     {
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "splunktcptoken://test_token1",
+#         "token": <token1>
+#     },
+#     {
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "splunktcptoken://test_token2",
+#         "token": <token2>
+#     }
+# ]
+# _________________________________________________________________
+# Using merged
+#
 - name: tcp raw
   splunk.es.data_inputs_networks:
     config:
       - protocol: tcp
         datatype: raw
-        name: default:8100
+        name: 8100
         connection_host: ip
         disabled: True
-        raw_tcp_done_timeout: 10
+        raw_tcp_done_timeout: 9
         restrict_to_host: default
         queue: parsingQueue
         source: test_source
         sourcetype: test_source_type
     state: merged
+#
+# Output:
+#
+# "after": [
+#     {
+#         "connection_host": "ip",
+#         "datatype": "raw",
+#         "disabled": true,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "default:8100",
+#         "protocol": "tcp",
+#         "queue": "parsingQueue",
+#         "raw_tcp_done_timeout": 9,
+#         "restrict_to_host": "default",
+#         "source": "test_source",
+#         "sourcetype": "test_source_type"
+#     }
+# ],
+# "before": [
+#     {
+#         "connection_host": "ip",
+#         "datatype": "raw",
+#         "disabled": true,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "default:8100",
+#         "protocol": "tcp",
+#         "queue": "parsingQueue",
+#         "raw_tcp_done_timeout": 10,
+#         "restrict_to_host": "default",
+#         "source": "test_source",
+#         "sourcetype": "test_source_type"
+#     }
+# ]
+#
 - name: tcp cooked
   splunk.es.data_inputs_networks:
     config:
@@ -221,17 +417,57 @@ EXAMPLES = """
         datatype: cooked
         name: 8101
         connection_host: ip
-        disabled: True
+        disabled: False
         restrict_to_host: default
     state: merged
+#
+# Output:
+#
+# "after": [
+#     {
+#         "connection_host": "ip",
+#         "datatype": "cooked",
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "name": "default:8101",
+#         "protocol": "tcp",
+#         "restrict_to_host": "default"
+#     }
+# ],
+# "before": [
+#     {
+#         "connection_host": "ip",
+#         "datatype": "cooked",
+#         "disabled": true,
+#         "host": "$decideOnStartup",
+#         "name": "default:8101",
+#         "protocol": "tcp",
+#         "restrict_to_host": "default"
+#     }
+# ],
+# "changed": true
+#
 - name: splunktcptoken
   splunk.es.data_inputs_networks:
     config:
       - protocol: tcp
         datatype: splunktcptoken
         name: test_token
-        token: 25BDA314-069F-483C-B892-04BC581DC367
     state: merged
+#
+# Output:
+#
+# "after": [
+#     {
+#         "datatype": "splunktcptoken",
+#         "name": "splunktcptoken://test_token",
+#         "protocol": "tcp",
+#         "token": <token>
+#     }
+# ],
+# "before": [],
+# "changed": true
+#
 - name: ssl
   splunk.es.data_inputs_networks:
     config:
@@ -241,11 +477,115 @@ EXAMPLES = """
         root_ca: {root CA directory}
         server_cert: {server cretificate directory}
     state: merged
+#
+# Output:
+#
+# "after": [
+#     {
+#         "cipher_suite": <cipher suite>,
+#         "datatype": "ssl",
+#         "disabled": true,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "test_host",
+#         "protocol": "tcp"
+#     }
+# ],
+# "before": [],
+# "changed": false
+#
+# _________________________________________________________________
+# Using deleted
+#
 - name: tcp raw
   splunk.es.data_inputs_networks:
     config:
-      - protocol: udp
-        name: default:8102
+      - protocol: tcp
+        datatype: raw
+        name: default:8100
     state: deleted
-
+#
+# Output:
+#
+# "after": [],
+# "before": [
+#     {
+#         "connection_host": "ip",
+#         "datatype": "raw",
+#         "disabled": true,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "default:8100",
+#         "protocol": "tcp",
+#         "queue": "parsingQueue",
+#         "raw_tcp_done_timeout": 9,
+#         "restrict_to_host": "default",
+#         "source": "test_source",
+#         "sourcetype": "test_source_type"
+#     }
+# ],
+# "changed": true
+#
+# _________________________________________________________________
+# Using replaced
+#
+# Output:
+#
+# "after": [
+#     {
+#         "connection_host": "ip",
+#         "datatype": "raw",
+#         "disabled": true,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "default:8100",
+#         "protocol": "tcp",
+#         "queue": "parsingQueue",
+#         "raw_tcp_done_timeout": 9,
+#         "restrict_to_host": "default",
+#         "source": "test_source",
+#         "sourcetype": "test_source_type"
+#     }
+# ],
+# "before": [
+#     {
+#         "connection_host": "ip",
+#         "datatype": "raw",
+#         "disabled": true,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "default:8100",
+#         "protocol": "tcp",
+#         "queue": "parsingQueue",
+#         "raw_tcp_done_timeout": 10,
+#         "restrict_to_host": "default",
+#         "source": "test_source",
+#         "sourcetype": "test_source_type"
+#     }
+# ],
+# "changed": true
+#
+"""
+RETURN = """
+before:
+  description: The configuration prior to the module execution.
+  returned: when state is I(merged), I(replaced), I(deleted)
+  type: list
+  sample: >
+    This output will always be in the same format as the
+    module argspec.
+after:
+  description: The resulting configuration after module execution.
+  returned: when changed
+  type: list
+  sample: >
+    This output will always be in the same format as the
+    module argspec.
+gathered:
+  description: Facts about the network resource gathered from the remote device as structured data.
+  returned: when state is I(gathered)
+  type: dict
+  sample: >
+    This output will always be in the same format as the
+    module argspec.
 """
