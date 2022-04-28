@@ -3,7 +3,7 @@
 # https://github.com/ansible/ansible/issues/65816
 # https://github.com/PyCQA/pylint/issues/214
 
-# (c) 2022, Pranav Bhatt (adpranavb2000@gmail.com)
+# Copyright 2022 Red Hat
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
