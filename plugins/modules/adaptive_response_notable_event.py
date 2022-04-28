@@ -199,12 +199,26 @@ def main():
         description=dict(required=True, type="str"),
         state=dict(choices=["present", "absent"], required=True),
         security_domain=dict(
-            choices=["access", "endpoint", "network", "threat", "identity", "audit"],
+            choices=[
+                "access",
+                "endpoint",
+                "network",
+                "threat",
+                "identity",
+                "audit",
+            ],
             required=False,
             default="threat",
         ),
         severity=dict(
-            choices=["informational", "low", "medium", "high", "critical", "unknown"],
+            choices=[
+                "informational",
+                "low",
+                "medium",
+                "high",
+                "critical",
+                "unknown",
+            ],
             required=False,
             default="high",
         ),
@@ -230,8 +244,12 @@ def main():
             required=False, type="str", default="$info_max_time$"
         ),
         investigation_profiles=dict(required=False, type="str"),
-        next_steps=dict(required=False, type="list", elements="str", default=[]),
-        recommended_actions=dict(required=False, type="list", elements="str", default=[]),
+        next_steps=dict(
+            required=False, type="list", elements="str", default=[]
+        ),
+        recommended_actions=dict(
+            required=False, type="list", elements="str", default=[]
+        ),
         asset_extraction=dict(
             required=False,
             type="list",
@@ -272,7 +290,9 @@ def main():
     # request_post_data['action.notable.param.extract_identities'] = [\"src_user\",\"user\"]
     if module.params["next_steps"]:
         if len(module.params["next_steps"]) == 1:
-            next_steps = "[[action|{0}]]".format(module.params["next_steps"][0])
+            next_steps = "[[action|{0}]]".format(
+                module.params["next_steps"][0]
+            )
         else:
             next_steps = ""
             for next_step in module.params["next_steps"]:
@@ -294,47 +314,55 @@ def main():
                 "action.notable.param.recommended_actions"
             ] = module.params["recommended_actions"][0]
         else:
-            request_post_data["action.notable.param.recommended_actions"] = ",".join(
-                module.params["recommended_actions"]
-            )
+            request_post_data[
+                "action.notable.param.recommended_actions"
+            ] = ",".join(module.params["recommended_actions"])
 
     request_post_data["action.notable.param.rule_description"] = module.params[
         "description"
     ]
-    request_post_data["action.notable.param.rule_title"] = module.params["name"]
+    request_post_data["action.notable.param.rule_title"] = module.params[
+        "name"
+    ]
     request_post_data["action.notable.param.security_domain"] = module.params[
         "security_domain"
     ]
-    request_post_data["action.notable.param.severity"] = module.params["severity"]
+    request_post_data["action.notable.param.severity"] = module.params[
+        "severity"
+    ]
     request_post_data["action.notable.param.asset_extraction"] = module.params[
         "asset_extraction"
     ]
-    request_post_data["action.notable.param.identity_extraction"] = module.params[
-        "identity_extraction"
-    ]
+    request_post_data[
+        "action.notable.param.identity_extraction"
+    ] = module.params["identity_extraction"]
 
     # NOTE: this field appears to be hard coded when you create this via the splunk web UI
     #       but I don't know what it is/means because there's no docs on it
     request_post_data["action.notable.param.verbose"] = "0"
 
     if module.params["default_owner"]:
-        request_post_data["action.notable.param.default_owner"] = module.params[
-            "default_owner"
-        ]
+        request_post_data[
+            "action.notable.param.default_owner"
+        ] = module.params["default_owner"]
 
     if module.params["default_status"]:
-        request_post_data["action.notable.param.default_status"] = module.params[
-            "default_status"
-        ]
+        request_post_data[
+            "action.notable.param.default_status"
+        ] = module.params["default_status"]
 
     if query_dict:
-        request_post_data["search"] = query_dict["entry"][0]["content"]["search"]
+        request_post_data["search"] = query_dict["entry"][0]["content"][
+            "search"
+        ]
         if "actions" in query_dict["entry"][0]["content"]:
             if query_dict["entry"][0]["content"]["actions"] == "notable":
                 pass
             elif (
-                len(query_dict["entry"][0]["content"]["actions"].split(",")) > 0
-                and "notable" not in query_dict["entry"][0]["content"]["actions"]
+                len(query_dict["entry"][0]["content"]["actions"].split(","))
+                > 0
+                and "notable"
+                not in query_dict["entry"][0]["content"]["actions"]
             ):
                 request_post_data["actions"] = (
                     query_dict["entry"][0]["content"]["actions"] + ", notable"
@@ -343,7 +371,8 @@ def main():
                 request_post_data["actions"] = "notable"
     else:
         module.fail_json(
-            msg="Unable to find correlation search: {0}", splunk_data=query_dict
+            msg="Unable to find correlation search: {0}",
+            splunk_data=query_dict,
         )
 
     if module.params["state"] == "present":
@@ -373,7 +402,9 @@ def main():
             )
             module.exit_json(
                 changed=True,
-                msg="{0} updated.".format(module.params["correlation_search_name"]),
+                msg="{0} updated.".format(
+                    module.params["correlation_search_name"]
+                ),
                 splunk_data=splunk_data,
             )
 
@@ -407,11 +438,15 @@ def main():
             )
             module.exit_json(
                 changed=True,
-                msg="{0} updated.".format(module.params["correlation_search_name"]),
+                msg="{0} updated.".format(
+                    module.params["correlation_search_name"]
+                ),
                 splunk_data=splunk_data,
             )
 
-    module.exit_json(changed=False, msg="Nothing to do.", splunk_data=query_dict)
+    module.exit_json(
+        changed=False, msg="Nothing to do.", splunk_data=query_dict
+    )
 
 
 if __name__ == "__main__":

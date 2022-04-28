@@ -42,7 +42,9 @@ def parse_splunk_args(module):
 
 
 class SplunkRequest(object):
-    def __init__(self, module, headers=None, keymap=None, not_rest_data_keys=None):
+    def __init__(
+        self, module, headers=None, keymap=None, not_rest_data_keys=None
+    ):
 
         self.module = module
         self.connection = Connection(self.module._socket_path)
@@ -66,17 +68,23 @@ class SplunkRequest(object):
     def _httpapi_error_handle(self, method, uri, payload=None):
 
         try:
-            code, response = self.connection.send_request(method, uri, payload=payload)
+            code, response = self.connection.send_request(
+                method, uri, payload=payload
+            )
         except ConnectionError as e:
-            self.module.fail_json(msg="connection error occurred: {0}".format(e))
+            self.module.fail_json(
+                msg="connection error occurred: {0}".format(e)
+            )
         except CertificateError as e:
-            self.module.fail_json(msg="certificate error occurred: {0}".format(e))
+            self.module.fail_json(
+                msg="certificate error occurred: {0}".format(e)
+            )
         except ValueError as e:
             self.module.fail_json(msg="certificate not found: {0}".format(e))
 
         if code == 404:
-            if to_text(u"Object not found") in to_text(response) or to_text(
-                u"Could not find object"
+            if to_text("Object not found") in to_text(response) or to_text(
+                "Could not find object"
             ) in to_text(response):
                 return {}
 
@@ -116,13 +124,17 @@ class SplunkRequest(object):
                     param not in self.not_rest_data_keys
                 ):
                     if param in self.keymap:
-                        splunk_data[self.keymap[param]] = self.module.params[param]
+                        splunk_data[self.keymap[param]] = self.module.params[
+                            param
+                        ]
                     else:
                         splunk_data[param] = self.module.params[param]
             return splunk_data
 
         except TypeError as e:
-            self.module.fail_json(msg="invalid data type provided: {0}".format(e))
+            self.module.fail_json(
+                msg="invalid data type provided: {0}".format(e)
+            )
 
     def get_urlencoded_data(self):
         return urlencode(self.get_data())
@@ -147,4 +159,6 @@ class SplunkRequest(object):
         """
         if data is not None:
             data = self.get_urlencoded_data()
-        return self.post("/{0}?output_mode=json".format(rest_path), payload=data)
+        return self.post(
+            "/{0}?output_mode=json".format(rest_path), payload=data
+        )

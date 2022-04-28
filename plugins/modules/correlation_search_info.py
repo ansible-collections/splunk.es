@@ -42,7 +42,9 @@ EXAMPLES = """
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves.urllib.parse import quote_plus
 from ansible.module_utils.six.moves.urllib.error import HTTPError
-from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
+from ansible_collections.splunk.es.plugins.module_utils.splunk import (
+    SplunkRequest,
+)
 
 
 def main():
@@ -51,7 +53,9 @@ def main():
 
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
 
-    splunk_request = SplunkRequest(module, headers={"Content-Type": "application/json"})
+    splunk_request = SplunkRequest(
+        module, headers={"Content-Type": "application/json"}
+    )
 
     if module.params["name"]:
         try:

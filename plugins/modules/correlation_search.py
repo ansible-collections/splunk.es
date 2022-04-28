@@ -185,9 +185,13 @@ def main():
     argspec = dict(
         name=dict(required=True, type="str"),
         description=dict(required=True, type="str"),
-        state=dict(choices=["present", "absent", "enabled", "disabled"], required=True),
+        state=dict(
+            choices=["present", "absent", "enabled", "disabled"], required=True
+        ),
         search=dict(required=True, type="str"),
-        app=dict(type="str", required=False, default="SplunkEnterpriseSecuritySuite"),
+        app=dict(
+            type="str", required=False, default="SplunkEnterpriseSecuritySuite"
+        ),
         ui_dispatch_context=dict(type="str", required=False),
         time_earliest=dict(type="str", required=False, default="-24h"),
         time_latest=dict(type="str", required=False, default="now"),
@@ -229,7 +233,9 @@ def main():
                 "rises by",
             ],
         ),
-        trigger_alert_when_value=dict(type="str", required=False, default="10"),
+        trigger_alert_when_value=dict(
+            type="str", required=False, default="10"
+        ),
         throttle_window_duration=dict(type="str", required=False),
         throttle_fields_to_group_by=dict(type="str", required=False),
         suppress_alerts=dict(type="bool", required=False, default=False),
@@ -271,7 +277,9 @@ def main():
         request_post_data["request.ui_dispatch_context"] = module.params[
             "ui_dispatch_context"
         ]
-    request_post_data["dispatch.earliest_time"] = module.params["time_earliest"]
+    request_post_data["dispatch.earliest_time"] = module.params[
+        "time_earliest"
+    ]
     request_post_data["dispatch.latest_time"] = module.params["time_latest"]
     request_post_data["cron_schedule"] = module.params["cron_schedule"]
     if module.params["scheduling"] == "real-time":
@@ -279,12 +287,16 @@ def main():
     else:
         request_post_data["realtime_schedule"] = False
     request_post_data["schedule_window"] = module.params["schedule_window"]
-    request_post_data["schedule_priority"] = module.params["schedule_priority"].lower()
+    request_post_data["schedule_priority"] = module.params[
+        "schedule_priority"
+    ].lower()
     request_post_data["alert_type"] = module.params["trigger_alert_when"]
     request_post_data["alert_comparator"] = module.params[
         "trigger_alert_when_condition"
     ]
-    request_post_data["alert_threshold"] = module.params["trigger_alert_when_value"]
+    request_post_data["alert_threshold"] = module.params[
+        "trigger_alert_when_value"
+    ]
     request_post_data["alert.suppress"] = module.params["suppress_alerts"]
     request_post_data["disabled"] = module_disabled_state
 
@@ -293,9 +305,9 @@ def main():
             needs_change = False
             for arg in request_post_data:
                 if arg in query_dict["entry"][0]["content"]:
-                    if to_text(query_dict["entry"][0]["content"][arg]) != to_text(
-                        request_post_data[arg]
-                    ):
+                    if to_text(
+                        query_dict["entry"][0]["content"][arg]
+                    ) != to_text(request_post_data[arg]):
                         needs_change = True
             if not needs_change:
                 module.exit_json(
@@ -327,12 +339,16 @@ def main():
                 "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches",
                 data=urlencode(request_post_data),
             )
-            module.exit_json(changed=True, msg="{0} created.", splunk_data=splunk_data)
+            module.exit_json(
+                changed=True, msg="{0} created.", splunk_data=splunk_data
+            )
 
     elif module.params["state"] == "absent":
         if query_dict:
             splunk_data = splunk_request.delete_by_path(
-                "services/saved/searches/{0}".format(quote_plus(module.params["name"]))
+                "services/saved/searches/{0}".format(
+                    quote_plus(module.params["name"])
+                )
             )
             module.exit_json(
                 changed=True,
@@ -340,7 +356,9 @@ def main():
                 splunk_data=splunk_data,
             )
 
-    module.exit_json(changed=False, msg="Nothing to do.", splunk_data=query_dict)
+    module.exit_json(
+        changed=False, msg="Nothing to do.", splunk_data=query_dict
+    )
 
 
 if __name__ == "__main__":
