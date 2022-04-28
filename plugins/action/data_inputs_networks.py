@@ -115,6 +115,7 @@ class ActionModule(ActionBase):
     def request_by_path(self, conn_request, protocol, datatype=None, name=None, req_type="get", payload=None):
         query_dict = None
         url = ""
+
         if protocol == "tcp":
             if not datatype:
                 raise AnsibleActionFail("No datatype specified for TCP input")
@@ -183,24 +184,82 @@ class ActionModule(ActionBase):
 
         return search_result
 
+    # If certain parameters are present, Splunk appends the value of those parameters
+    # to the name. Therefore this causes idempotency to fail. This function looks for
+    # said parameters and conducts checks to see if the configuration already exists.
+    def parse_config(self, conn_request, want_conf):
+        old_name = None
+        protocol = want_conf["protocol"]
+        datatype = want_conf.get("datatype")
+
+        if not want_conf.get("name"):
+            raise AnsibleActionFail("No name specified for merge action")
+        else:
+            # Int values confuse diff
+            want_conf["name"] = str(want_conf["name"])
+
+            old_name = want_conf["name"]
+
+            # If "restrictToHost" parameter is set, the value of this parameter is appended
+            # to the numerical name meant to represent port number
+            if want_conf.get("restrict_to_host") and want_conf["restrict_to_host"] not in want_conf["name"]:
+                want_conf["name"] = "{0}:{1}".format(want_conf["restrict_to_host"], want_conf["name"])
+
+            # If datatype is "splunktcptoken", the value "splunktcptoken://" is appended
+            # to the name
+            elif datatype and datatype == "splunktcptoken" and "splunktcptoken://" not in want_conf["name"]:
+                want_conf["name"] = "{0}{1}".format("splunktcptoken://", want_conf["name"])
+
+        name = want_conf["name"]
+
+        # If the above parameters are present, but the object doesn't exist
+        # the value of the parameters should'nt be prepended to the name.
+        # Otherwise Splunk returns 400. This check is takes advantage of this
+        # and sets the correct name.
+        have_conf = None
+        try:
+            have_conf = self.search_for_resource_name(
+                conn_request,
+                protocol,
+                datatype,
+                name,
+            )
+            # while creating new conf, we need to only use numerical values
+            # splunk will later append param value to it.
+            if not have_conf:
+                want_conf["name"] = old_name
+        except AnsibleActionFail:
+            want_conf["name"] = old_name
+            have_conf = self.search_for_resource_name(
+                conn_request,
+                protocol,
+                datatype,
+                old_name,
+            )
+
+        # SSL response returns a blank "name" parameter, which causes problems
+        if datatype == "ssl":
+            have_conf["name"] = want_conf["name"]
+
+        return have_conf, protocol, datatype, name, old_name
+
     def delete_module_api_config(self, conn_request, config):
         before = []
         after = None
         changed = False
         for want_conf in config:
-            search_by_name = self.search_for_resource_name(
-                conn_request,
-                want_conf["protocol"],
-                want_conf.get("datatype"),
-                want_conf["name"],
-            )
-            if search_by_name:
-                before.append(search_by_name)
+            if not want_conf.get("name"):
+                raise AnsibleActionFail("No name specified")
+
+            have_conf, protocol, datatype, name = self.parse_config(conn_request, want_conf)
+
+            if have_conf:
+                before.append(have_conf)
                 self.request_by_path(
                     conn_request,
-                    want_conf["protocol"],
-                    want_conf.get("datatype"),
-                    want_conf["name"],
+                    protocol,
+                    datatype,
+                    name,
                     req_type="delete",
                 )
                 changed = True
@@ -212,66 +271,23 @@ class ActionModule(ActionBase):
         before = []
         after = []
         changed = False
-        # Add to the THIS list for the value which needs to be excluded
-        # from HAVE params when compared to WANT param like 'ID' can be
-        # part of HAVE param but may not be part of your WANT param
-        remove_from_diff_compare = [
-            "datatype",
-            "protocol",
-        ]
+
         for want_conf in config:
-            old_name = ""
+            # Add to the THIS list for the value which needs to be excluded
+            # from HAVE params when compared to WANT param like 'ID' can be
+            # part of HAVE param but may not be part of your WANT param
             remove_from_diff_compare = [
                 "datatype",
                 "protocol",
+                "cipher_suite",
             ]
 
-            protocol = want_conf["protocol"]
-            datatype = want_conf.get("datatype")
-
-            if not want_conf.get("name"):
-                raise AnsibleActionFail("No name specified for merge action")
-            else:
-                # Int values confuse diff
-                want_conf["name"] = str(want_conf["name"])
-
-                old_name = want_conf["name"]
-
-                # If "restrictToHost" parameter is set, the value of this parameter is appended
-                # to the numerical name meant to represent port number
-                if want_conf.get("restrict_to_host") and want_conf["restrict_to_host"] not in want_conf["name"]:
-                    want_conf["name"] = "{0}:{1}".format(want_conf["restrict_to_host"], want_conf["name"])
-
-                # If datatype is "splunktcptoken", the value "splunktcptoken://" is appended
-                # to the name
-                elif datatype and datatype == "splunktcptoken" and "splunktcptoken://" not in want_conf["name"]:
-                    want_conf["name"] = "{0}{1}".format("splunktcptoken://", want_conf["name"])
-
-            name = want_conf["name"]
-
-            # If the "restrictToHost" option is enabled, but the object doesn't exist
-            # the "restrictToHost" value should not be prepended to the name otherwise
-            # Splunk returns 400
-            have_conf = None
-            try:
-                have_conf = self.search_for_resource_name(
-                    conn_request,
-                    protocol,
-                    datatype,
-                    name,
-                )
-            except:
-                want_conf["name"] = old_name
-                have_conf = self.search_for_resource_name(
-                    conn_request,
-                    protocol,
-                    datatype,
-                    old_name,
-                )
+            have_conf, protocol, datatype, name, old_name = self.parse_config(conn_request, want_conf)
 
             if have_conf:
                 want_conf = utils.remove_empties(want_conf)
                 diff = utils.dict_diff(have_conf, want_conf)
+
                 if diff:
                     diff = remove_get_keys_from_payload_dict(diff, remove_from_diff_compare)
                     if diff:
@@ -307,12 +323,16 @@ class ActionModule(ActionBase):
                                 name,
                                 req_type="delete",
                             )
-                            changed = True
 
+                            changed = True
                             payload = map_obj_to_params(want_conf, self.key_transform)
+                            # while creating new conf, we need to only use numerical values
+                            # splunk will later append param value to it.
+                            payload["name"] = old_name
+
                             api_response = self.request_by_path(
                                 conn_request,
-                                payload,
+                                protocol,
                                 datatype,
                                 name,
                                 req_type="post_create",
@@ -337,6 +357,7 @@ class ActionModule(ActionBase):
                 want_conf = utils.remove_empties(want_conf)
 
                 payload = map_obj_to_params(want_conf, self.key_transform)
+
                 api_response = self.request_by_path(
                     conn_request,
                     protocol,
