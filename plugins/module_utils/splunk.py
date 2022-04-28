@@ -210,11 +210,6 @@ class SplunkRequest(object):
             splunk_data = {}
             if self.legacy and not config:
                 config = self.module.params
-
-            import q
-
-            q(config)
-
             for param in config:
                 if (config[param]) is not None and (
                     param not in self.not_rest_data_keys
