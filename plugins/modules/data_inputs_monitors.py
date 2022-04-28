@@ -151,49 +151,157 @@ options:
     choices:
     - merged
     - replaced
-    - overridden
     - deleted
     - gathered
-    - rendered
-    - parsed
     default: merged
 
 author: Pranav Bhatt (@pranav-bhatt)
 """
 
 EXAMPLES = """
-- name: Example adding data input monitor with splunk.es.data_input_monitor
-  splunk.es.data_input_monitor:
-    name: "/var/log"
-    blacklist: "/\/var\/log\/[a-z]/gm"
-    check_index: True
-    check_path: True
-    crc_salt: <SOURCE>
-    host_regex: "/(test_host)/gm"
-    ignore_older_than: 7d
-    index: default
-    sourcetype: test_source
-    time_before_close: 5
-    state: "present"
-    recursive: True
-    whitelist: "/\/var\/log\/[0-9]/gm"
+# _________________________________________________________________
+# Using gathered
 
-- name: Example adding data input monitor with splunk.es.data_input_monitor
-  splunk.es.data_input_monitors:
+- name: 
+  splunk.es.data_inputs_monitors:
     config:
       - name: "/var/log"
-        blacklist: "/\/var\/log\/[a-z0-9]/gm"
+      - name: "/var"
+    state: gathered
+#
+# Output:
+#
+# "changed": false,
+# "gathered": [
+#     {
+#         "blacklist": "//var/log/[a-z0-9]/gm",
+#         "crc_salt": "<SOURCE>",
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "host_regex": "/(test_host)/gm",
+#         "host_segment": 3,
+#         "index": "default",
+#         "name": "/var/log",
+#         "recursive": true,
+#         "sourcetype": "test_source",
+#         "whitelist": "//var/log/[0-9]/gm"
+#     },
+#     { } # there is no configuration associated with "/var"
+# ]
+#
+# ------------------------------
+# _________________________________________________________________
+# Using merged
+- name: Example adding data input monitor with splunk.es.data_input_monitor
+  splunk.es.data_inputs_monitors:
+    config:
+      - name: "/var/log"
+        blacklist: "/\/var\/log\/[a-z]/gm"
         check_index: True
         check_path: True
         crc_salt: <SOURCE>
-        host_regex: "/(test_host)/gm"
-        host_segment: 3
-        ignore_older_than: 7d
-        index: default
-        sourcetype: test_source
-        time_before_close: 5
-        recursive: True
         rename_source: "test"
         whitelist: "/\/var\/log\/[0-9]/gm"
+    state: merged
+#
+# Output:
+#
+# "after": [
+#     {
+#         "blacklist": "//var/log/[a-z]/gm",
+#         "crc_salt": "<SOURCE>",
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "host_regex": "/(test_host)/gm",
+#         "host_segment": 3,
+#         "index": "default",
+#         "name": "/var/log",
+#         "recursive": true,
+#         "sourcetype": "test_source",
+#         "whitelist": "//var/log/[0-9]/gm"
+#     }
+# ],
+# "before": [
+#     {
+#         "blacklist": "//var/log/[a-z0-9]/gm",
+#         "crc_salt": "<SOURCE>",
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "host_regex": "/(test_host)/gm",
+#         "host_segment": 3,
+#         "index": "default",
+#         "name": "/var/log",
+#         "recursive": true,
+#         "sourcetype": "test_source",
+#         "whitelist": "//var/log/[0-9]/gm"
+#     }
+# ],
+# "changed": true
+#
+# ------------------------------
+# _________________________________________________________________
+# Using replaced
+
+- name: Example adding data input monitor with splunk.es.data_input_monitor
+  splunk.es.data_inputs_monitors:
+    config:
+      - name: "/var/log"
+        blacklist: "/\/var\/log\/[a-z0-9]/gm"
+        crc_salt: <SOURCE>
+        index: default
     state: replaced
+#
+# Output:
+#
+# "after": [
+#     {
+#         "blacklist": "//var/log/[a-z0-9]/gm",
+#         "crc_salt": "<SOURCE>",
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "/var/log"
+#     }
+# ],
+# "before": [
+#     {
+#         "blacklist": "//var/log/[a-z0-9]/gm",
+#         "crc_salt": "<SOURCE>",
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "host_regex": "/(test_host)/gm",
+#         "host_segment": 3,
+#         "index": "default",
+#         "name": "/var/log",
+#         "recursive": true,
+#         "sourcetype": "test_source",
+#         "whitelist": "//var/log/[0-9]/gm"
+#     }
+# ],
+# "changed": true
+#
+# ------------------------------
+# _________________________________________________________________
+# Using deleted
+- name: Example adding data input monitor with splunk.es.data_input_monitor
+  splunk.es.data_inputs_monitors:
+    config:
+      - name: "/var/log"
+    state: deleted
+#
+# Output:
+#
+# "after": [],
+# "before": [
+#     {
+#         "blacklist": "//var/log/[a-z0-9]/gm",
+#         "crc_salt": "<SOURCE>",
+#         "disabled": false,
+#         "host": "$decideOnStartup",
+#         "index": "default",
+#         "name": "/var/log"
+#     }
+# ],
+# "changed": true
+#
 """
