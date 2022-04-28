@@ -200,9 +200,9 @@ def main():
             needs_change = False
             for arg in request_data:
                 if arg in query_dict["entry"][0]["content"]:
-                    if to_text(query_dict["entry"][0]["content"][arg]) != to_text(
-                        request_data[arg]
-                    ):
+                    if to_text(
+                        query_dict["entry"][0]["content"][arg]
+                    ) != to_text(request_data[arg]):
                         needs_change = True
             if not needs_change:
                 module.exit_json(
@@ -228,9 +228,12 @@ def main():
             _data = splunk_request.get_data()
             _data["name"] = module.params["name"]
             splunk_data = splunk_request.create_update(
-                "servicesNS/nobody/search/data/inputs/monitor", data=urlencode(_data)
+                "servicesNS/nobody/search/data/inputs/monitor",
+                data=urlencode(_data),
             )
-            module.exit_json(changed=True, msg="{0} created.", splunk_data=splunk_data)
+            module.exit_json(
+                changed=True, msg="{0} created.", splunk_data=splunk_data
+            )
 
     if module.params["state"] == "absent":
         if query_dict:
@@ -245,7 +248,9 @@ def main():
                 splunk_data=splunk_data,
             )
 
-    module.exit_json(changed=False, msg="Nothing to do.", splunk_data=query_dict)
+    module.exit_json(
+        changed=False, msg="Nothing to do.", splunk_data=query_dict
+    )
 
 
 if __name__ == "__main__":

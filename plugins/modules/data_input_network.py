@@ -155,7 +155,10 @@ def main():
             type="str",
         ),
         connection_host=dict(
-            required=False, choices=["ip", "dns", "none"], default="ip", type="str"
+            required=False,
+            choices=["ip", "dns", "none"],
+            default="ip",
+            type="str",
         ),
         host=dict(required=False, type="str", default=None),
         index=dict(required=False, type="str", default=None),
@@ -172,7 +175,9 @@ def main():
         ssl=dict(required=False, type="bool", default=None),
         source=dict(required=False, type="str", default=None),
         sourcetype=dict(required=False, type="str", default=None),
-        datatype=dict(required=False, choices=["cooked", "raw"], default="raw"),
+        datatype=dict(
+            required=False, choices=["cooked", "raw"], default="raw"
+        ),
     )
 
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
@@ -203,9 +208,9 @@ def main():
             needs_change = False
             for arg in request_data:
                 if arg in query_dict["entry"][0]["content"]:
-                    if to_text(query_dict["entry"][0]["content"][arg]) != to_text(
-                        request_data[arg]
-                    ):
+                    if to_text(
+                        query_dict["entry"][0]["content"][arg]
+                    ) != to_text(request_data[arg]):
                         needs_change = True
             if not needs_change:
                 module.exit_json(
@@ -243,7 +248,9 @@ def main():
                 ),
                 data=urlencode(_data),
             )
-            module.exit_json(changed=True, msg="{0} created.", splunk_data=splunk_data)
+            module.exit_json(
+                changed=True, msg="{0} created.", splunk_data=splunk_data
+            )
     elif module.params["state"] == "absent":
         if query_dict:
             splunk_data = splunk_request.delete_by_path(
