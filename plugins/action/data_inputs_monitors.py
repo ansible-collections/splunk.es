@@ -18,22 +18,17 @@
 #
 
 """
-The module file for deepsec_anti_malwares
+The module file for data_inputs_monitors
 """
 
 from __future__ import absolute_import, division, print_function
-from asyncio import QueueEmpty
-from urllib import response
 
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
-from ansible.errors import AnsibleActionFail
-from ansible.module_utils.connection import Connection
-from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
-from ansible.module_utils.six import iteritems
+from ansible.module_utils.six.moves.urllib.parse import quote_plus
 
-import q
+# from ansible.errors import AnsibleActionFail
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
