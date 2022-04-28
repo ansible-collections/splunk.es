@@ -18,22 +18,16 @@
 #
 
 """
-The module file for deepsec_anti_malwares
+The module file for data_inputs_networks
 """
 
 from __future__ import absolute_import, division, print_function
-from asyncio import QueueEmpty
-from urllib import response
 
 __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleActionFail
-from ansible.module_utils.connection import Connection
-from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
-from ansible.module_utils.six import iteritems
-
-import q
+from ansible.module_utils.six.moves.urllib.parse import quote_plus
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
@@ -372,7 +366,6 @@ class ActionModule(ActionBase):
         if self._result.get("failed"):
             return self._result
 
-        # config is retrieved as a string; need to deserialise
         config = self._task.args.get("config")
         if config:
             if isinstance(config, dict):
