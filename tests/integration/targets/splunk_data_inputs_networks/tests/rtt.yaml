@@ -1,0 +1,81 @@
+---
+- debug:
+    msg: START data_inputs_networks round trip integration tests on connection={{ ansible_connection
+      }}
+
+- include_tasks: _remove_din_config.yaml
+- include_tasks: _populate_din_config.yaml
+
+- block:
+
+    - name: Apply the provided configuration (base config)
+      register: base_config
+      splunk.es.data_inputs_networks: &id001
+        state: merged
+        config:
+          - name: test_malware_1
+            description: test malware 1 description
+            scan_action_for_virus: pass
+            alert_enabled: true
+            scan_type: on-demand
+            real_time_scan: read-only
+            cpu_usage: medium
+          - name: test_malware_2
+            description: test malware 2 description
+            scan_action_for_virus: pass
+            alert_enabled: true
+            scan_type: real-time
+            real_time_scan: read-write
+            cpu_usage: low
+
+    - name: Gather TM AntiMalware Rule facts
+      register: gather_result
+      splunk.es.data_inputs_networks:
+        config:
+          - name: test_malware_1
+          - name: test_malware_2
+        state: gathered
+
+    - name: Apply the configuration which need to be reverted
+      register: result
+      splunk.es.data_inputs_networks:
+        config:
+          - name: test_malware_2
+            description: Replace test malware 2 description
+            scan_action_for_virus: quarantine
+            alert_enabled: true
+            files_to_scan: intelliscan-file-types
+            scan_type: real-time
+            real_time_scan: read-only
+            cpu_usage: medium
+        state: replaced
+
+    - assert:
+        that:
+          - result.changed == true
+          - "{{ replaced['before'] | symmetric_difference(result['anti_malwares']['before']) |\
+            \ length == 2 }}"
+          - "{{ replaced['after'] | symmetric_difference(result['anti_malwares']['after']) |\
+            \ length == 2 }}"
+
+    - name: Revert back to base config using facts round trip
+      register: revert
+      splunk.es.data_inputs_networks:
+        config: "{{ gather_result['gathered'] }}"
+        state: replaced
+
+    - debug:
+        msg:
+          - "{{ merged['after'] | symmetric_difference(revert['anti_malwares']['after']) |\
+            \ length == 4 }}"
+          - "{{ merged['after'] | symmetric_difference(revert['anti_malwares']['after']) }}"
+
+    - assert:
+        that:
+          - revert['changed'] == true
+          - "{{ merged['after'] | symmetric_difference(revert['anti_malwares']['after']) |\
+            \ length == 4 }}"
+
+  always:
+
+    - include_tasks: _remove_din_config.yaml

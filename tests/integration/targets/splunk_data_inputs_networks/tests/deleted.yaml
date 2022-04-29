@@ -1,0 +1,47 @@
+---
+- debug:
+    msg: Start Deleted integration state for data_inputs_networks ansible_connection={{ ansible_connection
+      }}
+
+- include_tasks: _remove_din_config.yaml
+
+- include_tasks: _populate_din_config.yaml
+
+- block:
+
+    - name: 
+      splunk.es.data_inputs_networks: &id001
+        config:
+          - protocol: tcp
+            datatype: raw
+            name: 8100
+          - protocol: tcp
+            datatype: cooked
+            name: 8101
+          - protocol: tcp
+            datatype: splunktcptoken
+            name: test_token
+          - protocol: udp
+            name: 7890
+        state: deleted
+      register: result
+
+    - assert:
+        that:
+          - result.changed == true
+          - "{{ merged['after'] | symmetric_difference(result['data_inputs_networks']['before']) |\
+            \ length == 4 }}"
+          - merged['before'] == result['data_inputs_networks']['after']
+
+    - name: Delete attributes of all configured interfaces (IDEMPOTENT)
+      register: result
+      splunk.es.data_inputs_networks: *id001
+
+    - name: Assert that the previous delete task was idempotent
+      assert:
+        that:
+          - result.changed == false
+
+  always:
+
+    - include_tasks: _remove_din_config.yaml

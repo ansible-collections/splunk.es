@@ -1,0 +1,28 @@
+---
+- name: tcp raw
+  splunk.es.data_inputs_networks:
+    config:
+      - protocol: tcp
+        datatype: raw
+        name: default:8100
+    state: deleted
+- name: tcp cooked
+  splunk.es.data_inputs_networks:
+    config:
+      - protocol: tcp
+        datatype: cooked
+        name: default:8101
+    state: deleted
+- name: splunktcptoken
+  splunk.es.data_inputs_networks:
+    config:
+      - protocol: tcp
+        datatype: splunktcptoken
+        name: test_token
+    state: deleted
+- name: udp
+  splunk.es.data_inputs_networks:
+    config:
+      - protocol: udp
+        name: default:7890
+    state: deleted

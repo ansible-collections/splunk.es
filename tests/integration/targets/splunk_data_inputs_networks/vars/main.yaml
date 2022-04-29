@@ -1,0 +1,125 @@
+---
+merged:
+  before: []
+
+  after:
+    - protocol: tcp
+      datatype: raw
+      name: 8100
+      connection_host: ip
+      disabled: True
+      host: "$decideOnStartup"
+      index: default
+      queue: parsingQueue
+      raw_tcp_done_timeout: 9
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type
+    - protocol: tcp
+      datatype: cooked
+      name: 8101
+      connection_host: ip
+      disabled: False
+      host: "$decideOnStartup"
+      queue: parsingQueue
+      restrict_to_host: default
+    - protocol: tcp
+      datatype: splunktcptoken
+      name: test_token
+    - protocol: tcp
+      datatype: ssl
+      name: test_host
+    - protocol: udp
+      name: 7890
+      connection_host: ip
+      disabled: True
+      host: "$decideOnStartup"
+      index: default
+      no_appending_timestamp: True
+      no_priority_stripping: True
+      queue: parsingQueue
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type
+
+replaced:
+  before:
+    - protocol: tcp
+      datatype: raw
+      name: 8100
+      connection_host: ip
+      disabled: True
+      host: "$decideOnStartup"
+      index: default
+      queue: parsingQueue
+      raw_tcp_done_timeout: 9
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type
+    - protocol: tcp
+      datatype: cooked
+      name: 8101
+      connection_host: ip
+      disabled: False
+      host: "$decideOnStartup"
+      queue: parsingQueue
+      restrict_to_host: default
+    - protocol: tcp
+      datatype: splunktcptoken
+      name: test_token
+    - protocol: tcp
+      datatype: ssl
+      name: test_host
+    - protocol: udp
+      name: 7890
+      connection_host: ip
+      disabled: True
+      host: "$decideOnStartup"
+      index: default
+      no_appending_timestamp: True
+      no_priority_stripping: True
+      queue: parsingQueue
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type
+  after:
+    - protocol: tcp
+      datatype: raw
+      name: 8100
+      connection_host: ip
+      disabled: True
+      host: "$decideOnStartup"
+      index: default
+      queue: parsingQueue
+      raw_tcp_done_timeout: 10
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type
+    - protocol: tcp
+      datatype: cooked
+      name: 8101
+      connection_host: ip
+      disabled: True
+      host: "$decideOnStartup"
+      queue: parsingQueue
+      restrict_to_host: default
+    - protocol: tcp
+      datatype: splunktcptoken
+      name: test_token
+      token: 
+    - protocol: tcp
+      datatype: ssl
+      name: test_host
+      password: test_password
+    - protocol: udp
+      name: 7890
+      connection_host: ip
+      disabled: True
+      host: "$decideOnStartup"
+      index: default
+      no_appending_timestamp: False
+      no_priority_stripping: False
+      queue: parsingQueue
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type
