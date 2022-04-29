@@ -248,10 +248,14 @@ class ActionModule(ActionBase):
         after = None
         changed = False
         for want_conf in config:
+
             if not want_conf.get("name"):
                 raise AnsibleActionFail("No name specified")
 
-            have_conf, protocol, datatype, name = self.parse_config(conn_request, want_conf)
+            have_conf, protocol, datatype, name, _old_name = self.parse_config(conn_request, want_conf)
+
+            if protocol == "tcp" and datatype == "ssl":
+                raise AnsibleActionFail("Deleted state not supported for SSL")
 
             if have_conf:
                 before.append(have_conf)
@@ -283,6 +287,9 @@ class ActionModule(ActionBase):
             ]
 
             have_conf, protocol, datatype, name, old_name = self.parse_config(conn_request, want_conf)
+
+            if protocol == "tcp" and datatype == "ssl" and self._task.args["state"] == "replaced":
+                raise AnsibleActionFail("Replaced state not supported for SSL")
 
             if have_conf:
                 want_conf = utils.remove_empties(want_conf)

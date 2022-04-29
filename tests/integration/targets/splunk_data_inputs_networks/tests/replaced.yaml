@@ -1,0 +1,72 @@
+---
+- debug:
+    msg: START Replaced data_inputs_networks state for integration tests on connection={{ ansible_connection
+      }}
+
+- include_tasks: _remove_din_config.yaml
+- include_tasks: _populate_din_config.yaml
+
+- block:
+
+    - name: Replace existing networks Rule
+      register: result
+      splunk.es.data_inputs_networks: &id001
+        state: replaced
+        config:
+          - protocol: tcp
+            datatype: raw
+            name: 8100
+            connection_host: ip
+            disabled: True
+            host: "$decideOnStartup"
+            index: default
+            queue: parsingQueue
+            raw_tcp_done_timeout: 10
+            restrict_to_host: default
+            source: test_source
+            sourcetype: test_source_type
+          - protocol: tcp
+            datatype: cooked
+            name: 8101
+            connection_host: ip
+            disabled: True
+            host: "$decideOnStartup"
+            queue: parsingQueue
+            restrict_to_host: default
+          - protocol: tcp
+            datatype: splunktcptoken
+            name: test_token
+          - protocol: udp
+            name: 7890
+            connection_host: ip
+            disabled: True
+            host: "$decideOnStartup"
+            index: default
+            no_appending_timestamp: False
+            no_priority_stripping: False
+            queue: parsingQueue
+            restrict_to_host: default
+            source: test_source
+            sourcetype: test_source_type
+
+    - assert:
+        that:
+          - result.changed == true
+          - "{{ replaced['before'] | symmetric_difference(result['anti_malwares']['before']) |\
+            \ length == 2 }}"
+          - "{{ replaced['after'] | symmetric_difference(result['anti_malwares']['after']) |\
+            \ length == 2 }}"
+
+    - name: Replaces device configuration of listed AntiMalware Rules with provided configuration
+        (IDEMPOTENT)
+      register: result
+      splunk.es.data_inputs_networks: *id001
+
+    - name: Assert that task was idempotent
+      assert:
+        that:
+          - result['changed'] == false
+
+  always:
+
+    - include_tasks: _remove_din_config.yaml
