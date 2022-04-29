@@ -1,8 +1,23 @@
-==================================
-Splunk ES Collection Release Notes
-==================================
+===================================================
+Splunk Enterprise Security Collection Release Notes
+===================================================
 
 .. contents:: Topics
+
+
+v2.0.0
+======
+
+Major Changes
+-------------
+
+- Minimum required ansible.netcommon version is 2.5.1.
+- Updated base plugin references to ansible.netcommon.
+
+Bugfixes
+--------
+
+- Fix ansible test sanity failures and fix flake8 issues.
 
 v1.0.2
 ======
@@ -26,8 +41,8 @@ v1.0.0
 New Modules
 -----------
 
-- adaptive_response_notable_event - Manage Splunk Enterprise Security Notable Event Adaptive Responses
-- correlation_search - Manage Splunk Enterprise Security Correlation Searches
-- correlation_search_info - Manage Splunk Enterprise Security Correlation Searches
-- data_input_monitor - Manage Splunk Data Inputs of type Monitor
-- data_input_network - Manage Splunk Data Inputs of type TCP or UDP
+- splunk.es.adaptive_response_notable_event - Manage Splunk Enterprise Security Notable Event Adaptive Responses
+- splunk.es.correlation_search - Manage Splunk Enterprise Security Correlation Searches
+- splunk.es.correlation_search_info - Manage Splunk Enterprise Security Correlation Searches
+- splunk.es.data_input_monitor - Manage Splunk Data Inputs of type Monitor
+- splunk.es.data_input_network - Manage Splunk Data Inputs of type TCP or UDP
