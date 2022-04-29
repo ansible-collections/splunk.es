@@ -204,10 +204,6 @@ class ActionModule(ActionBase):
         return before, after, changed
 
     def run(self, tmp=None, task_vars=None):
-        # import debugpy
-
-        # debugpy.listen(3000)
-        # debugpy.wait_for_client()
         self._supports_check_mode = True
         self._result = super(ActionModule, self).run(tmp, task_vars)
         self._check_argspec()
