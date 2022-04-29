@@ -277,7 +277,7 @@ Parameters
 Examples
 --------
 
-.. code-block:: yaml+jinja
+.. code-block:: yaml
 
     - name: Example adding data input network with splunk.es.data_input_network
       splunk.es.data_input_network:

@@ -338,7 +338,7 @@ Parameters
 Examples
 --------
 
-.. code-block:: yaml+jinja
+.. code-block:: yaml
 
     - name: Example adding data input monitor with splunk.es.data_input_monitor
       splunk.es.data_input_monitor:

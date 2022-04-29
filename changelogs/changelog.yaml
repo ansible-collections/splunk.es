@@ -28,3 +28,15 @@ releases:
       release_summary:
       - Re-releasing 1.0.1 with updated galaxy file.
     release_date: '2020-09-1'
+  2.0.0:
+    changes:
+      bugfixes:
+      - Fix ansible test sanity failures and fix flake8 issues.
+      major_changes:
+      - Minimum required ansible.netcommon version is 2.5.1.
+      - Updated base plugin references to ansible.netcommon.
+    fragments:
+    - fix_sanity_issues.yaml
+    - netcommon_ref_update.yaml
+    - update_tests_unit_black_requirements.yaml
+    release_date: '2022-04-29'

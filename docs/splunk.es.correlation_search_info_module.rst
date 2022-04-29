@@ -57,7 +57,7 @@ Parameters
 Examples
 --------
 
-.. code-block:: yaml+jinja
+.. code-block:: yaml
 
     - name: Example usage of splunk.es.correlation_search_info
       splunk.es.correlation_search_info:
