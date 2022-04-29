@@ -143,6 +143,12 @@ class ActionModule(ActionBase):
                 want_conf = utils.remove_empties(want_conf)
                 diff = utils.dict_diff(have_conf, want_conf)
 
+                # Check if have_conf has extra parameters
+                if self._task.args["state"] == "replaced":
+                    diff2 = utils.dict_diff(want_conf, have_conf)
+                    if len(diff) or len(diff2):
+                        diff.update(diff2)
+
                 if diff:
                     diff = remove_get_keys_from_payload_dict(diff, remove_from_diff_compare)
                     if diff:
@@ -198,6 +204,10 @@ class ActionModule(ActionBase):
         return before, after, changed
 
     def run(self, tmp=None, task_vars=None):
+        # import debugpy
+
+        # debugpy.listen(3000)
+        # debugpy.wait_for_client()
         self._supports_check_mode = True
         self._result = super(ActionModule, self).run(tmp, task_vars)
         self._check_argspec()
