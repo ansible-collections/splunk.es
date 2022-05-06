@@ -7,7 +7,7 @@
 
 - block:
 
-    - name: Merge and Create new AntiMalware Rules
+    - name: Merge and create new data inputs networks configuration
       tags: merged
       register: result
       splunk.es.data_inputs_networks: &id001

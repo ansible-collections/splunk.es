@@ -1,5 +1,5 @@
 ---
-- name: tcp raw
+- name: merge data inputs config
   splunk.es.data_inputs_networks:
     config:
       - protocol: tcp
@@ -14,10 +14,6 @@
         restrict_to_host: default
         source: test_source
         sourcetype: test_source_type
-    state: merged
-- name: tcp cooked
-  splunk.es.data_inputs_networks:
-    config:
       - protocol: tcp
         datatype: cooked
         name: 8101
@@ -25,25 +21,13 @@
         disabled: False
         host: "$decideOnStartup"
         restrict_to_host: default
-    state: merged
-- name: splunktcptoken
-  splunk.es.data_inputs_networks:
-    config:
       - protocol: tcp
         datatype: splunktcptoken
         name: test_token
         token: "01234567-0123-0123-0123-012345678901"
-    state: merged
-- name: ssl
-  splunk.es.data_inputs_networks:
-    config:
       - protocol: tcp
         datatype: ssl
         name: test_host
-    state: merged
-- name: udp
-  splunk.es.data_inputs_networks:
-    config:
       - protocol: udp
         name: 7890
         connection_host: ip

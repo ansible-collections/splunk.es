@@ -117,7 +117,7 @@ options:
           - Sets the source key initial value. The key is used during parsing/indexing, in particular to set
             the source field during indexing. It is also the source field used at search time. As a convenience,
             the chosen string is prepended with 'source::'.
-          - Note: Overriding the source key is generally not recommended. Typically, the input layer provides a
+          - Note that Overriding the source key is generally not recommended. Typically, the input layer provides a
             more accurate string to aid in problem analysis and investigation, accurately recording the file from
             which the data was retrieved. Consider use of source types, tagging, and search wildcards before
             overriding this value.
@@ -520,6 +520,24 @@ EXAMPLES = """
 #
 # _________________________________________________________________
 # Using replaced
+#
+- name: Replace existing data inputs networks configuration
+  register: result
+  splunk.es.data_inputs_networks: &id001
+    state: replaced
+    config:
+      - protocol: tcp
+        datatype: raw
+        name: 8100
+        connection_host: ip
+        disabled: True
+        host: "$decideOnStartup"
+        index: default
+        queue: parsingQueue
+        raw_tcp_done_timeout: 10
+        restrict_to_host: default
+        source: test_source
+        sourcetype: test_source_type
 #
 # Output:
 #

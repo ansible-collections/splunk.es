@@ -49,7 +49,7 @@
             source: test_source
             sourcetype: test_source_type
 
-    - name: Gather TM AntiMalware Rule facts
+    - name: Gather data inputs networks configuration facts
       register: gather_result
       splunk.es.data_inputs_networks:
         config:
@@ -128,14 +128,14 @@
     - debug:
         msg:
           - "{{ merged['after'] | symmetric_difference(revert['data_inputs_networks']['after']) |\
-            \ length == 0 }}"
+            \ length == 1 }}"
           - "{{ merged['after'] | symmetric_difference(revert['data_inputs_networks']['after']) }}"
 
     - assert:
         that:
           - revert['changed'] == true
           - "{{ merged['after'] | symmetric_difference(revert['data_inputs_networks']['after']) |\
-            \ length == 0 }}"
+            \ length == 1 }}"
 
   always:
 
