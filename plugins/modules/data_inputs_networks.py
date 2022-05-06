@@ -31,7 +31,7 @@ options:
         type: str
       protocol:
         description:
-          - Choose between tcp or udp
+          - Choose whether to manage TCP or UDP inputs
         required: True
         choices:
           - 'tcp'
@@ -43,23 +43,23 @@ options:
           - C(ip) sets the host to the IP address of the remote server sending data.
           - C(dns) sets the host to the reverse DNS entry for the IP address of the remote server sending data.
           - C(none) leaves the host as specified in inputs.conf, which is typically the Splunk system hostname.
-        default: "ip"
-        required: False
         type: str
         choices:
           - "ip"
           - "dns"
           - "none"
       datatype:
-        description: >
-          Forwarders can transmit three types of data: raw, unparsed, or parsed.
-          C(cooked) data refers to parsed and unparsed formats.
+        description:
+          - C(cooked) lets one access cooked TCP input information and create new containers for managing cooked data. 
+          - C(raw) lets one manage raw tcp inputs from forwarders. 
+          - C(splunktcptoken) lets one manage receiver access using tokens. 
+          - C(ssl) Provides access to the SSL configuration of a Splunk server. 
+            This option does not support states I(deleted) and I(replaced). 
         choices:
           - "cooked"
           - "raw"
           - "splunktcptoken"
           - "ssl"
-        default: "raw"
         required: False
         type: str
       disabled:
@@ -69,7 +69,6 @@ options:
       host:
         description:
           - Host from which the indexer gets data.
-        required: False
         type: str
       index:
         description:
@@ -92,40 +91,33 @@ options:
             information about props.conf and rules for timestamping and linebreaking, refer to props.conf and
             the online documentation at "Monitor files and directories with inputs.conf"
           - Set queue to indexQueue to send your data directly into the index.
+          - Only applicable for "/tcp/raw" and "/udp" APIs
         choices:
           - "parsingQueue"
           - "indexQueue"
         type: str
-        required: False
-        default: "parsingQueue"
       raw_tcp_done_timeout:
         description:
           - Specifies in seconds the timeout value for adding a Done-key.
           - If a connection over the port specified by name remains idle after receiving data for specified
             number of seconds, it adds a Done-key. This implies the last event is completely received.
           - Only for TCP raw input configuration.
-        default: 10
         type: int
-        required: False
       restrict_to_host:
         description:
           - Allows for restricting this input to only accept data from the host specified here.
-        required: False
         type: str
       ssl:
         description:
           - Enable or disble ssl for the data stream
-        required: False
         type: bool
       source:
         description:
           - Sets the source key/field for events from this input. Defaults to the input file path.
-          - >
-            Sets the source key initial value. The key is used during parsing/indexing, in particular to set
+          - Sets the source key initial value. The key is used during parsing/indexing, in particular to set
             the source field during indexing. It is also the source field used at search time. As a convenience,
             the chosen string is prepended with 'source::'.
-          - >
-            Note: Overriding the source key is generally not recommended. Typically, the input layer provides a
+          - Note: Overriding the source key is generally not recommended. Typically, the input layer provides a
             more accurate string to aid in problem analysis and investigation, accurately recording the file from
             which the data was retrieved. Consider use of source types, tagging, and search wildcards before
             overriding this value.

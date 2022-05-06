@@ -36,9 +36,6 @@
             datatype: splunktcptoken
             name: test_token
             token: 01234567-0123-0123-0123-012345678901
-          - protocol: tcp
-            datatype: ssl
-            name: test_host
           - protocol: udp
             name: 7890
             connection_host: ip
@@ -65,9 +62,6 @@
           - protocol: tcp
             datatype: splunktcptoken
             name: test_token
-          - protocol: tcp
-            datatype: ssl
-            name: test_host
           - protocol: udp
             name: default:7890
         state: gathered
