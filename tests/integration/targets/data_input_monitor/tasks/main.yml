@@ -1,6 +1,6 @@
 ---
 - name: Test data_input_monitor - CREATE
-  data_input_monitor:
+  splunk.es.data_input_monitor:
     name: "/var/log/messages"
     state: "present"
     recursive: True
@@ -13,7 +13,7 @@
       - data_input_monitor_output is not failed
 
 - name: Test data_input_monitor - CREATE IDEMPOTENT
-  data_input_monitor:
+  splunk.es.data_input_monitor:
     name: "/var/log/messages"
     state: "present"
     recursive: True
@@ -26,7 +26,7 @@
       - data_input_monitor_output2 is not failed
 
 - name: Test data_input_monitor - DELETE
-  data_input_monitor:
+  splunk.es.data_input_monitor:
     name: "/var/log/messages"
     state: "absent"
     recursive: True
@@ -39,7 +39,7 @@
       - data_input_monitor_absent_output is not failed
 
 - name: Test data_input_monitor - DELETE IDEMPOTENT
-  data_input_monitor:
+  splunk.es.data_input_monitor:
     name: "/var/log/messages"
     state: "absent"
     recursive: True
