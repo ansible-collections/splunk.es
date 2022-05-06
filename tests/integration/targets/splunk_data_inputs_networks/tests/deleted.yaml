@@ -8,7 +8,7 @@
 - include_tasks: _populate_din_config.yaml
 
 - block:
-    - name: 
+    - name: Delete data inputs networks config
       splunk.es.data_inputs_networks: &id001
         config:
           - protocol: tcp

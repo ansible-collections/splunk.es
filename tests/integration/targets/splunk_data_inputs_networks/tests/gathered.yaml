@@ -9,7 +9,7 @@
 
 - block:
 
-    - name: 
+    - name: Gather data inputs networks config
       splunk.es.data_inputs_networks:
         config:
           - protocol: tcp
