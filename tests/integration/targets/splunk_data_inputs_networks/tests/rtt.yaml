@@ -13,50 +13,117 @@
       splunk.es.data_inputs_networks: &id001
         state: merged
         config:
-          - name: test_malware_1
-            description: test malware 1 description
-            scan_action_for_virus: pass
-            alert_enabled: true
-            scan_type: on-demand
-            real_time_scan: read-only
-            cpu_usage: medium
-          - name: test_malware_2
-            description: test malware 2 description
-            scan_action_for_virus: pass
-            alert_enabled: true
-            scan_type: real-time
-            real_time_scan: read-write
-            cpu_usage: low
+          - protocol: tcp
+            datatype: raw
+            name: 8100
+            connection_host: ip
+            disabled: True
+            host: "$decideOnStartup"
+            index: default
+            queue: parsingQueue
+            raw_tcp_done_timeout: 9
+            restrict_to_host: default
+            source: test_source
+            sourcetype: test_source_type
+          - protocol: tcp
+            datatype: cooked
+            name: 8101
+            connection_host: ip
+            disabled: False
+            host: "$decideOnStartup"
+            restrict_to_host: default
+          - protocol: tcp
+            datatype: splunktcptoken
+            name: test_token
+            token: 01234567-0123-0123-0123-012345678901
+          - protocol: tcp
+            datatype: ssl
+            name: test_host
+          - protocol: udp
+            name: 7890
+            connection_host: ip
+            disabled: True
+            host: "$decideOnStartup"
+            index: default
+            no_appending_timestamp: True
+            no_priority_stripping: True
+            queue: parsingQueue
+            restrict_to_host: default
+            source: test_source
+            sourcetype: test_source_type
 
     - name: Gather TM AntiMalware Rule facts
       register: gather_result
       splunk.es.data_inputs_networks:
         config:
-          - name: test_malware_1
-          - name: test_malware_2
+          - protocol: tcp
+            datatype: raw
+            name: default:8100
+          - protocol: tcp
+            datatype: cooked
+            name: default:8101
+          - protocol: tcp
+            datatype: splunktcptoken
+            name: test_token
+          - protocol: tcp
+            datatype: ssl
+            name: test_host
+          - protocol: udp
+            name: default:7890
         state: gathered
 
     - name: Apply the configuration which need to be reverted
       register: result
       splunk.es.data_inputs_networks:
         config:
-          - name: test_malware_2
-            description: Replace test malware 2 description
-            scan_action_for_virus: quarantine
-            alert_enabled: true
-            files_to_scan: intelliscan-file-types
-            scan_type: real-time
-            real_time_scan: read-only
-            cpu_usage: medium
+          - protocol: tcp
+            datatype: raw
+            name: 8100
+            connection_host: ip
+            disabled: True
+            host: "$decideOnStartup"
+            index: default
+            queue: parsingQueue
+            raw_tcp_done_timeout: 10
+            restrict_to_host: default
+            source: test_source
+            sourcetype: test_source_type
+          - protocol: tcp
+            datatype: cooked
+            name: 8101
+            connection_host: ip
+            disabled: True
+            host: "$decideOnStartup"
+            restrict_to_host: default
+          - protocol: tcp
+            datatype: splunktcptoken
+            name: test_token
+            token: 01234567-0123-0123-0123-012345678900
+          - protocol: udp
+            name: 7890
+            connection_host: ip
+            disabled: True
+            host: "$decideOnStartup"
+            index: default
+            no_appending_timestamp: False
+            no_priority_stripping: False
+            queue: parsingQueue
+            restrict_to_host: default
+            source: test_source
+            sourcetype: test_source_type
         state: replaced
+
+    - debug:
+        msg:
+          - "{{ result }}"
 
     - assert:
         that:
           - result.changed == true
-          - "{{ replaced['before'] | symmetric_difference(result['anti_malwares']['before']) |\
-            \ length == 2 }}"
-          - "{{ replaced['after'] | symmetric_difference(result['anti_malwares']['after']) |\
-            \ length == 2 }}"
+          - "{{ replaced['before'] | symmetric_difference(result['data_inputs_networks']['before']) |\
+            \ length == 0 }}"
+          - "{{ replaced['after'] | symmetric_difference(result['data_inputs_networks']['after']) |\
+            \ length == 0 }}"
 
     - name: Revert back to base config using facts round trip
       register: revert
@@ -66,15 +133,15 @@
 
     - debug:
         msg:
-          - "{{ merged['after'] | symmetric_difference(revert['anti_malwares']['after']) |\
-            \ length == 4 }}"
-          - "{{ merged['after'] | symmetric_difference(revert['anti_malwares']['after']) }}"
+          - "{{ merged['after'] | symmetric_difference(revert['data_inputs_networks']['after']) |\
+            \ length == 0 }}"
+          - "{{ merged['after'] | symmetric_difference(revert['data_inputs_networks']['after']) }}"
 
     - assert:
         that:
           - revert['changed'] == true
-          - "{{ merged['after'] | symmetric_difference(revert['anti_malwares']['after']) |\
-            \ length == 4 }}"
+          - "{{ merged['after'] | symmetric_difference(revert['data_inputs_networks']['after']) |\
+            \ length == 0 }}"
 
   always:
 

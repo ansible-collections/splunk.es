@@ -53,6 +53,7 @@ class ActionModule(ActionBase):
         super(ActionModule, self).__init__(*args, **kwargs)
         self._result = None
         self.api_object = "servicesNS/nobody/search/data/inputs"
+        self.module_return = "data_inputs_networks"
         self.key_transform = {
             "name": "name",
             "connection_host": "connection_host",
@@ -180,7 +181,10 @@ class ActionModule(ActionBase):
 
             # Adding back protocol and datatype fields for better clarity
             search_result["protocol"] = protocol
-            search_result["datatype"] = datatype
+            if datatype:
+                search_result["datatype"] = datatype
+                if datatype == "ssl":
+                    search_result["name"] = name
 
         return search_result
 
@@ -199,6 +203,9 @@ class ActionModule(ActionBase):
             want_conf["name"] = str(want_conf["name"])
 
             old_name = want_conf["name"]
+
+            if want_conf.get("restrict_to_host") and old_name.split(":")[0] == want_conf["restrict_to_host"]:
+                old_name = old_name.split(":")[1]
 
             # If "restrictToHost" parameter is set, the value of this parameter is appended
             # to the numerical name meant to represent port number
@@ -248,7 +255,6 @@ class ActionModule(ActionBase):
         after = None
         changed = False
         for want_conf in config:
-
             if not want_conf.get("name"):
                 raise AnsibleActionFail("No name specified")
 
@@ -269,7 +275,11 @@ class ActionModule(ActionBase):
                 changed = True
                 after = []
 
-        return before, after, changed
+        ret_config = {}
+        ret_config["before"] = before
+        ret_config["after"] = after
+
+        return ret_config, changed
 
     def configure_module_api(self, conn_request, config):
         before = []
@@ -391,7 +401,11 @@ class ActionModule(ActionBase):
         if not changed:
             after = None
 
-        return before, after, changed
+        ret_config = {}
+        ret_config["before"] = before
+        ret_config["after"] = after
+
+        return ret_config, changed
 
     def run(self, tmp=None, task_vars=None):
         self._supports_check_mode = True
@@ -401,9 +415,6 @@ class ActionModule(ActionBase):
             return self._result
 
         config = self._task.args.get("config")
-        if config:
-            if isinstance(config, dict):
-                config = [config]
 
         conn_request = SplunkRequest(
             conn=self._connection,
@@ -441,14 +452,14 @@ class ActionModule(ActionBase):
 
         elif self._task.args["state"] == "merged" or self._task.args["state"] == "replaced":
             if config:
-                self._result["before"], self._result["after"], self._result["changed"] = self.configure_module_api(conn_request, config)
-                if not self._result["after"]:
-                    self._result.pop("after")
+                self._result[self.module_return], self._result["changed"] = self.configure_module_api(conn_request, config)
+                if not self._result[self.module_return]["after"]:
+                    self._result[self.module_return].pop("after")
 
         elif self._task.args["state"] == "deleted":
             if config:
-                self._result["before"], self._result["after"], self._result["changed"] = self.delete_module_api_config(conn_request, config)
-                if self._result["after"] == None:
-                    self._result.pop("after")
+                self._result[self.module_return], self._result["changed"] = self.delete_module_api_config(conn_request, config)
+                if self._result[self.module_return]["after"] == None:
+                    self._result[self.module_return].pop("after")
 
         return self._result

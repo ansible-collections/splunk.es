@@ -14,10 +14,10 @@
         config:
           - protocol: tcp
             datatype: raw
-            name: 8100
+            name: default:8100
           - protocol: tcp
             datatype: cooked
-            name: 8101
+            name: default:8101
           - protocol: tcp
             datatype: splunktcptoken
             name: test_token
@@ -25,13 +25,14 @@
             datatype: ssl
             name: test_host
           - protocol: udp
-            name: 7890
+            name: default:7890
         state: gathered
+      register: result
 
     - assert:
         that:
           - "{{ merged['after'] | symmetric_difference(result['gathered']) |\
-            \ length == 4 }}"
+            \ length == 0 }}"
           - result['changed'] == false
   always:
 
