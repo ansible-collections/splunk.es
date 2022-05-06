@@ -31,11 +31,11 @@
             connection_host: ip
             disabled: False
             host: "$decideOnStartup"
-            queue: parsingQueue
             restrict_to_host: default
           - protocol: tcp
             datatype: splunktcptoken
             name: test_token
+            token: 01234567-0123-0123-0123-012345678901
           - protocol: tcp
             datatype: ssl
             name: test_host
@@ -52,23 +52,17 @@
             source: test_source
             sourcetype: test_source_type
 
-    - debug:
-        msg:
-          - "{{ merged['after'] | symmetric_difference(result['data_inputs_networks']['after']) |\
-            \ length }}"
-          - "{{ merged['after'] | symmetric_difference(result['data_inputs_networks']['after']) }}"
-
     - name: Assert that task reports change and after dict is correctly generated
       assert:
         that:
           - result['changed'] == true
           - "{{ merged['after'] | symmetric_difference(result['data_inputs_networks']['after']) |\
-            \ length == 4 }}"
+            \ length == 0 }}"
 
     - name: Assert that before dicts are correctly generated
       assert:
         that:
-          - merged['before'] == result['data_inputs_networks']['before']
+          - merged['before_merged'] == result['data_inputs_networks']['before']
 
     - name: Merge provided configuration with device configuration (IDEMPOTENT)
       register: result

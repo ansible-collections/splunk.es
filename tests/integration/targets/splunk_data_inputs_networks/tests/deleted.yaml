@@ -8,29 +8,29 @@
 - include_tasks: _populate_din_config.yaml
 
 - block:
-
     - name: 
       splunk.es.data_inputs_networks: &id001
         config:
           - protocol: tcp
             datatype: raw
-            name: 8100
+            name: default:8100
           - protocol: tcp
             datatype: cooked
-            name: 8101
+            name: default:8101
           - protocol: tcp
             datatype: splunktcptoken
             name: test_token
+            token: "01234567-0123-0123-0123-012345678901"
           - protocol: udp
-            name: 7890
+            name: default:7890
         state: deleted
       register: result
-
+    
     - assert:
         that:
           - result.changed == true
           - "{{ merged['after'] | symmetric_difference(result['data_inputs_networks']['before']) |\
-            \ length == 4 }}"
+            \ length == 1 }}"
           - merged['before'] == result['data_inputs_networks']['after']
 
     - name: Delete attributes of all configured interfaces (IDEMPOTENT)
@@ -43,5 +43,4 @@
           - result.changed == false
 
   always:
-
     - include_tasks: _remove_din_config.yaml

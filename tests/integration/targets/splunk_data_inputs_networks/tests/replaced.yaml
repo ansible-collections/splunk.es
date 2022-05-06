@@ -31,11 +31,11 @@
             connection_host: ip
             disabled: True
             host: "$decideOnStartup"
-            queue: parsingQueue
             restrict_to_host: default
           - protocol: tcp
             datatype: splunktcptoken
             name: test_token
+            token: 01234567-0123-0123-0123-012345678900
           - protocol: udp
             name: 7890
             connection_host: ip
@@ -52,10 +52,10 @@
     - assert:
         that:
           - result.changed == true
-          - "{{ replaced['before'] | symmetric_difference(result['anti_malwares']['before']) |\
-            \ length == 2 }}"
-          - "{{ replaced['after'] | symmetric_difference(result['anti_malwares']['after']) |\
-            \ length == 2 }}"
+          - "{{ replaced['before'] | symmetric_difference(result['data_inputs_networks']['before']) |\
+            \ length == 0 }}"
+          - "{{ replaced['after'] | symmetric_difference(result['data_inputs_networks']['after']) |\
+            \ length == 0 }}"
 
     - name: Replaces device configuration of listed AntiMalware Rules with provided configuration
         (IDEMPOTENT)
