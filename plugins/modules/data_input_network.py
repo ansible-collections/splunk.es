@@ -32,7 +32,6 @@ options:
       - C(ip) sets the host to the IP address of the remote server sending data.
       - C(dns) sets the host to the reverse DNS entry for the IP address of the remote server sending data.
       - C(none) leaves the host as specified in inputs.conf, which is typically the Splunk system hostname.
-    default: "ip"
     required: False
     type: str
     choices:
@@ -48,7 +47,6 @@ options:
       - "enabled"
       - "disable"
     required: False
-    default: "present"
     type: str
   datatype:
     description: >
@@ -57,8 +55,8 @@ options:
     choices:
       - "cooked"
       - "raw"
-    default: "raw"
     required: False
+    default: "raw"
     type: str
   host:
     description:
@@ -86,13 +84,11 @@ options:
       - "indexQueue"
     type: str
     required: False
-    default: "parsingQueue"
   rawTcpDoneTimeout:
     description:
       - Specifies in seconds the timeout value for adding a Done-key.
       - If a connection over the port specified by name remains idle after receiving data for specified
         number of seconds, it adds a Done-key. This implies the last event is completely received.
-    default: 10
     type: int
     required: False
   restrictToHost:
@@ -146,7 +142,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 
 
 def main():
-
     argspec = dict(
         state=dict(
             required=False,
@@ -160,24 +155,21 @@ def main():
             default="ip",
             type="str",
         ),
-        host=dict(required=False, type="str", default=None),
-        index=dict(required=False, type="str", default=None),
+        host=dict(required=False, type="str"),
+        index=dict(required=False, type="str"),
         name=dict(required=True, type="str"),
         protocol=dict(required=True, type="str", choices=["tcp", "udp"]),
         queue=dict(
             required=False,
             type="str",
             choices=["parsingQueue", "indexQueue"],
-            default="parsingQueue",
         ),
-        rawTcpDoneTimeout=dict(required=False, type="int", default=10),
-        restrictToHost=dict(required=False, type="str", default=None),
-        ssl=dict(required=False, type="bool", default=None),
-        source=dict(required=False, type="str", default=None),
-        sourcetype=dict(required=False, type="str", default=None),
-        datatype=dict(
-            required=False, choices=["cooked", "raw"], default="raw"
-        ),
+        rawTcpDoneTimeout=dict(required=False, type="int"),
+        restrictToHost=dict(required=False, type="str"),
+        ssl=dict(required=False, type="bool"),
+        source=dict(required=False, type="str"),
+        sourcetype=dict(required=False, type="str"),
+        datatype=dict(required=False, choices=["cooked", "raw"], default="raw"),
     )
 
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
@@ -208,14 +200,10 @@ def main():
             needs_change = False
             for arg in request_data:
                 if arg in query_dict["entry"][0]["content"]:
-                    if to_text(
-                        query_dict["entry"][0]["content"][arg]
-                    ) != to_text(request_data[arg]):
+                    if to_text(query_dict["entry"][0]["content"][arg]) != to_text(request_data[arg]):
                         needs_change = True
             if not needs_change:
-                module.exit_json(
-                    changed=False, msg="Nothing to do.", splunk_data=query_dict
-                )
+                module.exit_json(changed=False, msg="Nothing to do.", splunk_data=query_dict)
             if module.check_mode and needs_change:
                 module.exit_json(
                     changed=True,
@@ -232,13 +220,9 @@ def main():
                     )
                 )
             if module.params["state"] in ["present", "enabled"]:
-                module.exit_json(
-                    changed=True, msg="{0} updated.", splunk_data=splunk_data
-                )
+                module.exit_json(changed=True, msg="{0} updated.", splunk_data=splunk_data)
             else:
-                module.exit_json(
-                    changed=True, msg="{0} disabled.", splunk_data=splunk_data
-                )
+                module.exit_json(changed=True, msg="{0} disabled.", splunk_data=splunk_data)
         else:
             # Create it
             splunk_data = splunk_request.create_update(
@@ -246,11 +230,9 @@ def main():
                     quote_plus(module.params["protocol"]),
                     quote_plus(module.params["datatype"]),
                 ),
-                data=urlencode(_data),
+                data=_data,
             )
-            module.exit_json(
-                changed=True, msg="{0} created.", splunk_data=splunk_data
-            )
+            module.exit_json(changed=True, msg="{0} created.", splunk_data=splunk_data)
     elif module.params["state"] == "absent":
         if query_dict:
             splunk_data = splunk_request.delete_by_path(

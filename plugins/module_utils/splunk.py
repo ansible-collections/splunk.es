@@ -124,7 +124,7 @@ class SplunkRequest(object):
     def delete(self, url, **kwargs):
         return self._httpapi_error_handle("DELETE", url, **kwargs)
 
-    def get_data(self, config):
+    def get_data(self, config=None):
         """
         Get the valid fields that should be passed to the REST API as urlencoded
         data so long as the argument specification to the module follows the
@@ -134,6 +134,9 @@ class SplunkRequest(object):
         """
         try:
             splunk_data = {}
+            if not config:
+                config = self.module.params
+
             for param in config:
                 if (config[param]) is not None and (param not in self.not_rest_data_keys):
                     if param in self.keymap:
@@ -145,7 +148,7 @@ class SplunkRequest(object):
         except TypeError as e:
             raise AnsibleActionFail("invalid data type provided: {0}".format(e))
 
-    def get_urlencoded_data(self, config):
+    def get_urlencoded_data(self, config=None):
         return urlencode(self.get_data(config))
 
     def get_by_path(self, rest_path):

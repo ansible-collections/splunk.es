@@ -11,6 +11,7 @@
     recommended_actions:
       - script
       - ansiblesecurityautomation
+    default_status: unassigned
   register: adaptive_response_notable_event_out
 
 - name: Assert Create splunk.es.adaptive_response_notable_event CHANGED

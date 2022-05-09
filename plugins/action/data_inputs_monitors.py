@@ -54,6 +54,7 @@ class ActionModule(ActionBase):
         super(ActionModule, self).__init__(*args, **kwargs)
         self._result = None
         self.api_object = "servicesNS/nobody/search/data/inputs/monitor"
+        self.module_name = "data_inputs_monitors"
         self.key_transform = {
             "blacklist": "blacklist",
             "check-index": "check_index",  # not returned
@@ -112,6 +113,7 @@ class ActionModule(ActionBase):
     def delete_module_api_config(self, conn_request, config):
         before = []
         after = None
+        config = {}
         changed = False
         for want_conf in config:
             search_by_name = self.search_for_resource_name(conn_request, want_conf["name"])
@@ -121,11 +123,15 @@ class ActionModule(ActionBase):
                 changed = True
                 after = []
 
-        return before, after, changed
+        config["after"] = after
+        config["before"] = before
+
+        return config, changed
 
     def configure_module_api(self, conn_request, config):
         before = []
         after = []
+        config = {}
         changed = False
         # Add to the THIS list for the value which needs to be excluded
         # from HAVE params when compared to WANT param like 'ID' can be
@@ -201,7 +207,10 @@ class ActionModule(ActionBase):
         if not changed:
             after = None
 
-        return before, after, changed
+        config["after"] = after
+        config["before"] = before
+
+        return config, changed
 
     def run(self, tmp=None, task_vars=None):
         self._supports_check_mode = True
@@ -226,20 +235,20 @@ class ActionModule(ActionBase):
             if config:
                 self._result["gathered"] = []
                 for item in config:
-                    self._result["gathered"].append(self.search_for_resource_name(conn_request, item["name"]))
+                    self._result[self.module_name]["gathered"].append(self.search_for_resource_name(conn_request, item["name"]))
             else:
-                self._result["gathered"] = conn_request.get_by_path(self.api_object)["entry"]
+                self._result[self.module_name]["gathered"] = conn_request.get_by_path(self.api_object)["entry"]
 
         elif self._task.args["state"] == "merged" or self._task.args["state"] == "replaced":
             if config:
-                self._result["before"], self._result["after"], self._result["changed"] = self.configure_module_api(conn_request, config)
-                if not self._result["after"]:
-                    self._result.pop("after")
+                self._result[self.module_name], self._result["changed"] = self.configure_module_api(conn_request, config)
+                if self._result[self.module_name]["after"] == None:
+                    self._result[self.module_name].pop("after")
 
         elif self._task.args["state"] == "deleted":
             if config:
-                self._result["before"], self._result["after"], self._result["changed"] = self.delete_module_api_config(conn_request, config)
-                if self._result["after"] == None:
-                    self._result.pop("after")
+                self._result[self.module_name], self._result["changed"] = self.delete_module_api_config(conn_request, config)
+                if self._result[self.module_name]["after"] == None:
+                    self._result[self.module_name].pop("after")
 
         return self._result
