@@ -33,58 +33,48 @@ options:
       blacklist:
         description:
           - Specify a regular expression for a file path. The file path that matches this regular expression is not indexed.
-        required: False
         type: str
       check_index:
         description:
           - If set to C(True), the index value is checked to ensure that it is the name of a valid index.
           - This parameter is not returned back by Splunk while obtaining object information.
             It is therefore left out while performing idempotency checks
-        required: False
         type: bool
-        default: False
       check_path:
         description:
           - If set to C(True), the name value is checked to ensure that it exists.
           - This parameter is not returned back by Splunk while obtaining object information.
             It is therefore left out while performing idempotency checks
-        required: False
         type: bool
       crc_salt:
         description:
           - A string that modifies the file tracking identity for files in this input.
             The magic value <SOURCE> invokes special behavior (see admin documentation).
-        required: False
         type: str
       disabled:
         description:
           - Indicates if input monitoring is disabled.
-        required: False
-        default: False
         type: bool
+        default: False
       follow_tail:
         description:
           - If set to C(True), files that are seen for the first time is read from the end.
-        required: False
         type: bool
-        default: False
       host:
         description:
           - The value to populate in the host field for events from this data input.
-        required: False
         type: str
+        default: "$decideOnStartup"
       host_regex:
         description:
           - Specify a regular expression for a file path. If the path for a file
             matches this regular expression, the captured value is used to populate
             the host field for events from this data input. The regular expression
             must have one capture group.
-        required: False
         type: str
       host_segment:
         description:
           - Use the specified slash-separate segment of the filepath as the host field value.
-        required: False
         type: int
       ignore_older_than:
         description:
@@ -92,31 +82,26 @@ options:
             falls outside of this rolling time window, the file is no longer being monitored.
           - This parameter is not returned back by Splunk while obtaining object information.
             It is therefore left out while performing idempotency checks
-        required: False
         type: str
       index:
         description:
           - Which index events from this input should be stored in. Defaults to default.
-        required: False
         type: str
+        default: "default"
       recursive:
         description:
           - Setting this to False prevents monitoring of any subdirectories encountered within this data input.
-        required: False
         type: bool
-        default: False
       rename_source:
         description:
           - The value to populate in the source field for events from this data input.
             The same source should not be used for multiple data inputs.
           - This parameter is not returned back by Splunk while obtaining object information.
             It is therefore left out while performing idempotency checks
-        required: False
         type: str
       sourcetype:
         description:
           - The value to populate in the sourcetype field for incoming events.
-        required: False
         type: str
       time_before_close:
         description:
@@ -126,12 +111,10 @@ options:
             more data.
           - This parameter is not returned back by Splunk while obtaining object information.
             It is therefore left out while performing idempotency checks
-        required: False
         type: int
       whitelist:
         description:
           - Specify a regular expression for a file path. Only file paths that match this regular expression are indexed.
-        required: False
         type: str
     
   running_config:
@@ -196,12 +179,12 @@ EXAMPLES = """
   splunk.es.data_inputs_monitors:
     config:
       - name: "/var/log"
-        blacklist: "/\/var\/log\/[a-z]/gm"
+        blacklist: "//var/log/[a-z]/gm"
         check_index: True
         check_path: True
         crc_salt: <SOURCE>
         rename_source: "test"
-        whitelist: "/\/var\/log\/[0-9]/gm"
+        whitelist: "//var/log/[0-9]/gm"
     state: merged
 #
 # Output:
@@ -246,7 +229,7 @@ EXAMPLES = """
   splunk.es.data_inputs_monitors:
     config:
       - name: "/var/log"
-        blacklist: "/\/var\/log\/[a-z0-9]/gm"
+        blacklist: "//var/log/[a-z0-9]/gm"
         crc_salt: <SOURCE>
         index: default
     state: replaced

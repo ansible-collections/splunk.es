@@ -38,6 +38,7 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     map_obj_to_params,
     map_params_to_obj,
     remove_get_keys_from_payload_dict,
+    set_defaults,
 )
 from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
     AnsibleArgSpecValidator,
@@ -106,14 +107,13 @@ class ActionModule(ActionBase):
         search_result = {}
 
         if query_dict:
-            search_result = self.map_params_to_object(query_dict["entry"][0])  # ["content"]
+            search_result = self.map_params_to_object(query_dict["entry"][0])
 
         return search_result
 
     def delete_module_api_config(self, conn_request, config):
         before = []
         after = None
-        config = {}
         changed = False
         for want_conf in config:
             search_by_name = self.search_for_resource_name(conn_request, want_conf["name"])
@@ -123,19 +123,24 @@ class ActionModule(ActionBase):
                 changed = True
                 after = []
 
-        config["after"] = after
-        config["before"] = before
+        res_config = {}
+        res_config["after"] = after
+        res_config["before"] = before
 
-        return config, changed
+        return res_config, changed
 
     def configure_module_api(self, conn_request, config):
         before = []
         after = []
-        config = {}
         changed = False
         # Add to the THIS list for the value which needs to be excluded
         # from HAVE params when compared to WANT param like 'ID' can be
         # part of HAVE param but may not be part of your WANT param
+        defaults = {
+            "disabled": False,
+            "host": "$decideOnStartup",
+            "index": "default",
+        }
         remove_from_diff_compare = [
             "check_path",
             "check_index",
@@ -146,6 +151,7 @@ class ActionModule(ActionBase):
         for want_conf in config:
             have_conf = self.search_for_resource_name(conn_request, want_conf["name"])
             if have_conf:
+                want_conf = set_defaults(want_conf, defaults)
                 want_conf = utils.remove_empties(want_conf)
                 diff = utils.dict_diff(have_conf, want_conf)
 
@@ -207,10 +213,11 @@ class ActionModule(ActionBase):
         if not changed:
             after = None
 
-        config["after"] = after
-        config["before"] = before
+        res_config = {}
+        res_config["after"] = after
+        res_config["before"] = before
 
-        return config, changed
+        return res_config, changed
 
     def run(self, tmp=None, task_vars=None):
         self._supports_check_mode = True
@@ -219,11 +226,10 @@ class ActionModule(ActionBase):
         if self._result.get("failed"):
             return self._result
 
+        self._result[self.module_name] = {}
+
         # config is retrieved as a string; need to deserialise
         config = self._task.args.get("config")
-        if config:
-            if isinstance(config, dict):
-                config = [config]
 
         conn_request = SplunkRequest(
             conn=self._connection,
@@ -233,22 +239,21 @@ class ActionModule(ActionBase):
 
         if self._task.args["state"] == "gathered":
             if config:
-                self._result["gathered"] = []
+                self._result["changed"] = False
+                self._result[self.module_name]["gathered"] = []
                 for item in config:
                     self._result[self.module_name]["gathered"].append(self.search_for_resource_name(conn_request, item["name"]))
             else:
                 self._result[self.module_name]["gathered"] = conn_request.get_by_path(self.api_object)["entry"]
 
         elif self._task.args["state"] == "merged" or self._task.args["state"] == "replaced":
-            if config:
-                self._result[self.module_name], self._result["changed"] = self.configure_module_api(conn_request, config)
-                if self._result[self.module_name]["after"] == None:
-                    self._result[self.module_name].pop("after")
+            self._result[self.module_name], self._result["changed"] = self.configure_module_api(conn_request, config)
+            if self._result[self.module_name]["after"] == None:
+                self._result[self.module_name].pop("after")
 
         elif self._task.args["state"] == "deleted":
-            if config:
-                self._result[self.module_name], self._result["changed"] = self.delete_module_api_config(conn_request, config)
-                if self._result[self.module_name]["after"] == None:
-                    self._result[self.module_name].pop("after")
+            self._result[self.module_name], self._result["changed"] = self.delete_module_api_config(conn_request, config)
+            if self._result[self.module_name]["after"] == None:
+                self._result[self.module_name].pop("after")
 
         return self._result

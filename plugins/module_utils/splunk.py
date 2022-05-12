@@ -4,14 +4,17 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+from email.policy import default
 
 __metaclass__ = type
 
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.urls import CertificateError
 from ansible.module_utils.six.moves.urllib.parse import urlencode
-from ansible.module_utils.connection import ConnectionError
-from ansible.module_utils.connection import Connection
+from ansible.module_utils.connection import (
+    ConnectionError,
+    Connection,
+)
 from ansible.module_utils._text import to_text
 from ansible.module_utils.six import iteritems
 
@@ -69,6 +72,12 @@ def map_obj_to_params(module_return_params, key_transform):
         if v in module_return_params and (module_return_params.get(v) or module_return_params.get(v) == 0 or module_return_params.get(v) is False):
             temp[k] = module_return_params.pop(v)
     return temp
+
+
+def set_defaults(config, defaults):
+    for k, v in defaults.items():
+        config.setdefault(k, v)
+    return config
 
 
 class SplunkRequest(object):
