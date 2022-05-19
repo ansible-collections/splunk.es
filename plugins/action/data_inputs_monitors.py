@@ -27,8 +27,7 @@ __metaclass__ = type
 
 from ansible.plugins.action import ActionBase
 from ansible.module_utils.six.moves.urllib.parse import quote_plus
-
-# from ansible.errors import AnsibleActionFail
+from ansible.module_utils.connection import Connection
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
@@ -46,6 +45,8 @@ from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_valid
 from ansible_collections.splunk.es.plugins.modules.data_inputs_monitors import (
     DOCUMENTATION,
 )
+
+from icecream import ic
 
 
 class ActionModule(ActionBase):
@@ -129,6 +130,14 @@ class ActionModule(ActionBase):
 
         return res_config, changed
 
+    # need to mock the return values for unit tests
+    # that's why this is a separate function
+    def update_values(self, payload, url, conn_request):
+        return conn_request.create_update(
+            url,
+            data=payload,
+        )
+
     def configure_module_api(self, conn_request, config):
         before = []
         after = []
@@ -172,21 +181,25 @@ class ActionModule(ActionBase):
                             changed = True
 
                             payload = map_obj_to_params(want_conf, self.key_transform)
-                            api_response = conn_request.create_update(
-                                "{0}/{1}".format(self.api_object, quote_plus(payload.pop("name"))),
-                                data=payload,
+                            url = "{0}/{1}".format(self.api_object, quote_plus(payload.pop("name")))
+                            api_response = self.update_values(
+                                payload=payload,
+                                url=url,
+                                conn_request=conn_request,
                             )
                             response_json = self.map_params_to_object(api_response["entry"][0])
 
                             after.append(response_json)
                         elif self._task.args["state"] == "replaced":
-                            api_response = conn_request.delete_by_path("{0}/{1}".format(self.api_object, quote_plus(want_conf["name"])))
+                            conn_request.delete_by_path("{0}/{1}".format(self.api_object, quote_plus(want_conf["name"])))
                             changed = True
 
                             payload = map_obj_to_params(want_conf, self.key_transform)
-                            api_response = conn_request.create_update(
-                                "{0}".format(self.api_object),
-                                data=payload,
+                            url = "{0}".format(self.api_object)
+                            api_response = self.update_values(
+                                payload=payload,
+                                url=url,
+                                conn_request=conn_request,
                             )
                             response_json = self.map_params_to_object(api_response["entry"][0])
 
@@ -202,9 +215,11 @@ class ActionModule(ActionBase):
                 want_conf = utils.remove_empties(want_conf)
 
                 payload = map_obj_to_params(want_conf, self.key_transform)
-                api_response = conn_request.create_update(
-                    "{0}".format(self.api_object),
-                    data=payload,
+                url = "{0}".format(self.api_object)
+                api_response = self.update_values(
+                    payload=payload,
+                    url=url,
+                    conn_request=conn_request,
                 )
                 response_json = self.map_params_to_object(api_response["entry"][0])
 
@@ -231,9 +246,10 @@ class ActionModule(ActionBase):
         # config is retrieved as a string; need to deserialise
         config = self._task.args.get("config")
 
+        conn = Connection(self._connection.socket_path)
+        ic(conn.socket_path)
         conn_request = SplunkRequest(
-            conn=self._connection,
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            connection=conn,
             not_rest_data_keys=["state"],
         )
 

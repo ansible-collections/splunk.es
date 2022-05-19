@@ -81,10 +81,28 @@ def set_defaults(config, defaults):
 
 
 class SplunkRequest(object):
-    def __init__(self, conn, headers=None, keymap=None, not_rest_data_keys=None):
+    def __init__(
+        self,
+        module=None,
+        connection=None,
+        keymap=None,
+        not_rest_data_keys=None,
+        task_vars=None,
+    ):
 
-        self.module = conn
-        self.connection = Connection(self.module._socket_path)
+        self.module = module
+        if module:
+            # This will be removed, once all of the available modules
+            # are moved to use action plugin design, as otherwise test
+            # would start to complain without the implementation.
+            self.connection = Connection(self.module._socket_path)
+        elif connection:
+            self.connection = connection
+            try:
+                self.connection.load_platform_plugins("splunk.es.es")
+                self.connection.set_options(var_options=task_vars)
+            except ConnectionError:
+                raise
 
         # The Splunk REST API endpoints often use keys that aren't pythonic so
         # we need to handle that with a mapping to allow keys to be proper
@@ -105,21 +123,31 @@ class SplunkRequest(object):
     def _httpapi_error_handle(self, method, uri, payload=None):
         try:
             code, response = self.connection.send_request(method, uri, payload=payload)
+
+            if code == 404:
+                if to_text("Object not found") in to_text(response) or to_text("Could not find object") in to_text(response):
+                    return {}
+
+            if not (code >= 200 and code < 300):
+                self.module.fail_json(
+                    msg="Splunk httpapi returned error {0} with message {1}".format(code, response),
+                )
+
+            return response
+
         except ConnectionError as e:
-            raise AnsibleActionFail("connection error occurred: {0}".format(e))
+            self.module.fail_json(
+                msg="connection error occurred: {0}".format(e),
+            )
         except CertificateError as e:
-            raise AnsibleActionFail("certificate error occurred: {0}".format(e))
+            self.module.fail_json(
+                msg="certificate error occurred: {0}".format(e),
+            )
         except ValueError as e:
-            raise AnsibleActionFail("certificate not found: {0}".format(e))
-
-        if code == 404:
-            if to_text("Object not found") in to_text(response) or to_text("Could not find object") in to_text(response):
-                return {}
-
-        if not (code >= 200 and code < 300):
-            raise AnsibleActionFail("Splunk httpapi returned error {0} with message {1}".format(code, response))
-
-        return response
+            try:
+                self.module.fail_json(msg="certificate not found: {0}".format(e))
+            except AttributeError:
+                pass
 
     def get(self, url, **kwargs):
         return self._httpapi_error_handle("GET", url, **kwargs)
@@ -174,10 +202,12 @@ class SplunkRequest(object):
 
         return self.delete("/{0}?output_mode=json".format(rest_path))
 
-    def create_update(self, rest_path, data=None):
+    def create_update(self, rest_path, data=None, mock=None, mock_data=None):
         """
         Create or Update a file/directory monitor data input in Splunk
         """
+        if mock:
+            return mock_data
         if data is not None:
             data = self.get_urlencoded_data(data)
         return self.post("/{0}?output_mode=json".format(rest_path), payload=data)
