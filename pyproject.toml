@@ -10,4 +10,3 @@ testpaths = [
 filterwarnings = [
     'ignore:AnsibleCollectionFinder has already been configured',
 ]
-
