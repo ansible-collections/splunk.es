@@ -23,7 +23,7 @@ options:
     description:
       - Configure file and directory monitoring on the system
     type: list
-    subelement: dict
+    elements: dict
     suboptions:
       name:
         description:
@@ -116,7 +116,7 @@ options:
         description:
           - Specify a regular expression for a file path. Only file paths that match this regular expression are indexed.
         type: str
-    
+
   running_config:
     description:
     - The module, by default, will connect to the remote device and retrieve the current
@@ -145,7 +145,7 @@ EXAMPLES = """
 # _________________________________________________________________
 # Using gathered
 
-- name: 
+- name:
   splunk.es.data_inputs_monitors:
     config:
       - name: "/var/log"

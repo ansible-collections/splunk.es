@@ -46,8 +46,6 @@ from ansible_collections.splunk.es.plugins.modules.data_inputs_monitors import (
     DOCUMENTATION,
 )
 
-from icecream import ic
-
 
 class ActionModule(ActionBase):
     """action module"""
@@ -103,7 +101,9 @@ class ActionModule(ActionBase):
         return res
 
     def search_for_resource_name(self, conn_request, directory_name):
-        query_dict = conn_request.get_by_path("{0}/{1}".format(self.api_object, quote_plus(directory_name)))
+        query_dict = conn_request.get_by_path(
+            "{0}/{1}".format(self.api_object, quote_plus(directory_name))
+        )
 
         search_result = {}
 
@@ -117,10 +117,16 @@ class ActionModule(ActionBase):
         after = None
         changed = False
         for want_conf in config:
-            search_by_name = self.search_for_resource_name(conn_request, want_conf["name"])
+            search_by_name = self.search_for_resource_name(
+                conn_request, want_conf["name"]
+            )
             if search_by_name:
                 before.append(search_by_name)
-                conn_request.delete_by_path("{0}/{1}".format(self.api_object, quote_plus(want_conf["name"])))
+                conn_request.delete_by_path(
+                    "{0}/{1}".format(
+                        self.api_object, quote_plus(want_conf["name"])
+                    )
+                )
                 changed = True
                 after = []
 
@@ -129,14 +135,6 @@ class ActionModule(ActionBase):
         res_config["before"] = before
 
         return res_config, changed
-
-    # need to mock the return values for unit tests
-    # that's why this is a separate function
-    def update_values(self, payload, url, conn_request):
-        return conn_request.create_update(
-            url,
-            data=payload,
-        )
 
     def configure_module_api(self, conn_request, config):
         before = []
@@ -158,7 +156,10 @@ class ActionModule(ActionBase):
             "rename_source",
         ]
         for want_conf in config:
-            have_conf = self.search_for_resource_name(conn_request, want_conf["name"])
+            have_conf = self.search_for_resource_name(
+                conn_request, want_conf["name"]
+            )
+
             if have_conf:
                 want_conf = set_defaults(want_conf, defaults)
                 want_conf = utils.remove_empties(want_conf)
@@ -171,37 +172,57 @@ class ActionModule(ActionBase):
                         diff.update(diff2)
 
                 if diff:
-                    diff = remove_get_keys_from_payload_dict(diff, remove_from_diff_compare)
+                    diff = remove_get_keys_from_payload_dict(
+                        diff, remove_from_diff_compare
+                    )
                     if diff:
                         before.append(have_conf)
                         if self._task.args["state"] == "merged":
 
-                            want_conf = utils.remove_empties(utils.dict_merge(have_conf, want_conf))
-                            want_conf = remove_get_keys_from_payload_dict(want_conf, remove_from_diff_compare)
+                            want_conf = utils.remove_empties(
+                                utils.dict_merge(have_conf, want_conf)
+                            )
+                            want_conf = remove_get_keys_from_payload_dict(
+                                want_conf, remove_from_diff_compare
+                            )
                             changed = True
 
-                            payload = map_obj_to_params(want_conf, self.key_transform)
-                            url = "{0}/{1}".format(self.api_object, quote_plus(payload.pop("name")))
-                            api_response = self.update_values(
-                                payload=payload,
-                                url=url,
-                                conn_request=conn_request,
+                            payload = map_obj_to_params(
+                                want_conf, self.key_transform
                             )
-                            response_json = self.map_params_to_object(api_response["entry"][0])
+                            url = "{0}/{1}".format(
+                                self.api_object,
+                                quote_plus(payload.pop("name")),
+                            )
+                            api_response = conn_request.create_update(
+                                url,
+                                data=payload,
+                            )
+                            response_json = self.map_params_to_object(
+                                api_response["entry"][0]
+                            )
 
                             after.append(response_json)
                         elif self._task.args["state"] == "replaced":
-                            conn_request.delete_by_path("{0}/{1}".format(self.api_object, quote_plus(want_conf["name"])))
+                            conn_request.delete_by_path(
+                                "{0}/{1}".format(
+                                    self.api_object,
+                                    quote_plus(want_conf["name"]),
+                                )
+                            )
                             changed = True
 
-                            payload = map_obj_to_params(want_conf, self.key_transform)
-                            url = "{0}".format(self.api_object)
-                            api_response = self.update_values(
-                                payload=payload,
-                                url=url,
-                                conn_request=conn_request,
+                            payload = map_obj_to_params(
+                                want_conf, self.key_transform
                             )
-                            response_json = self.map_params_to_object(api_response["entry"][0])
+                            url = "{0}".format(self.api_object)
+                            api_response = conn_request.create_update(
+                                url,
+                                data=payload,
+                            )
+                            response_json = self.map_params_to_object(
+                                api_response["entry"][0]
+                            )
 
                             after.append(response_json)
                     else:
@@ -216,12 +237,13 @@ class ActionModule(ActionBase):
 
                 payload = map_obj_to_params(want_conf, self.key_transform)
                 url = "{0}".format(self.api_object)
-                api_response = self.update_values(
-                    payload=payload,
-                    url=url,
-                    conn_request=conn_request,
+                api_response = conn_request.create_update(
+                    url,
+                    data=payload,
                 )
-                response_json = self.map_params_to_object(api_response["entry"][0])
+                response_json = self.map_params_to_object(
+                    api_response["entry"][0]
+                )
 
                 after.extend(before)
                 after.append(response_json)
@@ -247,7 +269,7 @@ class ActionModule(ActionBase):
         config = self._task.args.get("config")
 
         conn = Connection(self._connection.socket_path)
-        ic(conn.socket_path)
+
         conn_request = SplunkRequest(
             connection=conn,
             not_rest_data_keys=["state"],
@@ -258,18 +280,33 @@ class ActionModule(ActionBase):
                 self._result["changed"] = False
                 self._result[self.module_name]["gathered"] = []
                 for item in config:
-                    self._result[self.module_name]["gathered"].append(self.search_for_resource_name(conn_request, item["name"]))
+                    self._result[self.module_name]["gathered"].append(
+                        self.search_for_resource_name(
+                            conn_request, item["name"]
+                        )
+                    )
             else:
-                self._result[self.module_name]["gathered"] = conn_request.get_by_path(self.api_object)["entry"]
+                self._result[self.module_name][
+                    "gathered"
+                ] = conn_request.get_by_path(self.api_object)["entry"]
 
-        elif self._task.args["state"] == "merged" or self._task.args["state"] == "replaced":
-            self._result[self.module_name], self._result["changed"] = self.configure_module_api(conn_request, config)
-            if self._result[self.module_name]["after"] == None:
+        elif (
+            self._task.args["state"] == "merged"
+            or self._task.args["state"] == "replaced"
+        ):
+            (
+                self._result[self.module_name],
+                self._result["changed"],
+            ) = self.configure_module_api(conn_request, config)
+            if self._result[self.module_name]["after"] is None:
                 self._result[self.module_name].pop("after")
 
         elif self._task.args["state"] == "deleted":
-            self._result[self.module_name], self._result["changed"] = self.delete_module_api_config(conn_request, config)
-            if self._result[self.module_name]["after"] == None:
+            (
+                self._result[self.module_name],
+                self._result["changed"],
+            ) = self.delete_module_api_config(conn_request, config)
+            if self._result[self.module_name]["after"] is None:
                 self._result[self.module_name].pop("after")
 
         return self._result

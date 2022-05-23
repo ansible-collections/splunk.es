@@ -185,21 +185,29 @@ def main():
     # This is where the splunk_* args are processed
     request_data = splunk_request.get_data()
 
-    query_dict = splunk_request.get_by_path("servicesNS/nobody/search/data/inputs/monitor/{0}".format(quote_plus(module.params["name"])))
+    query_dict = splunk_request.get_by_path(
+        "servicesNS/nobody/search/data/inputs/monitor/{0}".format(
+            quote_plus(module.params["name"])
+        )
+    )
 
     if module.params["state"] == "present":
         if query_dict:
             needs_change = False
             for arg in request_data:
                 if arg in query_dict["entry"][0]["content"]:
-                    if to_text(query_dict["entry"][0]["content"][arg]) != to_text(request_data[arg]):
+                    if to_text(
+                        query_dict["entry"][0]["content"][arg]
+                    ) != to_text(request_data[arg]):
                         import q
 
                         q(arg, to_text(query_dict["entry"][0]["content"][arg]))
                         q(arg, to_text(request_data[arg]))
                         needs_change = True
             if not needs_change:
-                module.exit_json(changed=False, msg="Nothing to do.", splunk_data=query_dict)
+                module.exit_json(
+                    changed=False, msg="Nothing to do.", splunk_data=query_dict
+                )
             if module.check_mode and needs_change:
                 module.exit_json(
                     changed=True,
@@ -207,8 +215,14 @@ def main():
                     splunk_data=query_dict,
                 )
             if needs_change:
-                splunk_data = splunk_request.create_update("servicesNS/nobody/search/data/inputs/monitor/{0}".format(quote_plus(module.params["name"])))
-                module.exit_json(changed=True, msg="{0} updated.", splunk_data=splunk_data)
+                splunk_data = splunk_request.create_update(
+                    "servicesNS/nobody/search/data/inputs/monitor/{0}".format(
+                        quote_plus(module.params["name"])
+                    )
+                )
+                module.exit_json(
+                    changed=True, msg="{0} updated.", splunk_data=splunk_data
+                )
         else:
             # Create it
             _data = splunk_request.get_data()
@@ -217,18 +231,26 @@ def main():
                 "servicesNS/nobody/search/data/inputs/monitor",
                 data=_data,
             )
-            module.exit_json(changed=True, msg="{0} created.", splunk_data=splunk_data)
+            module.exit_json(
+                changed=True, msg="{0} created.", splunk_data=splunk_data
+            )
 
     if module.params["state"] == "absent":
         if query_dict:
-            splunk_data = splunk_request.delete_by_path("servicesNS/nobody/search/data/inputs/monitor/{0}".format(quote_plus(module.params["name"])))
+            splunk_data = splunk_request.delete_by_path(
+                "servicesNS/nobody/search/data/inputs/monitor/{0}".format(
+                    quote_plus(module.params["name"])
+                )
+            )
             module.exit_json(
                 changed=True,
                 msg="Deleted {0}.".format(module.params["name"]),
                 splunk_data=splunk_data,
             )
 
-    module.exit_json(changed=False, msg="Nothing to do.", splunk_data=query_dict)
+    module.exit_json(
+        changed=False, msg="Nothing to do.", splunk_data=query_dict
+    )
 
 
 if __name__ == "__main__":

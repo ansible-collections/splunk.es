@@ -38,6 +38,7 @@ options:
       - "ip"
       - "dns"
       - "none"
+    default: "ip"
   state:
     description:
       - Enable, disable, create, or destroy
@@ -47,6 +48,7 @@ options:
       - "enabled"
       - "disable"
     required: False
+    default: "present"
     type: str
   datatype:
     description: >
@@ -169,7 +171,9 @@ def main():
         ssl=dict(required=False, type="bool"),
         source=dict(required=False, type="str"),
         sourcetype=dict(required=False, type="str"),
-        datatype=dict(required=False, choices=["cooked", "raw"], default="raw"),
+        datatype=dict(
+            required=False, choices=["cooked", "raw"], default="raw"
+        ),
     )
 
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
@@ -200,10 +204,14 @@ def main():
             needs_change = False
             for arg in request_data:
                 if arg in query_dict["entry"][0]["content"]:
-                    if to_text(query_dict["entry"][0]["content"][arg]) != to_text(request_data[arg]):
+                    if to_text(
+                        query_dict["entry"][0]["content"][arg]
+                    ) != to_text(request_data[arg]):
                         needs_change = True
             if not needs_change:
-                module.exit_json(changed=False, msg="Nothing to do.", splunk_data=query_dict)
+                module.exit_json(
+                    changed=False, msg="Nothing to do.", splunk_data=query_dict
+                )
             if module.check_mode and needs_change:
                 module.exit_json(
                     changed=True,
@@ -216,13 +224,17 @@ def main():
                         quote_plus(module.params["protocol"]),
                         quote_plus(module.params["datatype"]),
                         quote_plus(module.params["name"]),
-                        data=urlencode(_data),
-                    )
+                    ),
+                    data=urlencode(_data),
                 )
             if module.params["state"] in ["present", "enabled"]:
-                module.exit_json(changed=True, msg="{0} updated.", splunk_data=splunk_data)
+                module.exit_json(
+                    changed=True, msg="{0} updated.", splunk_data=splunk_data
+                )
             else:
-                module.exit_json(changed=True, msg="{0} disabled.", splunk_data=splunk_data)
+                module.exit_json(
+                    changed=True, msg="{0} disabled.", splunk_data=splunk_data
+                )
         else:
             # Create it
             splunk_data = splunk_request.create_update(
@@ -232,7 +244,9 @@ def main():
                 ),
                 data=_data,
             )
-            module.exit_json(changed=True, msg="{0} created.", splunk_data=splunk_data)
+            module.exit_json(
+                changed=True, msg="{0} created.", splunk_data=splunk_data
+            )
     elif module.params["state"] == "absent":
         if query_dict:
             splunk_data = splunk_request.delete_by_path(

@@ -20,9 +20,6 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-import pytest
-import sys
-
 from ansible.module_utils.six import PY2
 
 builtin_import = "builtins.__import__"
@@ -34,6 +31,9 @@ from ansible.playbook.task import Task
 from ansible.template import Templar
 from ansible_collections.splunk.es.plugins.action.data_inputs_monitors import (
     ActionModule,
+)
+from ansible_collections.splunk.es.plugins.module_utils.splunk import (
+    SplunkRequest,
 )
 from ansible_collections.ansible.utils.tests.unit.compat.mock import (
     MagicMock,
@@ -69,6 +69,7 @@ RESPONSE_PAYLOAD = {
         }
     ]
 }
+
 REQUEST_PAYLOAD = [
     {
         "blacklist": "//var/log/[a-z]/gm",
@@ -84,263 +85,275 @@ REQUEST_PAYLOAD = [
         "sourcetype": "test_source_type",
         "whitelist": "//var/log/[0-9]/gm",
     },
-    # {
-    #     "name": "test_firewallrule_2",
-    #     "description": "incoming firewall 2 rule description",
-    #     "action": "deny",
-    #     "priority": 0,
-    #     "source_iptype": "any",
-    #     "source_ipnot": False,
-    #     "source_port_type": "any",
-    #     "destination_iptype": "any",
-    #     "direction": "incoming",
-    #     "protocol": "tcp",
-    # },
+    {
+        "blacklist": "//var/log/[a-z0-9]/gm",
+        "crc_salt": "<SOURCE>",
+        "disabled": False,
+        "follow_tail": False,
+        "host": "$decideOnStartup",
+        "index": "default",
+        "name": "/var/log",
+        "recursive": True,
+    },
 ]
 
 
-class PluginParameters:
-    def __init__(self, _plugin, _task_vars):
-        self._plugin = _plugin
-        self._task_vars = _task_vars
+class TestSplunkEsDataInputsMonitorsRules:
+    def setup(self):
+        task = MagicMock(Task)
+        # Ansible > 2.13 looks for check_mode in task
+        task.check_mode = False
+        play_context = MagicMock()
+        # Ansible <= 2.13 looks for check_mode in play_context
+        play_context.check_mode = False
+        connection = patch(
+            "ansible_collections.splunk.es.plugins.module_utils.splunk.Connection"
+        )
+        connection._socket_path = tempfile.NamedTemporaryFile().name
+        fake_loader = {}
+        templar = Templar(loader=fake_loader)
+        self._plugin = ActionModule(
+            task=task,
+            connection=connection,
+            play_context=play_context,
+            loader=fake_loader,
+            templar=templar,
+            shared_loader_obj=None,
+        )
+        self._plugin._task.action = "data_inputs_monitors"
+        self._plugin._task.async_val = False
+        self._task_vars = {}
 
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_monitors_merged(self, connection, monkeypatch):
+        self._plugin.api_response = RESPONSE_PAYLOAD
+        self._plugin.search_for_resource_name = MagicMock()
+        self._plugin.search_for_resource_name.return_value = {}
 
-@pytest.fixture(name="setup")
-def plugin_fixture(mocker):
-    task = mocker.MagicMock(Task)
-    # Ansible > 2.13 looks for check_mode in task
-    task.check_mode = False
-    play_context = mocker.MagicMock()
-    # Ansible <= 2.13 looks for check_mode in play_context
-    play_context.check_mode = False
-    connection = mocker.patch("ansible_collections.splunk.es.plugins.module_utils.splunk.Connection")
-    # connection.socket_path = tempfile.NamedTemporaryFile().name
-    fake_loader = {}
-    templar = Templar(loader=fake_loader)
-    _plugin = ActionModule(
-        task=task,
-        connection=connection,
-        play_context=play_context,
-        loader=fake_loader,
-        templar=templar,
-        shared_loader_obj=None,
-    )
-    _plugin._task.action = "data_inputs_monitors"
-    _plugin._task.async_val = False
-    _task_vars = {}
+        def create_update(
+            self, rest_path, data=None, mock=None, mock_data=None
+        ):
+            return RESPONSE_PAYLOAD
 
-    return PluginParameters(_plugin, _task_vars)
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
+        self._plugin._task.args = {
+            "state": "merged",
+            "config": [REQUEST_PAYLOAD[0]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
 
-def test_es_data_inputs_monitors_merged(setup):
-    setup._plugin.api_response = RESPONSE_PAYLOAD
-    setup._plugin.search_for_resource_name = MagicMock()
-    setup._plugin.search_for_resource_name.return_value = {}
-    setup._plugin.update_values = MagicMock()
-    setup._plugin.update_values.return_value = RESPONSE_PAYLOAD
-    setup._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-    setup._plugin._connection._shell = MagicMock()
-    setup._plugin._task.args = {
-        "state": "merged",
-        "config": REQUEST_PAYLOAD,
-    }
-    result = setup._plugin.run(task_vars=setup._task_vars)
-    assert result["changed"] == True
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_monitors_merged_idempotent(
+        self, conn, monkeypatch
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
 
+        def create_update(
+            self, rest_path, data=None, mock=None, mock_data=None
+        ):
+            return RESPONSE_PAYLOAD
 
-# class TestSplunkEsDataInputsMonitorsRules(unittest.TestCase):
-#     def setUp(self):
-#         task = MagicMock(Task)
-#         # Ansible > 2.13 looks for check_mode in task
-#         task.check_mode = False
-#         play_context = MagicMock()
-#         # Ansible <= 2.13 looks for check_mode in play_context
-#         play_context.check_mode = False
-#         connection = patch("ansible_collections.splunk.es.plugins.module_utils.splunk.Connection")
-#         connection._socket_path = tempfile.NamedTemporaryFile().name
-#         fake_loader = {}
-#         templar = Templar(loader=fake_loader)
-#         self._plugin = ActionModule(
-#             task=task,
-#             connection=connection,
-#             play_context=play_context,
-#             loader=fake_loader,
-#             templar=templar,
-#             shared_loader_obj=None,
-#         )
-#         self._plugin._task.action = "data_inputs_monitors"
-#         self._plugin._task.async_val = False
-#         self._task_vars = {}
+        def get_by_path(self, path):
+            return RESPONSE_PAYLOAD
 
-#     @patch("ansible.module_utils.connection.Connection.__rpc__")
-#     def test_es_data_inputs_monitors_merged(self, connection):
-#         self._plugin.api_response = RESPONSE_PAYLOAD
-#         self._plugin.search_for_resource_name = MagicMock()
-#         self._plugin.search_for_resource_name.return_value = {}
-#         self._plugin.update_values = MagicMock()
-#         self._plugin.update_values.return_value = RESPONSE_PAYLOAD
-#         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-#         self._plugin._connection._shell = MagicMock()
-#         self._plugin._task.args = {
-#             "state": "merged",
-#             "config": REQUEST_PAYLOAD,
-#         }
-#         result = self._plugin.run(task_vars=self._task_vars)
-#         self.assertTrue(result["changed"])
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
-#     @patch("ansible.module_utils.connection.Connection.__rpc__")
-#     def test_es_data_inputs_monitors_merged_idempotent(self, connection):
-#         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-#         self._plugin._connection._shell = MagicMock()
-#         self._plugin.search_for_resource_name = MagicMock()
-#         self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
-#         self._plugin.update_values = MagicMock()
-#         self._plugin.update_values.return_value = RESPONSE_PAYLOAD
-#         self._plugin._task.args = {
-#             "state": "merged",
-#             "config": [
-#                 {
-#                     "blacklist": "//var/log/[a-z]/gm",
-#                     "crc_salt": "<SOURCE>",
-#                     "disabled": False,
-#                     "follow_tail": False,
-#                     "host": "$decideOnStartup",
-#                     "host_regex": "/(test_host)/gm",
-#                     "host_segment": 3,
-#                     "index": "default",
-#                     "name": "/var/log",
-#                     "recursive": True,
-#                     "sourcetype": "test_source_type",
-#                     "whitelist": "//var/log/[0-9]/gm",
-#                 }
-#             ],
-#         }
-#         result = self._plugin.run(task_vars=self._task_vars)
-#         self.assertFalse(result["changed"])
+        self._plugin._task.args = {
+            "state": "merged",
+            "config": [
+                {
+                    "blacklist": "//var/log/[a-z]/gm",
+                    "crc_salt": "<SOURCE>",
+                    "disabled": False,
+                    "follow_tail": False,
+                    "host": "$decideOnStartup",
+                    "host_regex": "/(test_host)/gm",
+                    "host_segment": 3,
+                    "index": "default",
+                    "name": "/var/log",
+                    "recursive": True,
+                    "sourcetype": "test_source_type",
+                    "whitelist": "//var/log/[0-9]/gm",
+                }
+            ],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
 
-#     @patch("ansible.module_utils.connection.Connection.__rpc__")
-#     def test_es_data_inputs_monitors_replaced(self, connection):
-#         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-#         self._plugin._connection._shell = MagicMock()
-#         self._plugin.search_for_resource_name = MagicMock()
-#         self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
-#         self._plugin.update_values = MagicMock()
-#         self._plugin.update_values.return_value = RESPONSE_PAYLOAD
-#         self._plugin._task.args = {
-#             "state": "replaced",
-#             "config": [
-#                 {
-#                     "blacklist": "//var/log/[a-z]/gm",
-#                     "crc_salt": "<SOURCE>",
-#                     "disabled": False,
-#                     "follow_tail": False,
-#                     "host": "$decideOnStartup",
-#                     "host_regex": "/(test_host)/gm",
-#                     "host_segment": 3,
-#                     "index": "default",
-#                     "name": "/var/log",
-#                     "recursive": True,
-#                     "sourcetype": "test_source_type",
-#                     "whitelist": "//var/log/[0-9]/gm",
-#                 }
-#             ],
-#         }
-#         result = self._plugin.run(task_vars=self._task_vars)
-#         self.assertTrue(result["changed"])
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_monitors_replaced(self, conn, monkeypatch):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
+        self._plugin.search_for_resource_name = MagicMock()
+        self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
 
-#     @patch("ansible.module_utils.connection.Connection.__rpc__")
-#     def test_es_data_inputs_monitors_replaced_idempotent(self, connection):
-#         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-#         self._plugin._connection._shell = MagicMock()
-#         connection.get_by_path = MagicMock()
-#         self._plugin.update_values = MagicMock()
-#         self._plugin.update_values.return_value = RESPONSE_PAYLOAD
-#         connection.get_by_path.return_value = {
-#             "entry": [
-#                 {
-#                     "content": {
-#                         "_rcvbuf": 1572864,
-#                         "blacklist": "//var/log/[a-z]/gm",
-#                         "check-index": None,
-#                         "crcSalt": "<SOURCE>",
-#                         "disabled": False,
-#                         "eai:acl": None,
-#                         "filecount": 74,
-#                         "filestatecount": 82,
-#                         "followTail": False,
-#                         "host": "$decideOnStartup",
-#                         "host_regex": "/(test_host)/gm",
-#                         "host_resolved": "ip-172-31-52-131.us-west-2.compute.internal",
-#                         "host_segment": 3,
-#                         "ignoreOlderThan": "5d",
-#                         "index": "default",
-#                         "recursive": True,
-#                         "source": "test",
-#                         "sourcetype": "test_source_type",
-#                         "time_before_close": 4,
-#                         "whitelist": "//var/log/[0-9]/gm",
-#                     },
-#                     "name": "/var/log",
-#                 }
-#             ]
-#         }
-#         self._plugin._task.args = {
-#             "state": "replaced",
-#             "config": [
-#                 {
-#                     "blacklist": "//var/log/[a-z]/gm",
-#                     "crc_salt": "<SOURCE>",
-#                     "disabled": False,
-#                     "follow_tail": False,
-#                     "host": "$decideOnStartup",
-#                     "host_regex": "/(test_host)/gm",
-#                     "host_segment": 3,
-#                     "index": "default",
-#                     "name": "/var/log",
-#                     "recursive": True,
-#                     "sourcetype": "test_source_type",
-#                     "whitelist": "//var/log/[0-9]/gm",
-#                 }
-#             ],
-#         }
-#         result = self._plugin.run(task_vars=self._task_vars)
-#         self.assertFalse(result["changed"])
+        def create_update(
+            self, rest_path, data=None, mock=None, mock_data=None
+        ):
+            return RESPONSE_PAYLOAD
 
-#     @patch("ansible.module_utils.connection.Connection.__rpc__")
-#     def test_es_data_inputs_monitors_deleted(self, connection):
-#         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-#         self._plugin._connection._shell = MagicMock()
-#         self._plugin.search_for_resource_name = MagicMock()
-#         self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
-#         self._plugin._task.args = {
-#             "state": "deleted",
-#             "config": [{"name": "/var/log"}],
-#         }
-#         result = self._plugin.run(task_vars=self._task_vars)
-#         self.assertTrue(result["changed"])
+        def get_by_path(self, path):
+            return RESPONSE_PAYLOAD
 
-#     @patch("ansible.module_utils.connection.Connection.__rpc__")
-#     def test_es_data_inputs_monitors_deleted_idempotent(self, connection):
-#         self._plugin.search_for_resource_name = MagicMock()
-#         self._plugin.search_for_resource_name.return_value = {}
-#         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-#         self._plugin._connection._shell = MagicMock()
-#         self._plugin._task.args = {
-#             "state": "deleted",
-#             "config": [{"name": "/var/log"}],
-#         }
-#         result = self._plugin.run(task_vars=self._task_vars)
-#         self.assertFalse(result["changed"])
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
-#     @patch("ansible.module_utils.connection.Connection.__rpc__")
-#     def test_es_data_inputs_monitors_gathered(self, connection):
-#         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-#         self._plugin._connection._shell = MagicMock()
-#         self._plugin.search_for_resource_name = MagicMock()
-#         self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
-#         self._plugin._task.args = {
-#             "state": "gathered",
-#             "config": [{"name": "/var/log"}],
-#         }
-#         result = self._plugin.run(task_vars=self._task_vars)
-#         self.assertFalse(result["changed"])
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [
+                {
+                    "blacklist": "//var/log/[a-z0-9]/gm",
+                    "crc_salt": "<SOURCE>",
+                    "disabled": False,
+                    "follow_tail": False,
+                    "host": "$decideOnStartup",
+                    "index": "default",
+                    "name": "/var/log",
+                    "recursive": True,
+                }
+            ],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_monitors_replaced_idempotent(
+        self, conn, monkeypatch
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
+
+        def create_update(
+            self, rest_path, data=None, mock=None, mock_data=None
+        ):
+            return RESPONSE_PAYLOAD
+
+        def get_by_path(self, path):
+            return {
+                "entry": [
+                    {
+                        "content": {
+                            "_rcvbuf": 1572864,
+                            "blacklist": "//var/log/[a-z]/gm",
+                            "check-index": None,
+                            "crcSalt": "<SOURCE>",
+                            "disabled": False,
+                            "eai:acl": None,
+                            "filecount": 74,
+                            "filestatecount": 82,
+                            "followTail": False,
+                            "host": "$decideOnStartup",
+                            "host_regex": "/(test_host)/gm",
+                            "host_resolved": "ip-172-31-52-131.us-west-2.compute.internal",
+                            "host_segment": 3,
+                            "ignoreOlderThan": "5d",
+                            "index": "default",
+                            "recursive": True,
+                            "source": "test",
+                            "sourcetype": "test_source_type",
+                            "time_before_close": 4,
+                            "whitelist": "//var/log/[0-9]/gm",
+                        },
+                        "name": "/var/log",
+                    }
+                ]
+            }
+
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [
+                {
+                    "blacklist": "//var/log/[a-z]/gm",
+                    "crc_salt": "<SOURCE>",
+                    "disabled": False,
+                    "follow_tail": False,
+                    "host": "$decideOnStartup",
+                    "host_regex": "/(test_host)/gm",
+                    "host_segment": 3,
+                    "index": "default",
+                    "name": "/var/log",
+                    "recursive": True,
+                    "sourcetype": "test_source_type",
+                    "whitelist": "//var/log/[0-9]/gm",
+                }
+            ],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_monitors_deleted(self, conn, monkeypatch):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
+
+        def create_update(
+            self, rest_path, data=None, mock=None, mock_data=None
+        ):
+            return RESPONSE_PAYLOAD
+
+        def get_by_path(self, path):
+            return RESPONSE_PAYLOAD
+
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+
+        self._plugin._task.args = {
+            "state": "deleted",
+            "config": [{"name": "/var/log"}],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_monitors_deleted_idempotent(self, connection):
+        self._plugin.search_for_resource_name = MagicMock()
+        self._plugin.search_for_resource_name.return_value = {}
+
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
+        self._plugin._task.args = {
+            "state": "deleted",
+            "config": [{"name": "/var/log"}],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_monitors_gathered(self, conn, monkeypatch):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
+
+        def get_by_path(self, path):
+            return RESPONSE_PAYLOAD
+
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+
+        self._plugin._task.args = {
+            "state": "gathered",
+            "config": [{"name": "/var/log"}],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
