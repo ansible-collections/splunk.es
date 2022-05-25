@@ -7,13 +7,13 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-author: Ansible Security Automation Team
-httpapi : splunk
+author: Ansible Security Team (@ansible-security)
+name: splunk
 short_description: HttpApi Plugin for Splunk
 description:
   - This HttpApi plugin provides methods to connect to Splunk over a
     HTTP(S)-based api.
-version_added: "1.0"
+version_added: "1.0.0"
 """
 
 import json
