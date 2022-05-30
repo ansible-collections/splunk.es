@@ -113,7 +113,15 @@ class ActionModule(ActionBase):
     # /tcp/splunktcptoken[/{name}]
     # /tcp/ssl[/{name}]
     # /udp[/{name}]
-    def request_by_path(self, conn_request, protocol, datatype=None, name=None, req_type="get", payload=None):
+    def request_by_path(
+        self,
+        conn_request,
+        protocol,
+        datatype=None,
+        name=None,
+        req_type="get",
+        payload=None,
+    ):
         query_dict = None
         url = ""
 
@@ -417,8 +425,7 @@ class ActionModule(ActionBase):
         config = self._task.args.get("config")
 
         conn_request = SplunkRequest(
-            conn=self._connection,
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            connection=self._connection,
             not_rest_data_keys=["state"],
         )
 
@@ -452,13 +459,19 @@ class ActionModule(ActionBase):
 
         elif self._task.args["state"] == "merged" or self._task.args["state"] == "replaced":
             if config:
-                self._result[self.module_return], self._result["changed"] = self.configure_module_api(conn_request, config)
+                (
+                    self._result[self.module_return],
+                    self._result["changed"],
+                ) = self.configure_module_api(conn_request, config)
                 if not self._result[self.module_return]["after"]:
                     self._result[self.module_return].pop("after")
 
         elif self._task.args["state"] == "deleted":
             if config:
-                self._result[self.module_return], self._result["changed"] = self.delete_module_api_config(conn_request, config)
+                (
+                    self._result[self.module_return],
+                    self._result["changed"],
+                ) = self.delete_module_api_config(conn_request, config)
                 if self._result[self.module_return]["after"] == None:
                     self._result[self.module_return].pop("after")
 
