@@ -126,7 +126,7 @@ class SplunkRequest(object):
                 self.connection.load_platform_plugins("splunk.es.splunk")
                 self.module = action_module
                 self.legacy = False
-
+                self.connection.set_options(var_options=task_vars)
             except ConnectionError:
                 raise
 
@@ -171,9 +171,16 @@ class SplunkRequest(object):
             return response
 
         except ConnectionError as e:
+<<<<<<< HEAD
             self.module.fail_json(
                 msg="connection error occurred: {0}".format(e),
             )
+=======
+            raise AnsibleActionFail("connection error occurred: {0}".format(e))
+            # self.module.fail_json(
+            #     msg="connection error occurred: {0}".format(e),
+            # )
+>>>>>>> 96517bc (kdl)
         except CertificateError as e:
             self.module.fail_json(
                 msg="certificate error occurred: {0}".format(e),
@@ -210,6 +217,10 @@ class SplunkRequest(object):
             splunk_data = {}
             if self.legacy and not config:
                 config = self.module.params
+<<<<<<< HEAD
+=======
+
+>>>>>>> 96517bc (kdl)
             for param in config:
                 if (config[param]) is not None and (
                     param not in self.not_rest_data_keys
@@ -226,7 +237,7 @@ class SplunkRequest(object):
                 msg="invalid data type provided: {0}".format(e)
             )
 
-    def get_urlencoded_data(self, config):
+    def get_urlencoded_data(self, config=None):
         return urlencode(self.get_data(config))
 
     def get_by_path(self, rest_path):
@@ -243,6 +254,7 @@ class SplunkRequest(object):
 
         return self.delete("/{0}?output_mode=json".format(rest_path))
 
+<<<<<<< HEAD
     def create_update(self, rest_path, data):
         """
         Create or Update a file/directory monitor data input in Splunk
@@ -251,6 +263,15 @@ class SplunkRequest(object):
         # when 'self.override' is True, the 'get_data' function replaces 'data'
         # in order to make use of keymap
         if data is not None and self.override:
+=======
+    def create_update(self, rest_path, data=None, mock=None, mock_data=None):
+        """
+        Create or Update a file/directory monitor data input in Splunk
+        """
+        if mock:
+            return mock_data
+        if data is not None:
+>>>>>>> 96517bc (kdl)
             data = self.get_urlencoded_data(data)
         return self.post(
             "/{0}?output_mode=json".format(rest_path), payload=data
