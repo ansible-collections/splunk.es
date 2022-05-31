@@ -17,6 +17,7 @@
 #
 
 from __future__ import absolute_import, division, print_function
+from webbrowser import get
 
 __metaclass__ = type
 
@@ -44,7 +45,7 @@ RESPONSE_PAYLOAD = {
     "tcp_cooked": {
         "entry": [
             {
-                "name": "8100",
+                "name": "default:8100",
                 "content": {
                     "connection_host": "ip",
                     "disabled": False,
@@ -57,7 +58,7 @@ RESPONSE_PAYLOAD = {
     "tcp_raw": {
         "entry": [
             {
-                "name": "8101",
+                "name": "default:8101",
                 "content": {
                     "connection_host": "ip",
                     "disabled": True,
@@ -75,7 +76,7 @@ RESPONSE_PAYLOAD = {
     "udp": {
         "entry": [
             {
-                "name": "7890",
+                "name": "default:7890",
                 "content": {
                     "connection_host": "ip",
                     "disabled": True,
@@ -94,7 +95,7 @@ RESPONSE_PAYLOAD = {
     "splunktcptoken": {
         "entry": [
             {
-                "name": "test_token",
+                "name": "splunktcptoken://test_token",
                 "content": {
                     "token": "01234567-0123-0123-0123-012345678901",
                 },
@@ -115,7 +116,7 @@ REQUEST_PAYLOAD = {
     "tcp_cooked": {
         "protocol": "tcp",
         "datatype": "cooked",
-        "name": 8101,
+        "name": 8100,
         "connection_host": "ip",
         "disabled": False,
         "host": "$decideOnStartup",
@@ -124,7 +125,7 @@ REQUEST_PAYLOAD = {
     "tcp_raw": {
         "protocol": "tcp",
         "datatype": "raw",
-        "name": 8100,
+        "name": 8101,
         "connection_host": "ip",
         "disabled": True,
         "host": "$decideOnStartup",
@@ -162,6 +163,115 @@ REQUEST_PAYLOAD = {
     },
 }
 
+REPLACED_RESPONSE_PAYLOAD = {
+    "tcp_cooked": {
+        "entry": [
+            {
+                "name": "default:8100",
+                "content": {
+                    "connection_host": "ip",
+                    "disabled": True,
+                    "host": "$decideOnStartup",
+                    "restrictToHost": "default",
+                },
+            }
+        ],
+    },
+    "tcp_raw": {
+        "entry": [
+            {
+                "name": "default:8101",
+                "content": {
+                    "connection_host": "ip",
+                    "disabled": True,
+                    "host": "$decideOnStartup",
+                    "index": "default",
+                    "queue": "parsingQueue",
+                    "rawTcpDoneTimeout": 10,
+                    "restrictToHost": "default",
+                    "source": "test_source",
+                    "sourcetype": "test_source_type",
+                },
+            }
+        ],
+    },
+    "udp": {
+        "entry": [
+            {
+                "name": "default:7890",
+                "content": {
+                    "connection_host": "ip",
+                    "disabled": True,
+                    "host": "$decideOnStartup",
+                    "index": "default",
+                    "no_appending_timestamp": False,
+                    "no_priority_stripping": False,
+                    "queue": "parsingQueue",
+                    "restrictToHost": "default",
+                    "source": "test_source",
+                    "sourcetype": "test_source_type",
+                },
+            }
+        ],
+    },
+    "splunktcptoken": {
+        "entry": [
+            {
+                "name": "splunktcptoken://test_token",
+                "content": {
+                    "token": "01234567-0123-0123-0123-012345678900",
+                },
+            }
+        ],
+    },
+}
+
+REPLACED_REQUEST_PAYLOAD = {
+    "tcp_cooked": {
+        "protocol": "tcp",
+        "datatype": "cooked",
+        "name": "default:8100",
+        "connection_host": "ip",
+        "disabled": True,
+        "host": "$decideOnStartup",
+        "restrict_to_host": "default",
+    },
+    "tcp_raw": {
+        "protocol": "tcp",
+        "datatype": "raw",
+        "name": "default:8101",
+        "connection_host": "ip",
+        "disabled": True,
+        "host": "$decideOnStartup",
+        "index": "default",
+        "queue": "parsingQueue",
+        "raw_tcp_done_timeout": 10,
+        "restrict_to_host": "default",
+        "source": "test_source",
+        "sourcetype": "test_source_type",
+    },
+    "udp": {
+        "protocol": "udp",
+        "name": "default:7890",
+        "connection_host": "ip",
+        "disabled": True,
+        "host": "$decideOnStartup",
+        "index": "default",
+        "no_appending_timestamp": False,
+        "no_priority_stripping": False,
+        "queue": "parsingQueue",
+        "restrict_to_host": "default",
+        "source": "test_source",
+        "sourcetype": "test_source_type",
+    },
+    "splunktcptoken": {
+        "protocol": "tcp",
+        "datatype": "splunktcptoken",
+        "name": "splunktcptoken://test_token",
+        "token": "01234567-0123-0123-0123-012345678900",
+    },
+}
+
 
 class TestSplunkEsDataInputsMetworksRules:
     def setup(self):
@@ -189,17 +299,19 @@ class TestSplunkEsDataInputsMetworksRules:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_networks_merged(self, connection, monkeypatch):
-        self._plugin.api_response = RESPONSE_PAYLOAD
-
-        def create_update(self, rest_path, data=None, mock=None, mock_data=None):
-            return RESPONSE_PAYLOAD
-
-        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
-
         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
+        # patch update operation
+        update_response = RESPONSE_PAYLOAD["tcp_cooked"]
+
+        def create_update(self, rest_path, data=None, mock=None, mock_data=None):
+            return update_response
+
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+
         # tcp_cooked
+        update_response = RESPONSE_PAYLOAD["tcp_cooked"]
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["tcp_cooked"]],
@@ -208,6 +320,7 @@ class TestSplunkEsDataInputsMetworksRules:
         assert result["changed"] is True
 
         # tcp_raw
+        update_response = RESPONSE_PAYLOAD["tcp_raw"]
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["tcp_raw"]],
@@ -216,6 +329,7 @@ class TestSplunkEsDataInputsMetworksRules:
         assert result["changed"] is True
 
         # udp
+        update_response = RESPONSE_PAYLOAD["udp"]
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["udp"]],
@@ -224,6 +338,7 @@ class TestSplunkEsDataInputsMetworksRules:
         assert result["changed"] is True
 
         # splunktcptoken
+        update_response = RESPONSE_PAYLOAD["splunktcptoken"]
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["splunktcptoken"]],
@@ -232,190 +347,328 @@ class TestSplunkEsDataInputsMetworksRules:
         assert result["changed"] is True
 
         # ssl
+        update_response = RESPONSE_PAYLOAD["ssl"]
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["ssl"]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_networks_merged_idempotent(self, conn, monkeypatch):
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+        self._plugin._connection._shell = MagicMock()
+
+        # patch get operation
+        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+
+        def get_by_path(self, path):
+            return get_response
+
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+
+        # tcp_cooked
+        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        self._plugin._task.args = {
+            "state": "merged",
+            "config": [REQUEST_PAYLOAD["tcp_cooked"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+        # tcp_raw
+        get_response = RESPONSE_PAYLOAD["tcp_raw"]
+        self._plugin._task.args = {
+            "state": "merged",
+            "config": [REQUEST_PAYLOAD["tcp_raw"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+        # udp
+        get_response = RESPONSE_PAYLOAD["udp"]
+        self._plugin._task.args = {
+            "state": "merged",
+            "config": [REQUEST_PAYLOAD["udp"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+        # splunktcptoken
+        get_response = RESPONSE_PAYLOAD["splunktcptoken"]
+        self._plugin._task.args = {
+            "state": "merged",
+            "config": [REQUEST_PAYLOAD["splunktcptoken"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+        # ssl
+        get_response = RESPONSE_PAYLOAD["ssl"]
+        self._plugin._task.args = {
+            "state": "merged",
+            "config": [REQUEST_PAYLOAD["ssl"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_networks_replaced(self, conn, monkeypatch):
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+        self._plugin._connection._shell = MagicMock()
+
+        # patch get operation
+        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        # patch update operation
+        update_response = REPLACED_RESPONSE_PAYLOAD["tcp_cooked"]
+
+        def create_update(self, rest_path, data=None, mock=None, mock_data=None):
+            return update_response
+
+        def get_by_path(self, path):
+            return get_response
+
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+
+        # tcp_cooked
+        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        update_response = REPLACED_RESPONSE_PAYLOAD["tcp_cooked"]
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [REPLACED_REQUEST_PAYLOAD["tcp_cooked"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is True
 
-    # @patch("ansible.module_utils.connection.Connection.__rpc__")
-    # def test_es_data_inputs_networks_merged_idempotent(self, conn, monkeypatch):
-    #     self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-    #     self._plugin._connection._shell = MagicMock()
+        # tcp_raw
+        get_response = RESPONSE_PAYLOAD["tcp_raw"]
+        update_response = REPLACED_RESPONSE_PAYLOAD["tcp_raw"]
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [REPLACED_REQUEST_PAYLOAD["tcp_raw"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
 
-    #     def create_update(self, rest_path, data=None, mock=None, mock_data=None):
-    #         return RESPONSE_PAYLOAD
+        # udp
+        get_response = RESPONSE_PAYLOAD["udp"]
+        update_response = REPLACED_RESPONSE_PAYLOAD["udp"]
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [REPLACED_REQUEST_PAYLOAD["udp"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
 
-    #     def get_by_path(self, path):
-    #         return RESPONSE_PAYLOAD
+        # splunktcptoken
+        get_response = RESPONSE_PAYLOAD["splunktcptoken"]
+        update_response = REPLACED_RESPONSE_PAYLOAD["splunktcptoken"]
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [REPLACED_REQUEST_PAYLOAD["splunktcptoken"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
 
-    #     monkeypatch.setattr(SplunkRequest, "create_update", create_update)
-    #     monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_networks_replaced_idempotent(self, conn, monkeypatch):
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+        self._plugin._connection._shell = MagicMock()
 
-    #     self._plugin._task.args = {
-    #         "state": "merged",
-    #         "config": [
-    #             {
-    #                 "blacklist": "//var/log/[a-z]/gm",
-    #                 "crc_salt": "<SOURCE>",
-    #                 "disabled": False,
-    #                 "follow_tail": False,
-    #                 "host": "$decideOnStartup",
-    #                 "host_regex": "/(test_host)/gm",
-    #                 "host_segment": 3,
-    #                 "index": "default",
-    #                 "name": "/var/log",
-    #                 "recursive": True,
-    #                 "sourcetype": "test_source_type",
-    #                 "whitelist": "//var/log/[0-9]/gm",
-    #             }
-    #         ],
-    #     }
-    #     result = self._plugin.run(task_vars=self._task_vars)
-    #     assert result["changed"] is False
+        # patch get operation
+        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
 
-    # @patch("ansible.module_utils.connection.Connection.__rpc__")
-    # def test_es_data_inputs_networks_replaced(self, conn, monkeypatch):
-    #     self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-    #     self._plugin._connection._shell = MagicMock()
+        def get_by_path(self, path):
+            return get_response
 
-    #     def create_update(self, rest_path, data=None, mock=None, mock_data=None):
-    #         return RESPONSE_PAYLOAD
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
-    #     def get_by_path(self, path):
-    #         return RESPONSE_PAYLOAD
+        # tcp_cooked
+        get_response = REPLACED_RESPONSE_PAYLOAD["tcp_cooked"]
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [REPLACED_REQUEST_PAYLOAD["tcp_cooked"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
 
-    #     monkeypatch.setattr(SplunkRequest, "create_update", create_update)
-    #     monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        # tcp_raw
+        get_response = REPLACED_RESPONSE_PAYLOAD["tcp_raw"]
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [REPLACED_REQUEST_PAYLOAD["tcp_raw"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
 
-    #     self._plugin._task.args = {
-    #         "state": "replaced",
-    #         "config": [
-    #             {
-    #                 "blacklist": "//var/log/[a-z0-9]/gm",
-    #                 "crc_salt": "<SOURCE>",
-    #                 "disabled": False,
-    #                 "follow_tail": False,
-    #                 "host": "$decideOnStartup",
-    #                 "index": "default",
-    #                 "name": "/var/log",
-    #                 "recursive": True,
-    #             }
-    #         ],
-    #     }
-    #     result = self._plugin.run(task_vars=self._task_vars)
-    #     assert result["changed"] is True
+        # udp
+        get_response = REPLACED_RESPONSE_PAYLOAD["udp"]
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [REPLACED_REQUEST_PAYLOAD["udp"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
 
-    # @patch("ansible.module_utils.connection.Connection.__rpc__")
-    # def test_es_data_inputs_networks_replaced_idempotent(self, conn, monkeypatch):
-    #     self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-    #     self._plugin._connection._shell = MagicMock()
+        # splunktcptoken
+        get_response = REPLACED_RESPONSE_PAYLOAD["splunktcptoken"]
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [REPLACED_REQUEST_PAYLOAD["splunktcptoken"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
 
-    #     def create_update(self, rest_path, data=None, mock=None, mock_data=None):
-    #         return RESPONSE_PAYLOAD
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_networks_deleted(self, conn, monkeypatch):
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+        self._plugin._connection._shell = MagicMock()
 
-    #     def get_by_path(self, path):
-    #         return {
-    #             "entry": [
-    #                 {
-    #                     "content": {
-    #                         "_rcvbuf": 1572864,
-    #                         "blacklist": "//var/log/[a-z]/gm",
-    #                         "check-index": None,
-    #                         "crcSalt": "<SOURCE>",
-    #                         "disabled": False,
-    #                         "eai:acl": None,
-    #                         "filecount": 74,
-    #                         "filestatecount": 82,
-    #                         "followTail": False,
-    #                         "host": "$decideOnStartup",
-    #                         "host_regex": "/(test_host)/gm",
-    #                         "host_resolved": "ip-172-31-52-131.us-west-2.compute.internal",
-    #                         "host_segment": 3,
-    #                         "ignoreOlderThan": "5d",
-    #                         "index": "default",
-    #                         "recursive": True,
-    #                         "source": "test",
-    #                         "sourcetype": "test_source_type",
-    #                         "time_before_close": 4,
-    #                         "whitelist": "//var/log/[0-9]/gm",
-    #                     },
-    #                     "name": "/var/log",
-    #                 }
-    #             ]
-    #         }
+        def delete_by_path(self, rest_path, data=None, mock=None, mock_data=None):
+            return {}
 
-    #     monkeypatch.setattr(SplunkRequest, "create_update", create_update)
-    #     monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
 
-    #     self._plugin._task.args = {
-    #         "state": "replaced",
-    #         "config": [
-    #             {
-    #                 "blacklist": "//var/log/[a-z]/gm",
-    #                 "crc_salt": "<SOURCE>",
-    #                 "disabled": False,
-    #                 "follow_tail": False,
-    #                 "host": "$decideOnStartup",
-    #                 "host_regex": "/(test_host)/gm",
-    #                 "host_segment": 3,
-    #                 "index": "default",
-    #                 "name": "/var/log",
-    #                 "recursive": True,
-    #                 "sourcetype": "test_source_type",
-    #                 "whitelist": "//var/log/[0-9]/gm",
-    #             }
-    #         ],
-    #     }
-    #     result = self._plugin.run(task_vars=self._task_vars)
-    #     assert result["changed"] is False
+        def get_by_path(self, path):
+            return get_response
 
-    # @patch("ansible.module_utils.connection.Connection.__rpc__")
-    # def test_es_data_inputs_networks_deleted(self, conn, monkeypatch):
-    #     self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-    #     self._plugin._connection._shell = MagicMock()
+        monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
-    #     def create_update(self, rest_path, data=None, mock=None, mock_data=None):
-    #         return RESPONSE_PAYLOAD
+        # tcp_cooked
+        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        self._plugin._task.args = {
+            "state": "deleted",
+            "config": [REQUEST_PAYLOAD["tcp_cooked"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
 
-    #     def get_by_path(self, path):
-    #         return RESPONSE_PAYLOAD
+        # tcp_raw
+        get_response = RESPONSE_PAYLOAD["tcp_raw"]
+        self._plugin._task.args = {
+            "state": "deleted",
+            "config": [REQUEST_PAYLOAD["tcp_raw"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
 
-    #     monkeypatch.setattr(SplunkRequest, "create_update", create_update)
-    #     monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        # udp
+        get_response = RESPONSE_PAYLOAD["udp"]
+        self._plugin._task.args = {
+            "state": "deleted",
+            "config": [REQUEST_PAYLOAD["udp"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
 
-    #     self._plugin._task.args = {
-    #         "state": "deleted",
-    #         "config": [{"name": "/var/log"}],
-    #     }
-    #     result = self._plugin.run(task_vars=self._task_vars)
-    #     assert result["changed"] is True
+        # splunktcptoken
+        get_response = RESPONSE_PAYLOAD["splunktcptoken"]
+        self._plugin._task.args = {
+            "state": "deleted",
+            "config": [REQUEST_PAYLOAD["splunktcptoken"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
 
-    # @patch("ansible.module_utils.connection.Connection.__rpc__")
-    # def test_es_data_inputs_networks_deleted_idempotent(self, connection):
-    #     self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-    #     self._plugin._connection._shell = MagicMock()
-    #     self._plugin._task.args = {
-    #         "state": "deleted",
-    #         "config": [{"name": "/var/log"}],
-    #     }
-    #     result = self._plugin.run(task_vars=self._task_vars)
-    #     assert result["changed"] is False
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_networks_deleted_idempotent(self, conn, monkeypatch):
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+        self._plugin._connection._shell = MagicMock()
 
-    # @patch("ansible.module_utils.connection.Connection.__rpc__")
-    # def test_es_data_inputs_networks_gathered(self, conn, monkeypatch):
-    #     self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-    #     self._plugin._connection._shell = MagicMock()
+        def get_by_path(self, path):
+            return {}
 
-    #     def get_by_path(self, path):
-    #         return RESPONSE_PAYLOAD
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
-    #     monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        # tcp_cooked
+        self._plugin._task.args = {
+            "state": "deleted",
+            "config": [REQUEST_PAYLOAD["tcp_cooked"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
 
-    #     self._plugin._task.args = {
-    #         "state": "gathered",
-    #         "config": [{"name": "/var/log"}],
-    #     }
-    #     result = self._plugin.run(task_vars=self._task_vars)
-    #     assert result["changed"] is False
+        # tcp_raw
+        self._plugin._task.args = {
+            "state": "deleted",
+            "config": [REQUEST_PAYLOAD["tcp_raw"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+        # udp
+        self._plugin._task.args = {
+            "state": "deleted",
+            "config": [REQUEST_PAYLOAD["udp"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+        # splunktcptoken
+        self._plugin._task.args = {
+            "state": "deleted",
+            "config": [REQUEST_PAYLOAD["splunktcptoken"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_networks_gathered(self, conn, monkeypatch):
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+        self._plugin._connection._shell = MagicMock()
+
+        # patch get operation
+        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+
+        def get_by_path(self, path):
+            return get_response
+
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+
+        # tcp_cooked
+        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        self._plugin._task.args = {
+            "state": "gathered",
+            "config": [REQUEST_PAYLOAD["tcp_cooked"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+        # tcp_raw
+        get_response = RESPONSE_PAYLOAD["tcp_raw"]
+        self._plugin._task.args = {
+            "state": "gathered",
+            "config": [REQUEST_PAYLOAD["tcp_raw"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+        # udp
+        get_response = RESPONSE_PAYLOAD["udp"]
+        self._plugin._task.args = {
+            "state": "gathered",
+            "config": [REQUEST_PAYLOAD["udp"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+        # splunktcptoken
+        get_response = RESPONSE_PAYLOAD["splunktcptoken"]
+        self._plugin._task.args = {
+            "state": "gathered",
+            "config": [REQUEST_PAYLOAD["splunktcptoken"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
+
+        # ssl
+        get_response = RESPONSE_PAYLOAD["ssl"]
+        self._plugin._task.args = {
+            "state": "merged",
+            "config": [REQUEST_PAYLOAD["ssl"]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is False
