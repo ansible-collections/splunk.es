@@ -28,6 +28,7 @@ __metaclass__ = type
 from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.six.moves.urllib.parse import quote_plus
+from ansible.module_utils.connection import Connection
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
@@ -97,12 +98,15 @@ class ActionModule(ActionBase):
 
         # API returns back "index", even though it can't be set within /tcp/cooked
         if datatype:
-            if datatype == "cooked":
+            if datatype == "cooked" and "index" in res:
                 res.pop("index")
             elif datatype == "splunktcptoken":
-                res.pop("index")
-                res.pop("host")
-                res.pop("disabled")
+                if "index" in res:
+                    res.pop("index")
+                if "host" in res:
+                    res.pop("host")
+                if "disabled" in res:
+                    res.pop("disabled")
 
         return res
 
@@ -228,7 +232,7 @@ class ActionModule(ActionBase):
         name = want_conf["name"]
 
         # If the above parameters are present, but the object doesn't exist
-        # the value of the parameters should'nt be prepended to the name.
+        # the value of the parameters shouldn't be prepended to the name.
         # Otherwise Splunk returns 400. This check is takes advantage of this
         # and sets the correct name.
         have_conf = None
@@ -424,14 +428,17 @@ class ActionModule(ActionBase):
 
         config = self._task.args.get("config")
 
+        conn = Connection(self._connection.socket_path)
+
         conn_request = SplunkRequest(
-            connection=self._connection,
+            connection=conn,
             not_rest_data_keys=["state"],
         )
 
         if self._task.args["state"] == "gathered":
             if config:
                 self._result["gathered"] = []
+                self._result["changed"] = False
                 for item in config:
                     if item.get("name"):
                         self._result["gathered"].append(
