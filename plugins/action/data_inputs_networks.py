@@ -61,7 +61,6 @@ class ActionModule(ActionBase):
             "disabled": "disabled",
             "index": "index",
             "host": "host",
-            "name": "name",
             "no_appending_timestamp": "no_appending_timestamp",
             "no_priority_stripping": "no_priority_stripping",
             "rawTcpDoneTimeout": "raw_tcp_done_timeout",
@@ -479,7 +478,7 @@ class ActionModule(ActionBase):
                     self._result[self.module_return],
                     self._result["changed"],
                 ) = self.delete_module_api_config(conn_request, config)
-                if self._result[self.module_return]["after"] == None:
+                if self._result[self.module_return]["after"] is None:
                     self._result[self.module_return].pop("after")
 
         return self._result
