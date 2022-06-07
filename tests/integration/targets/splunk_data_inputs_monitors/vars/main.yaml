@@ -24,7 +24,7 @@ merged:
 replaced:
   before:
     name: "/var/log"
-    blacklist: "/\/var\/log\/[a-z]/gm"
+    blacklist: '/\/var\/log\/[a-z]/gm'
     check_index: True
     check_path: True
     crc_salt: <SOURCE>
