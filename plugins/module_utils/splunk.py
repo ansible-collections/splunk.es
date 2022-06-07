@@ -114,7 +114,6 @@ class SplunkRequest(object):
             try:
                 self.connection.load_platform_plugins("splunk.es.splunk")
 
-                self.connection.set_options(var_options=task_vars)
             except ConnectionError:
                 raise
 
