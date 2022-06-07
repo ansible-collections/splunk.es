@@ -13,7 +13,7 @@
         state: merged
         config:
           - name: "/var/log"
-            blacklist: "/\/var\/log\/[a-z]/gm"
+            blacklist: '/\/var\/log\/[a-z]/gm'
             check_index: True
             check_path: True
             crc_salt: <SOURCE>
@@ -28,7 +28,7 @@
             rename_source: test
             sourcetype: test_source_type
             time_before_close: 4
-            whitelist: "/\/var\/log\/[0-9]/gm"
+            whitelist: '/\/var\/log\/[0-9]/gm'
 
     - name: Gather data inputs monitors configuration facts
       register: gather_result
@@ -42,7 +42,7 @@
       splunk.es.data_inputs_monitors:
         config:
           - name: "/var/log"
-            blacklist: "/\/var\/log\/[a-z0-9]/gm"
+            blacklist: '/\/var\/log\/[a-z0-9]/gm'
             crc_salt: <SOURCE>
         state: replaced
 

@@ -14,7 +14,7 @@
         state: replaced
         config:
           - name: "/var/log"
-            blacklist: "/\/var\/log\/[a-z0-9]/gm"
+            blacklist: '/\/var\/log\/[a-z0-9]/gm'
             crc_salt: <SOURCE>
     
     - debug:
