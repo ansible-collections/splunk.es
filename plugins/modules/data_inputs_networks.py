@@ -20,9 +20,9 @@ version_added: "2.0.0"
 options:
   config:
     description:
-      - Manage and preview protocol input data. 
+      - Manage and preview protocol input data.
     type: list
-    subelement: dict
+    elements: dict
     suboptions:
       name:
         description:
@@ -50,11 +50,11 @@ options:
           - "none"
       datatype:
         description:
-          - C(cooked) lets one access cooked TCP input information and create new containers for managing cooked data. 
-          - C(raw) lets one manage raw tcp inputs from forwarders. 
-          - C(splunktcptoken) lets one manage receiver access using tokens. 
-          - C(ssl) Provides access to the SSL configuration of a Splunk server. 
-            This option does not support states I(deleted) and I(replaced). 
+          - C(cooked) lets one access cooked TCP input information and create new containers for managing cooked data.
+          - C(raw) lets one manage raw tcp inputs from forwarders.
+          - C(splunktcptoken) lets one manage receiver access using tokens.
+          - C(ssl) Provides access to the SSL configuration of a Splunk server.
+            This option does not support states I(deleted) and I(replaced).
         choices:
           - "cooked"
           - "raw"
@@ -76,12 +76,12 @@ options:
         type: str
       no_appending_timestamp:
         description:
-          - If set to true, prevents Splunk software from prepending a timestamp and hostname to incoming events. 
+          - If set to true, prevents Splunk software from prepending a timestamp and hostname to incoming events.
           - Only for UDP data input configuration.
         type: bool
       no_priority_stripping:
         description:
-          - If set to true, Splunk software does not remove the priority field from incoming syslog events. 
+          - If set to true, Splunk software does not remove the priority field from incoming syslog events.
           - Only for UDP data input configuration.
         type: bool
       queue:
@@ -130,7 +130,7 @@ options:
         type: str
       token:
         description:
-          - Token value to use for SplunkTcpToken. If unspecified, a token is generated automatically. 
+          - Token value to use for SplunkTcpToken. If unspecified, a token is generated automatically.
         type: str
       password:
         description:
@@ -139,7 +139,7 @@ options:
         type: str
       require_client_cert:
         description:
-          - Determines whether a client must authenticate. 
+          - Determines whether a client must authenticate.
           - Only for TCP SSL configuration.
         type: str
       root_ca:
@@ -150,7 +150,7 @@ options:
       server_cert:
         description:
           - Full path to the server certificate.
-          - Only for TCP SSL configuration. 
+          - Only for TCP SSL configuration.
         type: str
       cipher_suite:
         description:
@@ -192,7 +192,7 @@ EXAMPLES = """
       - protocol: tcp
         datatype: cooked
     state: gathered
-# 
+#
 # Output:
 #
 # "changed": false,
@@ -308,7 +308,7 @@ EXAMPLES = """
       - protocol: tcp
         datatype: ssl
     state: gathered
-# 
+#
 # Output:
 #
 # "changed": false,
@@ -321,7 +321,7 @@ EXAMPLES = """
 #         "name": "test_host"
 #     }
 # ]
-# 
+#
 # ------------------------------
 - name: Gathering information about TCP SplunkTcpTokens using splunk.es.data_inputs_networks
   splunk.es.data_inputs_networks:
