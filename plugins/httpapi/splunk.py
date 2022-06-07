@@ -46,7 +46,9 @@ class HttpApi(HttpApiBase):
 
             return response.getcode(), self._response_to_json(value)
         except AnsibleConnectionFailure as e:
-            self.connection.queue_message("vvv", "AnsibleConnectionFailure: %s" % e)
+            self.connection.queue_message(
+                "vvv", "AnsibleConnectionFailure: %s" % e
+            )
             if to_text("Could not connect to") in to_text(e):
                 raise
             if to_text("401") in to_text(e):
@@ -60,7 +62,8 @@ class HttpApi(HttpApiBase):
     def _display_request(self, request_method, path):
         self.connection.queue_message(
             "vvvv",
-            "Web Services: %s %s/%s" % (request_method, self.connection._url, path),
+            "Web Services: %s %s/%s"
+            % (request_method, self.connection._url, path),
         )
 
     def _get_response_value(self, response_data):

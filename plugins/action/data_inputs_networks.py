@@ -163,7 +163,9 @@ class ActionModule(ActionBase):
             if url[-1] == "/":
                 url = url[:-1]
         else:
-            raise AnsibleActionFail("Incompatible protocol specified. Please specify 'tcp' or 'udp'")
+            raise AnsibleActionFail(
+                "Incompatible protocol specified. Please specify 'tcp' or 'udp'"
+            )
 
         if req_type == "get":
             query_dict = conn_request.get_by_path(url)
@@ -188,7 +190,9 @@ class ActionModule(ActionBase):
         search_result = {}
 
         if query_dict:
-            search_result = self.map_params_to_object(query_dict["entry"][0], datatype)
+            search_result = self.map_params_to_object(
+                query_dict["entry"][0], datatype
+            )
 
             # Adding back protocol and datatype fields for better clarity
             search_result["protocol"] = protocol
@@ -215,18 +219,32 @@ class ActionModule(ActionBase):
 
             old_name = want_conf["name"]
 
-            if want_conf.get("restrict_to_host") and old_name.split(":")[0] == want_conf["restrict_to_host"]:
+            if (
+                want_conf.get("restrict_to_host")
+                and old_name.split(":")[0] == want_conf["restrict_to_host"]
+            ):
                 old_name = old_name.split(":")[1]
 
             # If "restrictToHost" parameter is set, the value of this parameter is appended
             # to the numerical name meant to represent port number
-            if want_conf.get("restrict_to_host") and want_conf["restrict_to_host"] not in want_conf["name"]:
-                want_conf["name"] = "{0}:{1}".format(want_conf["restrict_to_host"], want_conf["name"])
+            if (
+                want_conf.get("restrict_to_host")
+                and want_conf["restrict_to_host"] not in want_conf["name"]
+            ):
+                want_conf["name"] = "{0}:{1}".format(
+                    want_conf["restrict_to_host"], want_conf["name"]
+                )
 
             # If datatype is "splunktcptoken", the value "splunktcptoken://" is appended
             # to the name
-            elif datatype and datatype == "splunktcptoken" and "splunktcptoken://" not in want_conf["name"]:
-                want_conf["name"] = "{0}{1}".format("splunktcptoken://", want_conf["name"])
+            elif (
+                datatype
+                and datatype == "splunktcptoken"
+                and "splunktcptoken://" not in want_conf["name"]
+            ):
+                want_conf["name"] = "{0}{1}".format(
+                    "splunktcptoken://", want_conf["name"]
+                )
 
         name = want_conf["name"]
 
@@ -269,7 +287,9 @@ class ActionModule(ActionBase):
             if not want_conf.get("name"):
                 raise AnsibleActionFail("No name specified")
 
-            have_conf, protocol, datatype, name, _old_name = self.parse_config(conn_request, want_conf)
+            have_conf, protocol, datatype, name, _old_name = self.parse_config(
+                conn_request, want_conf
+            )
 
             if protocol == "tcp" and datatype == "ssl":
                 raise AnsibleActionFail("Deleted state not supported for SSL")
@@ -307,9 +327,15 @@ class ActionModule(ActionBase):
                 "cipher_suite",
             ]
 
-            have_conf, protocol, datatype, name, old_name = self.parse_config(conn_request, want_conf)
+            have_conf, protocol, datatype, name, old_name = self.parse_config(
+                conn_request, want_conf
+            )
 
-            if protocol == "tcp" and datatype == "ssl" and self._task.args["state"] == "replaced":
+            if (
+                protocol == "tcp"
+                and datatype == "ssl"
+                and self._task.args["state"] == "replaced"
+            ):
                 raise AnsibleActionFail("Replaced state not supported for SSL")
 
             if have_conf:
@@ -323,16 +349,24 @@ class ActionModule(ActionBase):
                         diff.update(diff2)
 
                 if diff:
-                    diff = remove_get_keys_from_payload_dict(diff, remove_from_diff_compare)
+                    diff = remove_get_keys_from_payload_dict(
+                        diff, remove_from_diff_compare
+                    )
                     if diff:
                         before.append(have_conf)
                         if self._task.args["state"] == "merged":
 
-                            want_conf = utils.remove_empties(utils.dict_merge(have_conf, want_conf))
-                            want_conf = remove_get_keys_from_payload_dict(want_conf, remove_from_diff_compare)
+                            want_conf = utils.remove_empties(
+                                utils.dict_merge(have_conf, want_conf)
+                            )
+                            want_conf = remove_get_keys_from_payload_dict(
+                                want_conf, remove_from_diff_compare
+                            )
                             changed = True
 
-                            payload = map_obj_to_params(want_conf, self.key_transform)
+                            payload = map_obj_to_params(
+                                want_conf, self.key_transform
+                            )
                             api_response = self.request_by_path(
                                 conn_request,
                                 protocol,
@@ -341,7 +375,9 @@ class ActionModule(ActionBase):
                                 req_type="post_update",
                                 payload=payload,
                             )
-                            response_json = self.map_params_to_object(api_response["entry"][0], datatype)
+                            response_json = self.map_params_to_object(
+                                api_response["entry"][0], datatype
+                            )
 
                             # Adding back protocol and datatype fields for better clarity
                             response_json["protocol"] = protocol
@@ -359,7 +395,9 @@ class ActionModule(ActionBase):
                             )
 
                             changed = True
-                            payload = map_obj_to_params(want_conf, self.key_transform)
+                            payload = map_obj_to_params(
+                                want_conf, self.key_transform
+                            )
                             # while creating new conf, we need to only use numerical values
                             # splunk will later append param value to it.
                             payload["name"] = old_name
@@ -372,7 +410,9 @@ class ActionModule(ActionBase):
                                 req_type="post_create",
                                 payload=payload,
                             )
-                            response_json = self.map_params_to_object(api_response["entry"][0], datatype)
+                            response_json = self.map_params_to_object(
+                                api_response["entry"][0], datatype
+                            )
 
                             # Adding back protocol and datatype fields for better clarity
                             response_json["protocol"] = protocol
@@ -400,7 +440,9 @@ class ActionModule(ActionBase):
                     req_type="post_create",
                     payload=payload,
                 )
-                response_json = self.map_params_to_object(api_response["entry"][0], datatype)
+                response_json = self.map_params_to_object(
+                    api_response["entry"][0], datatype
+                )
 
                 # Adding back protocol and datatype fields for better clarity
                 response_json["protocol"] = protocol
@@ -432,6 +474,7 @@ class ActionModule(ActionBase):
         conn_request = SplunkRequest(
             connection=conn,
             not_rest_data_keys=["state"],
+            task_vars=task_vars,
         )
 
         if self._task.args["state"] == "gathered":
@@ -463,7 +506,10 @@ class ActionModule(ActionBase):
             else:
                 raise AnsibleActionFail("No protocol specified")
 
-        elif self._task.args["state"] == "merged" or self._task.args["state"] == "replaced":
+        elif (
+            self._task.args["state"] == "merged"
+            or self._task.args["state"] == "replaced"
+        ):
             if config:
                 (
                     self._result[self.module_return],
