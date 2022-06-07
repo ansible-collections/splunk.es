@@ -7,10 +7,6 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-<<<<<<< HEAD
-=======
-# from ansible.errors import AnsibleActionFail
->>>>>>> 3f75743 (sanity fix)
 from ansible.module_utils.urls import CertificateError
 from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.module_utils.connection import (
