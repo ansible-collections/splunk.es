@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible.errors import AnsibleActionFail
 from ansible.module_utils.urls import CertificateError
 from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.module_utils.connection import (
@@ -157,10 +156,9 @@ class SplunkRequest(object):
             return response
 
         except ConnectionError as e:
-            raise AnsibleActionFail("connection error occurred: {0}".format(e))
-            # self.module.fail_json(
-            #     msg="connection error occurred: {0}".format(e),
-            # )
+            self.module.fail_json(
+                msg="connection error occurred: {0}".format(e),
+            )
         except CertificateError as e:
             self.module.fail_json(
                 msg="certificate error occurred: {0}".format(e),

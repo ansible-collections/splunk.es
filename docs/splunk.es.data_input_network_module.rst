@@ -152,7 +152,7 @@ Parameters
                 </td>
                 <td>
                         <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                    <li><div style="color: blue"><b>parsingQueue</b>&nbsp;&larr;</div></li>
+                                    <li>parsingQueue</li>
                                     <li>indexQueue</li>
                         </ul>
                 </td>
@@ -172,7 +172,6 @@ Parameters
                     </div>
                 </td>
                 <td>
-                        <b>Default:</b><br/><div style="color: blue">10</div>
                 </td>
                 <td>
                         <div>Specifies in seconds the timeout value for adding a Done-key.</div>
