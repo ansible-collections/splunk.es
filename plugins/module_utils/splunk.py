@@ -98,6 +98,7 @@ class SplunkRequest(object):
     def __init__(
         self,
         module=None,
+        action_module=None,
         connection=None,
         keymap=None,
         not_rest_data_keys=None,
@@ -113,7 +114,8 @@ class SplunkRequest(object):
             self.connection = connection
             try:
                 self.connection.load_platform_plugins("splunk.es.splunk")
-                self.connection.set_options(var_options=task_vars)
+                self.module = action_module
+                # self.connection.set_options(var_options=task_vars)
 
             except ConnectionError:
                 raise
@@ -136,6 +138,9 @@ class SplunkRequest(object):
 
     def _httpapi_error_handle(self, method, uri, payload=None):
         try:
+            from icecream import ic
+
+            ic(uri)
             code, response = self.connection.send_request(
                 method, uri, payload=payload
             )
