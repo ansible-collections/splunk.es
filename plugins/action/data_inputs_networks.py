@@ -89,6 +89,14 @@ class ActionModule(ActionBase):
             self._result["failed"] = True
             self._result["msg"] = errors
 
+    def fail_json(self, msg):
+        """Replace the AnsibleModule fail_json here
+        :param msg: The message for the failure
+        :type msg: str
+        """
+        msg = msg.replace("(basic.py)", self._task.action)
+        raise AnsibleActionFail(msg)
+
     def map_params_to_object(self, config, datatype=None):
         res = {}
 
@@ -473,6 +481,7 @@ class ActionModule(ActionBase):
 
         conn_request = SplunkRequest(
             connection=conn,
+            action_module=self,
             not_rest_data_keys=["state"],
             task_vars=task_vars,
         )
