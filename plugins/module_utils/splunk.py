@@ -111,8 +111,9 @@ class SplunkRequest(object):
         # by the 'get_data' function. This flag ensures that the modules that hadn't
         # yet been updated to use the keymap, can continue to work as originally intended
         override=True,
+        task_vars=None,
     ):
-        # check if call being made by legacy module (passes 'module' param)
+# check if call being made by legacy module (passes 'module' param)
         self.module = module
         if module:
             # This will be removed, once all of the available modules
@@ -226,7 +227,7 @@ class SplunkRequest(object):
                 msg="invalid data type provided: {0}".format(e)
             )
 
-    def get_urlencoded_data(self, config):
+    def get_urlencoded_data(self, config=None):
         return urlencode(self.get_data(config))
 
     def get_by_path(self, rest_path):
@@ -247,6 +248,7 @@ class SplunkRequest(object):
         """
         Create or Update a file/directory monitor data input in Splunk
         """
+
         # when 'self.override' is True, the 'get_data' function replaces 'data'
         # in order to make use of keymap
         if data is not None and self.override:

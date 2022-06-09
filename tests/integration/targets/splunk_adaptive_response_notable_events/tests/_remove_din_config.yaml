@@ -1,0 +1,6 @@
+---
+- name: delete data inputs config
+  splunk.es.data_inputs_monitors:
+    config:
+      - name: "/var/log"
+    state: deleted
