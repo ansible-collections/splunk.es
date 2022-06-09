@@ -247,7 +247,6 @@ class SplunkRequest(object):
         """
         Create or Update a file/directory monitor data input in Splunk
         """
-
         # when 'self.override' is True, the 'get_data' function replaces 'data'
         # in order to make use of keymap
         if data is not None and self.override:
