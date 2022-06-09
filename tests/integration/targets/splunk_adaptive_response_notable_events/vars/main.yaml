@@ -1,0 +1,46 @@
+---
+merged:
+  before: []
+
+  after:
+    name: "/var/log"
+    blacklist: '/\/var\/log\/[a-z]/gm'
+    check_index: True
+    check_path: True
+    crc_salt: <SOURCE>
+    disabled: False
+    follow_tail: False
+    host: "$decideOnStartup"
+    host_regex: "/(test_host)/gm"
+    host_segment: 3
+    ignore_older_than: 5d
+    index: default
+    recursive: True
+    rename_source: test
+    sourcetype: test_source_type
+    time_before_close:
+    whitelist: '/\/var\/log\/[a-z]/gm'
+
+replaced:
+  before:
+    name: "/var/log"
+    blacklist: '/\/var\/log\/[a-z]/gm'
+    check_index: True
+    check_path: True
+    crc_salt: <SOURCE>
+    disabled: False
+    follow_tail: False
+    host: "$decideOnStartup"
+    host_regex: "/(test_host)/gm"
+    host_segment: 3
+    ignore_older_than: 5d
+    index: default
+    recursive: True
+    rename_source: test
+    sourcetype: test_source_type
+    time_before_close:
+    whitelist: '/\/var\/log\/[a-z]/gm'
+  after:
+    name: "/var/log"
+    blacklist: '/\/var\/log\/[a-z0-9]/gm'
+    crc_salt: <SOURCE>
