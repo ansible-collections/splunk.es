@@ -98,6 +98,14 @@ class ActionModule(ActionBase):
             self._result["failed"] = True
             self._result["msg"] = errors
 
+    def fail_json(self, msg):
+        """Replace the AnsibleModule fail_json here
+        :param msg: The message for the failure
+        :type msg: str
+        """
+        msg = msg.replace("(basic.py)", self._task.action)
+        raise AnsibleActionFail(msg)
+
     def map_params_to_object(self, config):
         res = {}
         res["correlation_search_name"] = config["name"]
