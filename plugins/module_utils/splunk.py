@@ -29,19 +29,11 @@ def parse_splunk_args(module):
     try:
         splunk_data = {}
         for argspec in module.argument_spec:
-            if (
-                "default" in module.argument_spec[argspec]
-                and module.argument_spec[argspec]["default"] is None
-                and module.params[argspec] is not None
-            ):
+            if "default" in module.argument_spec[argspec] and module.argument_spec[argspec]["default"] is None and module.params[argspec] is not None:
                 splunk_data[argspec] = module.params[argspec]
         return splunk_data
     except TypeError as e:
-        module.fail_json(
-            msg="Invalid data type provided for splunk module_util.parse_splunk_args: {0}".format(
-                e
-            )
-        )
+        module.fail_json(msg="Invalid data type provided for splunk module_util.parse_splunk_args: {0}".format(e))
 
 
 def remove_get_keys_from_payload_dict(payload_dict, remove_key_list):
@@ -61,11 +53,7 @@ def map_params_to_obj(module_params, key_transform):
 
     obj = {}
     for k, v in iteritems(key_transform):
-        if k in module_params and (
-            module_params.get(k)
-            or module_params.get(k) == 0
-            or module_params.get(k) is False
-        ):
+        if k in module_params and (module_params.get(k) or module_params.get(k) == 0 or module_params.get(k) is False):
             obj[v] = module_params.pop(k)
     return obj
 
@@ -79,11 +67,7 @@ def map_obj_to_params(module_return_params, key_transform):
     """
     temp = {}
     for k, v in iteritems(key_transform):
-        if v in module_return_params and (
-            module_return_params.get(v)
-            or module_return_params.get(v) == 0
-            or module_return_params.get(v) is False
-        ):
+        if v in module_return_params and (module_return_params.get(v) or module_return_params.get(v) == 0 or module_return_params.get(v) is False):
             temp[k] = module_return_params.pop(v)
     return temp
 
@@ -156,16 +140,12 @@ class SplunkRequest(object):
             )
 
             if code == 404:
-                if to_text("Object not found") in to_text(response) or to_text(
-                    "Could not find object"
-                ) in to_text(response):
+                if to_text("Object not found") in to_text(response) or to_text("Could not find object") in to_text(response):
                     return {}
 
             if not (code >= 200 and code < 300):
                 self.module.fail_json(
-                    msg="Splunk httpapi returned error {0} with message {1}".format(
-                        code, response
-                    ),
+                    msg="Splunk httpapi returned error {0} with message {1}".format(code, response),
                 )
 
             return response
@@ -180,9 +160,7 @@ class SplunkRequest(object):
             )
         except ValueError as e:
             try:
-                self.module.fail_json(
-                    msg="certificate not found: {0}".format(e)
-                )
+                self.module.fail_json(msg="certificate not found: {0}".format(e))
             except AttributeError:
                 pass
 
@@ -211,9 +189,7 @@ class SplunkRequest(object):
             if self.legacy and not config:
                 config = self.module.params
             for param in config:
-                if (config[param]) is not None and (
-                    param not in self.not_rest_data_keys
-                ):
+                if (config[param]) is not None and (param not in self.not_rest_data_keys):
                     if param in self.keymap:
                         splunk_data[self.keymap[param]] = config[param]
                     else:
@@ -222,9 +198,7 @@ class SplunkRequest(object):
             return splunk_data
 
         except TypeError as e:
-            self.module.fail_json(
-                msg="invalid data type provided: {0}".format(e)
-            )
+            self.module.fail_json(msg="invalid data type provided: {0}".format(e))
 
     def get_urlencoded_data(self, config=None):
         return urlencode(self.get_data(config))
@@ -251,6 +225,4 @@ class SplunkRequest(object):
         # in order to make use of keymap
         if data is not None and self.override:
             data = self.get_urlencoded_data(data)
-        return self.post(
-            "/{0}?output_mode=json".format(rest_path), payload=data
-        )
+        return self.post("/{0}?output_mode=json".format(rest_path), payload=data)
