@@ -137,8 +137,6 @@ class ActionModule(ActionBase):
         return res, metadata
 
     def map_objects_to_params(self, metadata, want_conf):
-        # TODO: parse extract_artifacts and recommended_actions correctly
-
         res = {}
 
         res["search"] = metadata["search"]
@@ -160,6 +158,8 @@ class ActionModule(ActionBase):
 
         res = map_obj_to_params(want_conf, self.key_transform)
 
+        ic(res)
+
         return res
 
     def search_for_resource_name(self, conn_request, correlation_search_name):
@@ -169,8 +169,6 @@ class ActionModule(ActionBase):
                 quote(correlation_search_name),
             )
         )
-
-        ic(query_dict)
 
         search_result = {}
 
@@ -193,13 +191,14 @@ class ActionModule(ActionBase):
         changed = False
         for want_conf in config:
             search_by_name, metadata = self.search_for_resource_name(
-                conn_request, want_conf["name"]
+                conn_request, want_conf["correlation_search_name"]
             )
             if search_by_name:
                 before.append(search_by_name)
                 conn_request.delete_by_path(
                     "{0}/{1}".format(
-                        self.api_object, quote_plus(want_conf["name"])
+                        self.api_object,
+                        quote(want_conf["correlation_search_name"]),
                     )
                 )
                 changed = True
@@ -219,24 +218,34 @@ class ActionModule(ActionBase):
         # from HAVE params when compared to WANT param like 'ID' can be
         # part of HAVE param but may not be part of your WANT param
         defaults = {
-            "disabled": False,
-            "host": "$decideOnStartup",
-            "index": "default",
+            "drilldown_earliest_offset": "$info_min_time$",
+            "drilldown_latest_offset": "$info_max_time$",
+            "extract_artifacts": {
+                "asset": [
+                    "src",
+                    "dest",
+                    "dvc",
+                    "orig_host",
+                ],
+                "identity": [
+                    "src_user",
+                    "user",
+                    "src_user_id",
+                    "src_user_role",
+                    "user_id",
+                    "user_role",
+                    "vendor_account",
+                ],
+            },
+            "investigation_profiles": "{}",
         }
-        remove_from_diff_compare = [
-            "check_path",
-            "check_index",
-            "ignore_older_than",
-            "time_before_close",
-            "rename_source",
-        ]
+        remove_from_diff_compare = []
         for want_conf in config:
-            # TODO: should add check for non existent correlation search
             have_conf, metadata = self.search_for_resource_name(
-                conn_request, want_conf["name"]
+                conn_request, want_conf["correlation_search_name"]
             )
 
-            if have_conf:
+            if "name" in have_conf:
                 want_conf = set_defaults(want_conf, defaults)
                 want_conf = utils.remove_empties(want_conf)
                 diff = utils.dict_diff(have_conf, want_conf)
@@ -264,7 +273,7 @@ class ActionModule(ActionBase):
                             changed = True
 
                             payload = self.map_objects_to_params(
-                                metadata, want_conf, self.key_transform
+                                metadata, want_conf
                             )
                             url = "{0}/{1}".format(
                                 self.api_object,
@@ -317,9 +326,7 @@ class ActionModule(ActionBase):
                 changed = True
                 want_conf = utils.remove_empties(want_conf)
 
-                payload = self.map_objects_to_params(
-                    metadata, want_conf, self.key_transform
-                )
+                payload = self.map_objects_to_params(metadata, want_conf)
                 url = "{0}".format(self.api_object)
                 api_response = conn_request.create_update(
                     url,

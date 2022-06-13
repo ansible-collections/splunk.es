@@ -163,6 +163,11 @@ options:
             default:
               - user
               - src_user
+              - src_user_id
+              - src_user_role
+              - user_id
+              - user_role
+              - vendor_account
           url:
             description:
               - list of URLs to extract
