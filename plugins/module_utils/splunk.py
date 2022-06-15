@@ -111,9 +111,8 @@ class SplunkRequest(object):
         # by the 'get_data' function. This flag ensures that the modules that hadn't
         # yet been updated to use the keymap, can continue to work as originally intended
         override=True,
-        task_vars=None,
     ):
-# check if call being made by legacy module (passes 'module' param)
+        # check if call being made by legacy module (passes 'module' param)
         self.module = module
         if module:
             # This will be removed, once all of the available modules
