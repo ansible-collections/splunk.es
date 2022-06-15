@@ -99,6 +99,8 @@ class SplunkRequest(object):
         self,
         module=None,
         headers=None,
+        action_module=None,
+        connection=None,
         keymap=None,
         not_rest_data_keys=None,
         override=True,
@@ -114,6 +116,7 @@ class SplunkRequest(object):
             self.connection = connection
             try:
                 self.connection.load_platform_plugins("splunk.es.splunk")
+                self.module = action_module
 
             except ConnectionError:
                 raise
