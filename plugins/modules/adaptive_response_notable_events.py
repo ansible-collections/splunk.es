@@ -105,7 +105,8 @@ options:
       investigation_profiles:
         description:
           - Investigation profile to associate the notable event with.
-        type: str
+        type: list
+        elements: str
       next_steps:
         description:
           - List of adaptive responses that should be run next
@@ -136,11 +137,6 @@ options:
               - dest
               - dvc
               - orig_host
-            default:
-              - src
-              - dest
-              - dvc
-              - orig_host
           file:
             description:
               - list of files to extract
@@ -158,14 +154,6 @@ options:
               - src_user_id
               - user_id
               - src_user_role
-              - user_role
-              - vendor_account
-            default:
-              - user
-              - src_user
-              - src_user_id
-              - src_user_role
-              - user_id
               - user_role
               - vendor_account
           url:
