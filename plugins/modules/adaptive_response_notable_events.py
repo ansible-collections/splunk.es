@@ -18,7 +18,8 @@ description:
   - This module allows for creation, deletion, and modification of Splunk
     Enterprise Security Notable Event Adaptive Responses that are associated
     with a correlation search
-  - Tested against Splunk Enterprise Server 8.2.3
+  - Tested against Splunk Enterprise Server v8.2.3 with Splunk Enterprise Security v7.0.1
+    installed on it.
 version_added: "2.0.0"
 options:
   config:
@@ -30,7 +31,6 @@ options:
       name:
         description:
         - Name of notable event
-        required: True
         type: str
       correlation_search_name:
         description:

@@ -1,6 +1,17 @@
 ---
 - name: delete data inputs config
-  splunk.es.data_inputs_monitors:
+  splunk.es.adaptive_response_notable_events:
     config:
-      - name: "/var/log"
+      - correlation_search_name: Ansible Test
     state: deleted
+  ignore_errors: true
+
+- name: delete correlation search
+  uri:
+    url: "https://{{ ansible_host | default(inventory_hostname) }}:8089/servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches/Ansible%20Test"
+    user: ansible
+    password: Ansible@123
+    force_basic_auth: true
+    method: DELETE
+    validate_certs: false
+  ignore_errors: true

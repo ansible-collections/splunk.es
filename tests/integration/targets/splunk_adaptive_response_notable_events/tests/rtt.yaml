@@ -1,6 +1,6 @@
 ---
 - debug:
-    msg: START data_inputs_monitors round trip integration tests on connection={{ ansible_connection }}
+    msg: START adaptive_response_notable_events round trip integration tests on connection={{ ansible_connection }}
 
 - include_tasks: _remove_din_config.yaml
 - include_tasks: _populate_din_config.yaml
@@ -9,7 +9,7 @@
 
     - name: Apply the provided configuration (base config)
       register: base_config
-      splunk.es.data_inputs_monitors: &id001
+      splunk.es.adaptive_response_notable_events: &id001
         state: merged
         config:
           - name: "/var/log"
@@ -30,16 +30,16 @@
             time_before_close: 4
             whitelist: '/\/var\/log\/[0-9]/gm'
 
-    - name: Gather data inputs monitors configuration facts
+    - name: Gather adaptive response notable events configuration facts
       register: gather_result
-      splunk.es.data_inputs_monitors:
+      splunk.es.adaptive_response_notable_events:
         config:
           - name: "/var/log"
         state: gathered
 
     - name: Apply the configuration which need to be reverted
       register: result
-      splunk.es.data_inputs_monitors:
+      splunk.es.adaptive_response_notable_events:
         config:
           - name: "/var/log"
             blacklist: '/\/var\/log\/[a-z0-9]/gm'
@@ -54,23 +54,23 @@
         that:
           - result.changed == true
           - "{{ replaced['before'] | dict2items |\
-            symmetric_difference(result['data_inputs_monitors']['before'][0] |\
+            symmetric_difference(result['adaptive_response_notable_events']['before'][0] |\
             dict2items) | length==5}}"
           - "{{ replaced['after'] | dict2items |\
-            symmetric_difference(result['data_inputs_monitors']['after'][0] |\
+            symmetric_difference(result['adaptive_response_notable_events']['after'][0] |\
             dict2items) | length==3}}"
 
     - name: Revert back to base config using facts round trip
       register: revert
-      splunk.es.data_inputs_monitors:
-        config: "{{ gather_result['data_inputs_monitors']['gathered'] }}"
+      splunk.es.adaptive_response_notable_events:
+        config: "{{ gather_result['adaptive_response_notable_events']['gathered'] }}"
         state: replaced
 
     - assert:
         that:
           - revert['changed'] == true
           - "{{ merged['after'] | dict2items |\
-            symmetric_difference(revert['data_inputs_monitors']['after'][0] |\
+            symmetric_difference(revert['adaptive_response_notable_events']['after'][0] |\
             dict2items)| length==5}}"
 
   always:
