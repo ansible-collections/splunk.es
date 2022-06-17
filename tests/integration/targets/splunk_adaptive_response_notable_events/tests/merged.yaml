@@ -1,15 +1,15 @@
 ---
 - debug:
-    msg: START Merged data_inputs_monitors state for integration tests on connection={{
+    msg: START Merged adaptive_response_notable_events state for integration tests on connection={{
       ansible_connection }}
 
 - include_tasks: _remove_din_config.yaml
 
 - block:
-    - name: Merge and create new data inputs monitors configuration
+    - name: Merge and create new adaptive response notable events configuration
       tags: merged
       register: result
-      splunk.es.data_inputs_monitors: &id001
+      splunk.es.adaptive_response_notable_events: &id001
         state: merged
         config:
           - name: "/var/log"
@@ -35,17 +35,17 @@
         that:
           - result['changed'] == true
           - "{{ merged['after'] | dict2items |\
-            symmetric_difference(result['data_inputs_monitors']['after'][0] |\
+            symmetric_difference(result['adaptive_response_notable_events']['after'][0] |\
             dict2items)| length==5}}"
 
     - name: Assert that before dicts are correctly generated
       assert:
         that:
-          - merged['before'] == result['data_inputs_monitors']['before']
+          - merged['before'] == result['adaptive_response_notable_events']['before']
 
     - name: Merge provided configuration with device configuration (IDEMPOTENT)
       register: result
-      splunk.es.data_inputs_monitors: *id001
+      splunk.es.adaptive_response_notable_events: *id001
 
     - name: Assert that the previous task was idempotent
       assert:

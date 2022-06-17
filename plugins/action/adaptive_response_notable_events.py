@@ -344,23 +344,7 @@ class ActionModule(ActionBase):
         defaults = {
             "drilldown_earliest_offset": "$info_min_time$",
             "drilldown_latest_offset": "$info_max_time$",
-            "extract_artifacts": {
-                "asset": [
-                    "src",
-                    "dest",
-                    "dvc",
-                    "orig_host",
-                ],
-                "identity": [
-                    "src_user",
-                    "user",
-                    "src_user_id",
-                    "src_user_role",
-                    "user_id",
-                    "user_role",
-                    "vendor_account",
-                ],
-            },
+            "extract_artifacts": {},
             "investigation_profiles": "{}",
         }
         remove_from_diff_compare = []
@@ -381,11 +365,8 @@ class ActionModule(ActionBase):
                         diff.update(diff2)
 
                 if diff:
-                    # diff = remove_get_keys_from_payload_dict(diff, remove_from_diff_compare)
-                    # if diff:
                     before.append(have_conf)
                     if self._task.args["state"] == "merged":
-
                         # need to store 'recommended_actions','extract_artifacts'
                         # 'next_steps' and 'investigation_profiles'
                         # since merging in the parsed form will eliminate any differences
@@ -443,9 +424,6 @@ class ActionModule(ActionBase):
                         )
 
                         after.append(response_json)
-                    # else:
-                    #     before.append(have_conf)
-                    #     after.append(have_conf)
                 else:
                     before.append(have_conf)
                     after.append(have_conf)
