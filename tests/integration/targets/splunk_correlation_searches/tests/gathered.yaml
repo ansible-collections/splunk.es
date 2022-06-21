@@ -1,0 +1,22 @@
+---
+- debug:
+    msg: START correlation_searches gathered integration tests on connection={{ ansible_connection }}
+
+- include_tasks: _remove_din_config.yaml
+
+- include_tasks: _populate_din_config.yaml
+
+- block:
+    - name: Gather correlation searches config
+      splunk.es.correlation_searches:
+        config:
+          - name: Ansible Test
+        state: gathered
+      register: result
+
+    - assert:
+        that:
+          - merged['after'] == result['correlation_searches']['gathered']
+          - result['changed'] == false
+  always:
+    - include_tasks: _remove_din_config.yaml

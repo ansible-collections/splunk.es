@@ -29,7 +29,7 @@ if PY2:
 import tempfile
 from ansible.playbook.task import Task
 from ansible.template import Templar
-from ansible_collections.splunk.es.plugins.action.data_inputs_monitors import (
+from ansible_collections.splunk.es.plugins.action.correlation_searches import (
     ActionModule,
 )
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
@@ -43,57 +43,112 @@ from ansible_collections.ansible.utils.tests.unit.compat.mock import (
 RESPONSE_PAYLOAD = {
     "entry": [
         {
+            "acl": {"app": "DA-ESS-EndpointProtection"},
             "content": {
-                "_rcvbuf": 1572864,
-                "blacklist": "//var/log/[a-z]/gm",
-                "check-index": None,
-                "crcSalt": "<SOURCE>",
+                "action.correlationsearch.annotations": '{"cis20": ["test1"], "mitre_attack": ["test2"], "kill_chain_phases": ["test3"], '
+                '"nist": ["test4"], "test_framework": ["test5"]}',
+                "action.correlationsearch.enabled": "1",
+                "action.correlationsearch.label": "Ansible Test",
+                "alert.digest_mode": True,
+                "alert.suppress": False,
+                "alert.suppress.fields": "test_field1",
+                "alert.suppress.period": "5s",
+                "alert_comparator": "greater than",
+                "alert_threshold": "10",
+                "alert_type": "number of events",
+                "cron_schedule": "*/5 * * * *",
+                "description": "test description",
                 "disabled": False,
-                "eai:acl": None,
-                "filecount": 74,
-                "filestatecount": 82,
-                "followTail": False,
-                "host": "$decideOnStartup",
-                "host_regex": "/(test_host)/gm",
-                "host_resolved": "ip-172-31-52-131.us-west-2.compute.internal",
-                "host_segment": 3,
-                "ignoreOlderThan": "5d",
-                "index": "default",
-                "recursive": True,
-                "source": "test",
-                "sourcetype": "test_source_type",
-                "time_before_close": 4,
-                "whitelist": "//var/log/[0-9]/gm",
+                "dispatch.earliest_time": "-24h",
+                "dispatch.latest_time": "now",
+                "dispatch.rt_backfill": True,
+                "is_scheduled": True,
+                "realtime_schedule": True,
+                "request.ui_dispatch_app": "SplunkEnterpriseSecuritySuite",
+                "schedule_priority": "default",
+                "schedule_window": "0",
+                "search": '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authent'
+                'ication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Fai'
+                'led_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authenticatio'
+                'n.src" as "src" | where "count">=6',
             },
-            "name": "/var/log",
+            "name": "Ansible Test",
         }
     ]
 }
 
 REQUEST_PAYLOAD = [
     {
-        "blacklist": "//var/log/[a-z]/gm",
-        "crc_salt": "<SOURCE>",
+        "name": "Ansible Test",
         "disabled": False,
-        "follow_tail": False,
-        "host": "$decideOnStartup",
-        "host_regex": "/(test_host)/gm",
-        "host_segment": 3,
-        "index": "default",
-        "name": "/var/log",
-        "recursive": True,
-        "sourcetype": "test_source_type",
-        "whitelist": "//var/log/[0-9]/gm",
+        "description": "test description",
+        "app": "DA-ESS-EndpointProtection",
+        "annotations": {
+            "cis20": ["test1"],
+            "mitre_attack": ["test2"],
+            "kill_chain_phases": ["test3"],
+            "nist": ["test4"],
+            "custom": [
+                {
+                    "framework": "test_framework",
+                    "custom_annotations": ["test5"],
+                }
+            ],
+        },
+        "ui_dispatch_context": "SplunkEnterpriseSecuritySuite",
+        "time_earliest": "-24h",
+        "time_latest": "now",
+        "cron_schedule": "*/5 * * * *",
+        "scheduling": "realtime",
+        "schedule_window": "0",
+        "schedule_priority": "default",
+        "trigger_alert": "once",
+        "trigger_alert_when": "number of events",
+        "trigger_alert_when_condition": "greater than",
+        "trigger_alert_when_value": "10",
+        "throttle_window_duration": "5s",
+        "throttle_fields_to_group_by": ["test_field1"],
+        "suppress_alerts": False,
+        "search": '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authent'
+        'ication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Fai'
+        'led_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authenticatio'
+        'n.src" as "src" | where "count">=6',
     },
     {
-        "blacklist": "//var/log/[a-z0-9]/gm",
-        "crc_salt": "<SOURCE>",
+        "name": "Ansible Test",
         "disabled": False,
-        "follow_tail": False,
-        "host": "$decideOnStartup",
-        "index": "default",
-        "name": "/var/log",
-        "recursive": True,
+        "description": "test description",
+        "app": "SplunkEnterpriseSecuritySuite",
+        "annotations": {
+            "cis20": ["test1", "test2"],
+            "mitre_attack": ["test3", "test4"],
+            "kill_chain_phases": ["test5", "test6"],
+            "nist": ["test7", "test8"],
+            "custom": [
+                {
+                    "framework": "test_framework2",
+                    "custom_annotations": ["test9", "test10"],
+                }
+            ],
+        },
+        "ui_dispatch_context": "SplunkEnterpriseSecuritySuite",
+        "time_earliest": "-24h",
+        "time_latest": "now",
+        "cron_schedule": "*/5 * * * *",
+        "scheduling": "continuous",
+        "schedule_window": "auto",
+        "schedule_priority": "default",
+        "trigger_alert": "once",
+        "trigger_alert_when": "number of events",
+        "trigger_alert_when_condition": "greater than",
+        "trigger_alert_when_value": "10",
+        "throttle_window_duration": "5s",
+        "throttle_fields_to_group_by": ["test_field1", "test_field2"],
+        "suppress_alerts": True,
+        "search": '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authent'
+        'ication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Fai'
+        'led_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authenticatio'
+        'n.src" as "src" | where "count">=6',
     },
 ]
 
@@ -170,28 +225,13 @@ class TestSplunkEsDataInputsMonitorsRules:
 
         self._plugin._task.args = {
             "state": "merged",
-            "config": [
-                {
-                    "blacklist": "//var/log/[a-z]/gm",
-                    "crc_salt": "<SOURCE>",
-                    "disabled": False,
-                    "follow_tail": False,
-                    "host": "$decideOnStartup",
-                    "host_regex": "/(test_host)/gm",
-                    "host_segment": 3,
-                    "index": "default",
-                    "name": "/var/log",
-                    "recursive": True,
-                    "sourcetype": "test_source_type",
-                    "whitelist": "//var/log/[0-9]/gm",
-                }
-            ],
+            "config": [REQUEST_PAYLOAD[0]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_replaced(self, conn, monkeypatch):
+    def test_es_data_inputs_monitors_replaced_01(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
@@ -207,23 +247,47 @@ class TestSplunkEsDataInputsMonitorsRules:
         def get_by_path(self, path):
             return RESPONSE_PAYLOAD
 
+        def delete_by_path(self, path):
+            return {}
+
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
 
         self._plugin._task.args = {
             "state": "replaced",
-            "config": [
-                {
-                    "blacklist": "//var/log/[a-z0-9]/gm",
-                    "crc_salt": "<SOURCE>",
-                    "disabled": False,
-                    "follow_tail": False,
-                    "host": "$decideOnStartup",
-                    "index": "default",
-                    "name": "/var/log",
-                    "recursive": True,
-                }
-            ],
+            "config": [REQUEST_PAYLOAD[1]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_data_inputs_monitors_replaced_02(self, conn, monkeypatch):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
+        self._plugin.search_for_resource_name = MagicMock()
+        self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
+
+        def create_update(
+            self, rest_path, data=None, mock=None, mock_data=None
+        ):
+            return RESPONSE_PAYLOAD
+
+        def get_by_path(self, path):
+            return RESPONSE_PAYLOAD
+
+        def delete_by_path(self, path):
+            return {}
+
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
+
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [REQUEST_PAYLOAD[1]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is True
@@ -243,59 +307,23 @@ class TestSplunkEsDataInputsMonitorsRules:
             return RESPONSE_PAYLOAD
 
         def get_by_path(self, path):
-            return {
-                "entry": [
-                    {
-                        "content": {
-                            "_rcvbuf": 1572864,
-                            "blacklist": "//var/log/[a-z]/gm",
-                            "check-index": None,
-                            "crcSalt": "<SOURCE>",
-                            "disabled": False,
-                            "eai:acl": None,
-                            "filecount": 74,
-                            "filestatecount": 82,
-                            "followTail": False,
-                            "host": "$decideOnStartup",
-                            "host_regex": "/(test_host)/gm",
-                            "host_resolved": "ip-172-31-52-131.us-west-2.compute.internal",
-                            "host_segment": 3,
-                            "ignoreOlderThan": "5d",
-                            "index": "default",
-                            "recursive": True,
-                            "source": "test",
-                            "sourcetype": "test_source_type",
-                            "time_before_close": 4,
-                            "whitelist": "//var/log/[0-9]/gm",
-                        },
-                        "name": "/var/log",
-                    }
-                ]
-            }
+            return RESPONSE_PAYLOAD
+
+        def delete_by_path(self, path):
+            return {}
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
 
         self._plugin._task.args = {
             "state": "replaced",
-            "config": [
-                {
-                    "blacklist": "//var/log/[a-z]/gm",
-                    "crc_salt": "<SOURCE>",
-                    "disabled": False,
-                    "follow_tail": False,
-                    "host": "$decideOnStartup",
-                    "host_regex": "/(test_host)/gm",
-                    "host_segment": 3,
-                    "index": "default",
-                    "name": "/var/log",
-                    "recursive": True,
-                    "sourcetype": "test_source_type",
-                    "whitelist": "//var/log/[0-9]/gm",
-                }
-            ],
+            "config": [REQUEST_PAYLOAD[0]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
+        from icecream import ic
+
+        ic(result)
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
@@ -305,20 +333,18 @@ class TestSplunkEsDataInputsMonitorsRules:
         )
         self._plugin._connection._shell = MagicMock()
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
-            return RESPONSE_PAYLOAD
-
         def get_by_path(self, path):
             return RESPONSE_PAYLOAD
 
-        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+        def delete_by_path(self, path):
+            return {}
+
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
 
         self._plugin._task.args = {
             "state": "deleted",
-            "config": [{"name": "/var/log"}],
+            "config": [{"name": "Ansible Test"}],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is True
@@ -334,7 +360,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         self._plugin._connection._shell = MagicMock()
         self._plugin._task.args = {
             "state": "deleted",
-            "config": [{"name": "/var/log"}],
+            "config": [{"name": "Ansible Test"}],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is False
@@ -353,7 +379,7 @@ class TestSplunkEsDataInputsMonitorsRules:
 
         self._plugin._task.args = {
             "state": "gathered",
-            "config": [{"name": "/var/log"}],
+            "config": [{"name": "Ansible Test"}],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is False

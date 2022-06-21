@@ -1,0 +1,73 @@
+---
+- debug:
+    msg: START Replaced correlation_searches state for integration tests on connection={{ ansible_connection }}
+
+- include_tasks: _remove_din_config.yaml
+- include_tasks: _populate_din_config.yaml
+
+- block:
+
+    - name: Replace existing correlation searches configuration
+      register: result
+      splunk.es.correlation_searches: &id001
+        state: replaced
+        config:
+          - name: Ansible Test
+            disabled: false
+            description: test description
+            app: SplunkEnterpriseSecuritySuite
+            annotations:
+              cis20:
+                - test1
+                - test2
+              mitre_attack:
+                - test3
+                - test4
+              kill_chain_phases:
+                - test5
+                - test6
+              nist:
+                - test7
+                - test8
+              custom:
+                - framework: test_framework2
+                  custom_annotations:
+                    - test9
+                    - test10
+            ui_dispatch_context: SplunkEnterpriseSecuritySuite
+            time_earliest: -24h
+            time_latest: now
+            cron_schedule: "*/5 * * * *"
+            scheduling: continuous
+            schedule_window: auto
+            schedule_priority: default
+            trigger_alert: once
+            trigger_alert_when: number of events
+            trigger_alert_when_condition: greater than
+            trigger_alert_when_value: 10
+            throttle_window_duration: 5s
+            throttle_fields_to_group_by:
+              - test_field1
+              - test_field2
+            suppress_alerts: True
+            search: '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authentication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Failed_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authentication.src" as "src" | where "count">=6'
+
+    - assert:
+        that:
+          - result.changed == true
+          - replaced['before'] == result['correlation_searches']['before']
+          - replaced['after'] == result['correlation_searches']['after']
+
+    - name: Replaces device configuration of listed  data inputs networks configuration with 
+            provided configuration (IDEMPOTENT)
+      register: result
+      splunk.es.correlation_searches: *id001
+
+    - name: Assert that task was idempotent
+      assert:
+        that:
+          - result['changed'] == false
+
+  always:
+
+    - include_tasks: _remove_din_config.yaml
