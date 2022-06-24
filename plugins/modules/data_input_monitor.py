@@ -142,7 +142,11 @@ EXAMPLES = """
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_text
+<<<<<<< HEAD
 from ansible.module_utils.six.moves.urllib.parse import quote_plus
+=======
+from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
+>>>>>>> a9fb510 (completed fixes)
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
