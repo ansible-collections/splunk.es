@@ -84,6 +84,7 @@ options:
       - "pending"
       - "resolved"
       - "closed"
+    default: "unassigned"
   drill_down_name:
     description:
       - Name for drill down search, Supports variable substitution with fields from the matching event.
@@ -186,6 +187,9 @@ import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_text
 from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
+    utils,
+)
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
 )
@@ -233,7 +237,7 @@ def main():
                 "closed",
             ],
             required=False,
-            default="",
+            default="unassigned",
         ),
         drill_down_name=dict(required=False, type="str"),
         drill_down_search=dict(required=False, type="str"),
@@ -268,8 +272,23 @@ def main():
 
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
 
+    # keymap = {
+    #     "next_steps": "action.notable.param.next_steps",
+    #     "recommended_actions": "action.notable.param.recommended_actions",
+    #     "description": "action.notable.param.rule_description",
+    #     "name": "action.notable.param.rule_title",
+    #     "security_domain": "action.notable.param.security_domain",
+    #     "severity": "action.notable.param.severity",
+    #     "asset_extraction": "action.notable.param.asset_extraction",
+    #     "identity_extraction": "action.notable.param.identity_extraction",
+    #     "default_owner": "action.notable.param.default_owner",
+    #     "default_status": "action.notable.param.default_status",
+    # }
+
     splunk_request = SplunkRequest(
         module,
+        # keymap=keymap,
+        override=False,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         not_rest_data_keys=["state"],
     )
@@ -350,6 +369,8 @@ def main():
         request_post_data[
             "action.notable.param.default_status"
         ] = module.params["default_status"]
+
+    request_post_data = utils.remove_empties(request_post_data)
 
     if query_dict:
         request_post_data["search"] = query_dict["entry"][0]["content"][

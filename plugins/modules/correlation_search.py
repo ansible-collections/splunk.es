@@ -175,13 +175,15 @@ from ansible.module_utils._text import to_text
 
 from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
 from ansible.module_utils.six.moves.urllib.error import HTTPError
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
+    utils,
+)
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
 )
 
 
 def main():
-
     argspec = dict(
         name=dict(required=True, type="str"),
         description=dict(required=True, type="str"),
@@ -242,12 +244,15 @@ def main():
     )
 
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
+
     if module.params["state"] in ["present", "enabled"]:
         module_disabled_state = False
     else:
         module_disabled_state = True
+
     splunk_request = SplunkRequest(
         module,
+        override=False,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         not_rest_data_keys=["state"],
     )
@@ -258,7 +263,7 @@ def main():
                 quote_plus(module.params["name"])
             )
         )
-    except HTTPError as e:
+    except HTTPError:
         # the data monitor doesn't exist
         query_dict = {}
 
@@ -299,6 +304,8 @@ def main():
     ]
     request_post_data["alert.suppress"] = module.params["suppress_alerts"]
     request_post_data["disabled"] = module_disabled_state
+
+    request_post_data = utils.remove_empties(request_post_data)
 
     if module.params["state"] in ["present", "enabled", "disabled"]:
         if query_dict:

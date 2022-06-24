@@ -228,8 +228,8 @@ def main():
                         quote_plus(module.params["protocol"]),
                         quote_plus(module.params["datatype"]),
                         quote_plus(module.params["name"]),
-                        data=urlencode(_data),
-                    )
+                    ),
+                    data=urlencode(_data),
                 )
             if module.params["state"] in ["present", "enabled"]:
                 module.exit_json(
