@@ -1,4 +1,10 @@
 ---
+- name: Clean up previous data_input_monitor
+  data_input_monitor:
+    name: "/var/log/messages"
+    state: "absent"
+    recursive: True
+
 - name: Test data_input_monitor - CREATE
   data_input_monitor:
     name: "/var/log/messages"
@@ -9,8 +15,8 @@
 - name: Assert Create splunk.es.data_input_monitor CHANGED
   assert:
     that:
-      - data_input_monitor_output is changed
-      - data_input_monitor_output is not failed
+      - data_input_monitor_output['changed'] == True
+      - data_input_monitor_output['failed'] == False
 
 - name: Test data_input_monitor - CREATE IDEMPOTENT
   data_input_monitor:
@@ -22,8 +28,8 @@
 - name: Assert Create splunk.es.data_input_monitor CREATE IDEMPOTENT
   assert:
     that:
-      - data_input_monitor_output2 is not changed
-      - data_input_monitor_output2 is not failed
+      - data_input_monitor_output2['changed'] == False
+      - data_input_monitor_output2['failed'] == False
 
 - name: Test data_input_monitor - DELETE
   data_input_monitor:
@@ -35,8 +41,8 @@
 - name: Assert Create splunk.es.data_input_monitor CHANGED
   assert:
     that:
-      - data_input_monitor_absent_output is changed
-      - data_input_monitor_absent_output is not failed
+      - data_input_monitor_absent_output['changed'] == True
+      - data_input_monitor_absent_output['failed'] == False
 
 - name: Test data_input_monitor - DELETE IDEMPOTENT
   data_input_monitor:
@@ -48,5 +54,5 @@
 - name: Assert Create splunk.es.data_input_monitor DELETE IDEMPOTENT
   assert:
     that:
-      - data_input_monitor_absent_output2 is not changed
-      - data_input_monitor_absent_output2 is not failed
+      - data_input_monitor_absent_output2['changed'] == False
+      - data_input_monitor_absent_output2['failed'] == False

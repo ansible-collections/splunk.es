@@ -54,7 +54,8 @@ def main():
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
 
     splunk_request = SplunkRequest(
-        module, headers={"Content-Type": "application/json"}
+        module,
+        headers={"Content-Type": "application/json"},
     )
 
     if module.params["name"]:
@@ -64,7 +65,7 @@ def main():
                     quote_plus(module.params["name"])
                 )
             )
-        except HTTPError as e:
+        except HTTPError:
             # the data monitor doesn't exist
             query_dict = {}
     else:

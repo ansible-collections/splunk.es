@@ -139,6 +139,9 @@ EXAMPLES = """
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_text
 from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
+    utils,
+)
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
 )
@@ -194,6 +197,7 @@ def main():
             quote_plus(module.params["name"])
         )
     )
+    query_dict = utils.remove_empties(query_dict)
 
     if module.params["state"] == "present":
         if query_dict:

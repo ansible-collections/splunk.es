@@ -1,4 +1,10 @@
 ---
+- name: Cleanup previous data_input_network
+  data_input_network:
+    name: "8099"
+    protocol: "tcp"
+    state: "absent"
+
 - name: Test data_input_network - CREATE
   data_input_network:
     name: "8099"
@@ -29,7 +35,7 @@
   data_input_network:
     name: "8099"
     protocol: "tcp"
-    state: "present"
+    state: "absent"
   register: data_input_network_absent_output
 
 - name: Assert Create splunk.es.data_input_network CHANGED
@@ -42,7 +48,7 @@
   data_input_network:
     name: "8099"
     protocol: "tcp"
-    state: "present"
+    state: "absent"
   register: data_input_network_absent_output2
 
 - name: Assert Create splunk.es.data_input_network DELETE IDEMPOTENT

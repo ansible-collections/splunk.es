@@ -1,4 +1,18 @@
 ---
+- name: remove previous correlation_search
+  correlation_search:
+    name: "Test Fake Coorelation Search From Playbook"
+    description: "Test Fake Coorelation Search From Playbook, description edition."
+    search: 'source="/var/log/snort.log"'
+    state: "absent"
+
+- name: create correlation_search
+  correlation_search:
+    name: "Test Fake Coorelation Search From Playbook"
+    description: "Test Fake Coorelation Search From Playbook, description edition."
+    search: 'source="/var/log/snort.log"'
+    state: "present"
+
 - name: Test splunk.es.adaptive_response_notable_event
   adaptive_response_notable_event:
     name: "Fake notable event from playbook"
@@ -16,8 +30,8 @@
 - name: Assert Create splunk.es.adaptive_response_notable_event CHANGED
   assert:
     that:
-      - adaptive_response_notable_event_out is changed
-      - adaptive_response_notable_event_out is not failed
+      - adaptive_response_notable_event_out['changed'] == True
+      - adaptive_response_notable_event_out['failed'] == False
 
 - name: Validate splunk.es.adaptive_response_notable_event idempotent
   adaptive_response_notable_event:
@@ -36,5 +50,5 @@
 - name: Assert Create splunk.es.adaptive_response_notable_event IDEMPOTENT
   assert:
     that:
-      - adaptive_response_notable_event_out2 is not changed
-      - adaptive_response_notable_event2 is not failed
+      - adaptive_response_notable_event_out2['changed'] == False
+      - adaptive_response_notable_event_out2['failed'] == False

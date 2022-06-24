@@ -43,7 +43,12 @@ def parse_splunk_args(module):
 
 class SplunkRequest(object):
     def __init__(
-        self, module, headers=None, keymap=None, not_rest_data_keys=None
+        self,
+        module,
+        headers=None,
+        keymap=None,
+        not_rest_data_keys=None,
+        override=True,
     ):
 
         self.module = module
@@ -56,6 +61,9 @@ class SplunkRequest(object):
             self.keymap = {}
         else:
             self.keymap = keymap
+
+        # Select whether payload passed to create update is overriden or not
+        self.override = override
 
         # This allows us to exclude specific argspec keys from being included by
         # the rest data that don't follow the splunk_* naming convention
@@ -157,7 +165,7 @@ class SplunkRequest(object):
         """
         Create or Update a file/directory monitor data input in Splunk
         """
-        if data is not None:
+        if data is not None and self.override:
             data = self.get_urlencoded_data()
         return self.post(
             "/{0}?output_mode=json".format(rest_path), payload=data
