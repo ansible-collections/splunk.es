@@ -395,7 +395,6 @@ class ActionModule(ActionBase):
             action_module=self,
             connection=conn,
             not_rest_data_keys=["state"],
-            task_vars=task_vars,
         )
 
         if self._task.args["state"] == "gathered":
