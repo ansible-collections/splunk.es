@@ -272,22 +272,8 @@ def main():
 
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
 
-    # keymap = {
-    #     "next_steps": "action.notable.param.next_steps",
-    #     "recommended_actions": "action.notable.param.recommended_actions",
-    #     "description": "action.notable.param.rule_description",
-    #     "name": "action.notable.param.rule_title",
-    #     "security_domain": "action.notable.param.security_domain",
-    #     "severity": "action.notable.param.severity",
-    #     "asset_extraction": "action.notable.param.asset_extraction",
-    #     "identity_extraction": "action.notable.param.identity_extraction",
-    #     "default_owner": "action.notable.param.default_owner",
-    #     "default_status": "action.notable.param.default_status",
-    # }
-
     splunk_request = SplunkRequest(
         module,
-        # keymap=keymap,
         override=False,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         not_rest_data_keys=["state"],
