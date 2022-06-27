@@ -84,7 +84,6 @@ options:
       - "pending"
       - "resolved"
       - "closed"
-    default: "unassigned"
   drill_down_name:
     description:
       - Name for drill down search, Supports variable substitution with fields from the matching event.
@@ -237,10 +236,6 @@ def main():
                 "closed",
             ],
             required=False,
-<<<<<<< HEAD
-=======
-            default="unassigned",
->>>>>>> a9fb510 (completed fixes)
         ),
         drill_down_name=dict(required=False, type="str"),
         drill_down_search=dict(required=False, type="str"),
@@ -275,25 +270,8 @@ def main():
 
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
 
-    # keymap = {
-    #     "next_steps": "action.notable.param.next_steps",
-    #     "recommended_actions": "action.notable.param.recommended_actions",
-    #     "description": "action.notable.param.rule_description",
-    #     "name": "action.notable.param.rule_title",
-    #     "security_domain": "action.notable.param.security_domain",
-    #     "severity": "action.notable.param.severity",
-    #     "asset_extraction": "action.notable.param.asset_extraction",
-    #     "identity_extraction": "action.notable.param.identity_extraction",
-    #     "default_owner": "action.notable.param.default_owner",
-    #     "default_status": "action.notable.param.default_status",
-    # }
-
     splunk_request = SplunkRequest(
         module,
-<<<<<<< HEAD
-=======
-        # keymap=keymap,
->>>>>>> a9fb510 (completed fixes)
         override=False,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         not_rest_data_keys=["state"],
