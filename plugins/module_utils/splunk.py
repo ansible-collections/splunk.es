@@ -95,28 +95,37 @@ def set_defaults(config, defaults):
 
 
 class SplunkRequest(object):
+    # TODO: There is a ton of code only present to make sure the legacy modules
+    # work as intended. Once the modules are deprecated and no longer receive
+    # support, this object needs to be rewritten.
     def __init__(
         self,
         module=None,
         headers=None,
-        action_module=None,
+        action_module=None,  # needs to be dealt with after end of support
         connection=None,
         keymap=None,
         not_rest_data_keys=None,
+        # The legacy modules had a partial implementation of keymap, where the data
+        # passed to 'create_update' would completely be overwritten, and replaced
+        # by the 'get_data' function. This flag ensures that the modules that hadn't
+        # yet been updated to use the keymap, can continue to work as originally intended
         override=True,
-        task_vars=None,
     ):
+        # check if call being made by legacy module (passes 'module' param)
         self.module = module
         if module:
             # This will be removed, once all of the available modules
             # are moved to use action plugin design, as otherwise test
             # would start to complain without the implementation.
             self.connection = Connection(self.module._socket_path)
+            self.legacy = True
         elif connection:
             self.connection = connection
             try:
                 self.connection.load_platform_plugins("splunk.es.splunk")
                 self.module = action_module
+                self.legacy = False
 
             except ConnectionError:
                 raise
@@ -199,17 +208,28 @@ class SplunkRequest(object):
         """
         try:
             splunk_data = {}
-            if not config:
-                config = self.module.params
+            if self.legacy:
+                for param in self.module.params:
+                    if (self.module.params[param]) is not None and (
+                        param not in self.not_rest_data_keys
+                    ):
+                        if param in self.keymap:
+                            splunk_data[
+                                self.keymap[param]
+                            ] = self.module.params[param]
+                        else:
+                            splunk_data[param] = self.module.params[param]
 
-            for param in config:
-                if (config[param]) is not None and (
-                    param not in self.not_rest_data_keys
-                ):
-                    if param in self.keymap:
-                        splunk_data[self.keymap[param]] = config[param]
-                    else:
-                        splunk_data[param] = config[param]
+            else:
+                for param in config:
+                    if (config[param]) is not None and (
+                        param not in self.not_rest_data_keys
+                    ):
+                        if param in self.keymap:
+                            splunk_data[self.keymap[param]] = config[param]
+                        else:
+                            splunk_data[param] = config[param]
+
             return splunk_data
 
         except TypeError as e:
@@ -217,7 +237,7 @@ class SplunkRequest(object):
                 msg="invalid data type provided: {0}".format(e)
             )
 
-    def get_urlencoded_data(self, config=None):
+    def get_urlencoded_data(self, config):
         return urlencode(self.get_data(config))
 
     def get_by_path(self, rest_path):
@@ -234,7 +254,7 @@ class SplunkRequest(object):
 
         return self.delete("/{0}?output_mode=json".format(rest_path))
 
-    def create_update(self, rest_path, data=None, mock=None, mock_data=None):
+    def create_update(self, rest_path, data, mock=None, mock_data=None):
         """
         Create or Update a file/directory monitor data input in Splunk
         """
@@ -242,7 +262,7 @@ class SplunkRequest(object):
         if mock:
             return mock_data
         if data is not None and self.override:
-            data = self.get_urlencoded_data()
+            data = self.get_urlencoded_data(data)
         return self.post(
             "/{0}?output_mode=json".format(rest_path), payload=data
         )
