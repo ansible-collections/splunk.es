@@ -185,9 +185,7 @@ class TestSplunkEsCorrelationSearches:
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = {}
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
+        def create_update(self, rest_path, data=None):
             return RESPONSE_PAYLOAD
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
@@ -212,9 +210,7 @@ class TestSplunkEsCorrelationSearches:
         )
         self._plugin._connection._shell = MagicMock()
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
+        def create_update(self, rest_path, data=None):
             return RESPONSE_PAYLOAD
 
         def get_by_path(self, path):
@@ -239,9 +235,7 @@ class TestSplunkEsCorrelationSearches:
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
+        def create_update(self, rest_path, data=None):
             return RESPONSE_PAYLOAD
 
         def get_by_path(self, path):
@@ -270,9 +264,7 @@ class TestSplunkEsCorrelationSearches:
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
+        def create_update(self, rest_path, data=None):
             return RESPONSE_PAYLOAD
 
         def get_by_path(self, path):
@@ -301,9 +293,7 @@ class TestSplunkEsCorrelationSearches:
         )
         self._plugin._connection._shell = MagicMock()
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
+        def create_update(self, rest_path, data=None):
             return RESPONSE_PAYLOAD
 
         def get_by_path(self, path):

@@ -29,7 +29,7 @@ if PY2:
 import tempfile
 from ansible.playbook.task import Task
 from ansible.template import Templar
-from ansible_collections.splunk.es.plugins.action.data_inputs_monitors import (
+from ansible_collections.splunk.es.plugins.action.adaptive_response_notable_events import (
     ActionModule,
 )
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
@@ -40,60 +40,112 @@ from ansible_collections.ansible.utils.tests.unit.compat.mock import (
     patch,
 )
 
-RESPONSE_PAYLOAD = {
-    "entry": [
-        {
-            "content": {
-                "_rcvbuf": 1572864,
-                "blacklist": "//var/log/[a-z]/gm",
-                "check-index": None,
-                "crcSalt": "<SOURCE>",
-                "disabled": False,
-                "eai:acl": None,
-                "filecount": 74,
-                "filestatecount": 82,
-                "followTail": False,
-                "host": "$decideOnStartup",
-                "host_regex": "/(test_host)/gm",
-                "host_resolved": "ip-172-31-52-131.us-west-2.compute.internal",
-                "host_segment": 3,
-                "ignoreOlderThan": "5d",
-                "index": "default",
-                "recursive": True,
-                "source": "test",
-                "sourcetype": "test_source_type",
-                "time_before_close": 4,
-                "whitelist": "//var/log/[0-9]/gm",
-            },
-            "name": "/var/log",
-        }
-    ]
-}
+RESPONSE_PAYLOAD = [
+    {
+        "entry": [
+            {
+                "content": {
+                    "action.notable.param.default_owner": "",
+                    "action.notable.param.default_status": "0",
+                    "action.notable.param.drilldown_name": "test_drill_name",
+                    "action.notable.param.drilldown_search": "test_drill",
+                    "action.notable.param.drilldown_earliest_offset": "$info_min_time$",
+                    "action.notable.param.drilldown_latest_offset": "$info_max_time$",
+                    "action.notable.param.extract_artifacts": '{"asset": ["src", "dest", "dvc", "orig_host"],"identity": '
+                    '["src_user", "user", "src_user_id", "src_user_role", "user_id", "user_role", "vendor_account"]}',
+                    "action.notable.param.investigation_profiles": '{"profile://test profile 1":{}, "profile://test profile 2":{}, "profile://test profile 3":{}}',
+                    "action.notable.param.next_steps": '{"version": 1, "data": "[[action|makestreams]][[action|nbtstat]][[action|nslookup]]"}',
+                    "action.notable.param.recommended_actions": "email,logevent,makestreams,nbtstat",
+                    "action.notable.param.rule_description": "test notable event",
+                    "action.notable.param.rule_title": "ansible_test_notable",
+                    "action.notable.param.security_domain": "threat",
+                    "action.notable.param.severity": "high",
+                    "search": '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authent'
+                    'ication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Fai'
+                    'led_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authenticatio'
+                    'n.src" as "src" | where "count">=6',
+                    "actions": "notable",
+                },
+                "name": "Ansible Test",
+            }
+        ]
+    },
+    {
+        "entry": [
+            {
+                "content": {
+                    "action.notable.param.default_owner": "",
+                    "action.notable.param.default_status": "",
+                    "action.notable.param.drilldown_name": "test_drill_name",
+                    "action.notable.param.drilldown_search": "test_drill",
+                    "action.notable.param.drilldown_earliest_offset": "$info_min_time$",
+                    "action.notable.param.drilldown_latest_offset": "$info_max_time$",
+                    "action.notable.param.extract_artifacts": '{"asset": ["src", "dest"],"identity": ["src_user", "user", "src_user_id"]}',
+                    "action.notable.param.investigation_profiles": '{"profile://test profile 1":{}, "profile://test profile 2":{}, "profile://test profile 3":{}}',
+                    "action.notable.param.next_steps": '{"version": 1, "data": "[[action|makestreams]]"}',
+                    "action.notable.param.recommended_actions": "email,logevent",
+                    "action.notable.param.rule_description": "test notable event",
+                    "action.notable.param.rule_title": "ansible_test_notable",
+                    "action.notable.param.security_domain": "threat",
+                    "action.notable.param.severity": "high",
+                    "search": '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authent'
+                    'ication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Fai'
+                    'led_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authenticatio'
+                    'n.src" as "src" | where "count">=6',
+                    "actions": "notable",
+                },
+                "name": "Ansible Test",
+            }
+        ]
+    },
+]
 
 REQUEST_PAYLOAD = [
     {
-        "blacklist": "//var/log/[a-z]/gm",
-        "crc_salt": "<SOURCE>",
-        "disabled": False,
-        "follow_tail": False,
-        "host": "$decideOnStartup",
-        "host_regex": "/(test_host)/gm",
-        "host_segment": 3,
-        "index": "default",
-        "name": "/var/log",
-        "recursive": True,
-        "sourcetype": "test_source_type",
-        "whitelist": "//var/log/[0-9]/gm",
+        "correlation_search_name": "Ansible Test",
+        "default_status": "unassigned",
+        "description": "test notable event",
+        "drilldown_earliest_offset": "$info_min_time$",
+        "drilldown_latest_offset": "$info_max_time$",
+        "drilldown_name": "test_drill_name",
+        "drilldown_search": "test_drill",
+        "extract_artifacts": {
+            "asset": ["src", "dest", "dvc", "orig_host"],
+            "identity": [
+                "src_user",
+                "user",
+                "src_user_id",
+                "src_user_role",
+                "user_id",
+                "user_role",
+                "vendor_account",
+            ],
+        },
+        "investigation_profiles": [
+            "test profile 1",
+            "test profile 2",
+            "test profile 3",
+        ],
+        "next_steps": ["makestreams", "nbtstat", "nslookup"],
+        "name": "ansible_test_notable",
+        "recommended_actions": ["email", "logevent", "makestreams", "nbtstat"],
+        "security_domain": "threat",
+        "severity": "high",
     },
     {
-        "blacklist": "//var/log/[a-z0-9]/gm",
-        "crc_salt": "<SOURCE>",
-        "disabled": False,
-        "follow_tail": False,
-        "host": "$decideOnStartup",
-        "index": "default",
-        "name": "/var/log",
-        "recursive": True,
+        "correlation_search_name": "Ansible Test",
+        "description": "test notable event",
+        "drilldown_earliest_offset": "$info_min_time$",
+        "drilldown_latest_offset": "$info_max_time$",
+        "extract_artifacts": {
+            "asset": ["src", "dest"],
+            "identity": ["src_user", "user", "src_user_id"],
+        },
+        "next_steps": ["makestreams"],
+        "name": "ansible_test_notable",
+        "recommended_actions": ["email", "logevent"],
+        "security_domain": "threat",
+        "severity": "high",
     },
 ]
 
@@ -120,20 +172,34 @@ class TestSplunkEsDataInputsMonitorsRules:
             templar=templar,
             shared_loader_obj=None,
         )
-        self._plugin._task.action = "data_inputs_monitors"
+        self._plugin._task.action = "adaptive_response_notable_events"
         self._plugin._task.async_val = False
         self._task_vars = {}
+        self.metadata = {
+            "search": '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authent'
+            'ication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Fai'
+            'led_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authenticatio'
+            'n.src" as "src" | where "count">=6',
+            "actions": "notable",
+        }
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_merged(self, connection, monkeypatch):
-        self._plugin.api_response = RESPONSE_PAYLOAD
+    def test_es_adaptive_response_notable_events_merged_01(
+        self, connection, monkeypatch
+    ):
+        metadata = {
+            "search": '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authent'
+            'ication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Fai'
+            'led_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authenticatio'
+            'n.src" as "src" | where "count">=6',
+            "actions": "",
+        }
+        self._plugin.api_response = RESPONSE_PAYLOAD[0]
         self._plugin.search_for_resource_name = MagicMock()
-        self._plugin.search_for_resource_name.return_value = {}
+        self._plugin.search_for_resource_name.return_value = {}, metadata
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
-            return RESPONSE_PAYLOAD
+        def create_update(self, rest_path, data=None):
+            return RESPONSE_PAYLOAD[0]
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
@@ -149,7 +215,37 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_merged_idempotent(
+    def test_es_adaptive_response_notable_events_merged_02(
+        self, connection, monkeypatch
+    ):
+        self._plugin.api_response = RESPONSE_PAYLOAD[0]
+        self._plugin.search_for_resource_name = MagicMock()
+        self._plugin.search_for_resource_name.return_value = (
+            RESPONSE_PAYLOAD[0],
+            self.metadata,
+        )
+
+        def create_update(self, rest_path, data=None):
+            return RESPONSE_PAYLOAD[1]
+
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
+        self._plugin._task.args = {
+            "state": "merged",
+            "config": [REQUEST_PAYLOAD[1]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        import q
+
+        q(result)
+        assert result["changed"] is True
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_adaptive_response_notable_events_merged_idempotent(
         self, conn, monkeypatch
     ):
         self._plugin._connection.socket_path = (
@@ -157,79 +253,92 @@ class TestSplunkEsDataInputsMonitorsRules:
         )
         self._plugin._connection._shell = MagicMock()
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
-            return RESPONSE_PAYLOAD
+        def create_update(self, rest_path, data=None):
+            return RESPONSE_PAYLOAD[0]
 
         def get_by_path(self, path):
-            return RESPONSE_PAYLOAD
+            return RESPONSE_PAYLOAD[0]
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
         self._plugin._task.args = {
             "state": "merged",
-            "config": [
-                {
-                    "blacklist": "//var/log/[a-z]/gm",
-                    "crc_salt": "<SOURCE>",
-                    "disabled": False,
-                    "follow_tail": False,
-                    "host": "$decideOnStartup",
-                    "host_regex": "/(test_host)/gm",
-                    "host_segment": 3,
-                    "index": "default",
-                    "name": "/var/log",
-                    "recursive": True,
-                    "sourcetype": "test_source_type",
-                    "whitelist": "//var/log/[0-9]/gm",
-                }
-            ],
+            "config": [REQUEST_PAYLOAD[0]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_replaced(self, conn, monkeypatch):
+    def test_es_adaptive_response_notable_events_replaced_01(
+        self, conn, monkeypatch
+    ):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
-        self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
+        self._plugin.search_for_resource_name.return_value = (
+            RESPONSE_PAYLOAD[0],
+            self.metadata,
+        )
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
-            return RESPONSE_PAYLOAD
+        def create_update(self, rest_path, data=None):
+            return RESPONSE_PAYLOAD[0]
 
         def get_by_path(self, path):
-            return RESPONSE_PAYLOAD
+            return RESPONSE_PAYLOAD[0]
+
+        def delete_by_path(self, path):
+            return {}
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
 
         self._plugin._task.args = {
             "state": "replaced",
-            "config": [
-                {
-                    "blacklist": "//var/log/[a-z0-9]/gm",
-                    "crc_salt": "<SOURCE>",
-                    "disabled": False,
-                    "follow_tail": False,
-                    "host": "$decideOnStartup",
-                    "index": "default",
-                    "name": "/var/log",
-                    "recursive": True,
-                }
-            ],
+            "config": [REQUEST_PAYLOAD[1]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_replaced_idempotent(
+    def test_es_adaptive_response_notable_events_replaced_02(
+        self, conn, monkeypatch
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
+        self._plugin.search_for_resource_name = MagicMock()
+        self._plugin.search_for_resource_name.return_value = (
+            RESPONSE_PAYLOAD[0],
+            self.metadata,
+        )
+
+        def create_update(self, rest_path, data=None):
+            return RESPONSE_PAYLOAD[0]
+
+        def get_by_path(self, path):
+            return RESPONSE_PAYLOAD[0]
+
+        def delete_by_path(self, path):
+            return {}
+
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
+
+        self._plugin._task.args = {
+            "state": "replaced",
+            "config": [REQUEST_PAYLOAD[1]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        assert result["changed"] is True
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_adaptive_response_notable_events_replaced_idempotent(
         self, conn, monkeypatch
     ):
         self._plugin._connection.socket_path = (
@@ -237,61 +346,71 @@ class TestSplunkEsDataInputsMonitorsRules:
         )
         self._plugin._connection._shell = MagicMock()
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
-            return RESPONSE_PAYLOAD
+        def create_update(self, rest_path, data=None):
+            return RESPONSE_PAYLOAD[0]
 
         def get_by_path(self, path):
-            return {
-                "entry": [
-                    {
-                        "content": {
-                            "_rcvbuf": 1572864,
-                            "blacklist": "//var/log/[a-z]/gm",
-                            "check-index": None,
-                            "crcSalt": "<SOURCE>",
-                            "disabled": False,
-                            "eai:acl": None,
-                            "filecount": 74,
-                            "filestatecount": 82,
-                            "followTail": False,
-                            "host": "$decideOnStartup",
-                            "host_regex": "/(test_host)/gm",
-                            "host_resolved": "ip-172-31-52-131.us-west-2.compute.internal",
-                            "host_segment": 3,
-                            "ignoreOlderThan": "5d",
-                            "index": "default",
-                            "recursive": True,
-                            "source": "test",
-                            "sourcetype": "test_source_type",
-                            "time_before_close": 4,
-                            "whitelist": "//var/log/[0-9]/gm",
-                        },
-                        "name": "/var/log",
-                    }
-                ]
-            }
+            return RESPONSE_PAYLOAD[0]
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
         self._plugin._task.args = {
             "state": "replaced",
+            "config": [REQUEST_PAYLOAD[0]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+
+        assert result["changed"] is False
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_adaptive_response_notable_events_deleted(
+        self, conn, monkeypatch
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
+
+        self._plugin.search_for_resource_name = MagicMock()
+        self._plugin.search_for_resource_name.return_value = (
+            RESPONSE_PAYLOAD[0],
+            self.metadata,
+        )
+
+        def create_update(self, rest_path, data=None):
+            return RESPONSE_PAYLOAD[0]
+
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+
+        self._plugin._task.args = {
+            "state": "deleted",
             "config": [
                 {
-                    "blacklist": "//var/log/[a-z]/gm",
-                    "crc_salt": "<SOURCE>",
-                    "disabled": False,
-                    "follow_tail": False,
-                    "host": "$decideOnStartup",
-                    "host_regex": "/(test_host)/gm",
-                    "host_segment": 3,
-                    "index": "default",
-                    "name": "/var/log",
-                    "recursive": True,
-                    "sourcetype": "test_source_type",
-                    "whitelist": "//var/log/[0-9]/gm",
+                    "correlation_search_name": "Ansible Test",
+                }
+            ],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+
+        assert result["changed"] is True
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_adaptive_response_notable_events_deleted_idempotent(
+        self, connection
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
+        self._plugin._connection._shell = MagicMock()
+        self._plugin.search_for_resource_name = MagicMock()
+        self._plugin.search_for_resource_name.return_value = {}, {}
+
+        self._plugin._task.args = {
+            "state": "deleted",
+            "config": [
+                {
+                    "correlation_search_name": "Ansible Test",
                 }
             ],
         }
@@ -299,61 +418,26 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_deleted(self, conn, monkeypatch):
+    def test_es_adaptive_response_notable_events_gathered(
+        self, conn, monkeypatch
+    ):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
         self._plugin._connection._shell = MagicMock()
-
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
-            return RESPONSE_PAYLOAD
-
-        def get_by_path(self, path):
-            return RESPONSE_PAYLOAD
-
-        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
-        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
-
-        self._plugin._task.args = {
-            "state": "deleted",
-            "config": [{"name": "/var/log"}],
-        }
-        result = self._plugin.run(task_vars=self._task_vars)
-        assert result["changed"] is True
-
-    @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_deleted_idempotent(self, connection):
         self._plugin.search_for_resource_name = MagicMock()
-        self._plugin.search_for_resource_name.return_value = {}
-
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
+        self._plugin.search_for_resource_name.return_value = (
+            RESPONSE_PAYLOAD[0],
+            self.metadata,
         )
-        self._plugin._connection._shell = MagicMock()
-        self._plugin._task.args = {
-            "state": "deleted",
-            "config": [{"name": "/var/log"}],
-        }
-        result = self._plugin.run(task_vars=self._task_vars)
-        assert result["changed"] is False
-
-    @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_gathered(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
-        self._plugin._connection._shell = MagicMock()
-
-        def get_by_path(self, path):
-            return RESPONSE_PAYLOAD
-
-        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
         self._plugin._task.args = {
             "state": "gathered",
-            "config": [{"name": "/var/log"}],
+            "config": [
+                {
+                    "correlation_search_name": "Ansible Test",
+                }
+            ],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is False

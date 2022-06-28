@@ -328,8 +328,6 @@ class ActionModule(ActionBase):
                 )
                 changed = True
                 after = []
-            else:
-                before = []
 
         res_config = {}
         res_config["after"] = after
@@ -371,6 +369,7 @@ class ActionModule(ActionBase):
             have_conf, metadata = self.search_for_resource_name(
                 conn_request, want_conf["correlation_search_name"]
             )
+            correlation_search_name = want_conf["correlation_search_name"]
 
             if "notable" in metadata["actions"]:
                 want_conf = set_defaults(want_conf, defaults)
@@ -384,8 +383,6 @@ class ActionModule(ActionBase):
                         diff.update(diff2)
 
                 if diff:
-                    # diff = remove_get_keys_from_payload_dict(diff, remove_from_diff_compare)
-                    # if diff:
                     before.append(have_conf)
                     if self._task.args["state"] == "merged":
 
@@ -412,7 +409,7 @@ class ActionModule(ActionBase):
 
                         url = "{0}/{1}".format(
                             self.api_object,
-                            quote(have_conf["correlation_search_name"]),
+                            quote(correlation_search_name),
                         )
                         api_response = conn_request.create_update(
                             url,
@@ -435,7 +432,7 @@ class ActionModule(ActionBase):
 
                         url = "{0}/{1}".format(
                             self.api_object,
-                            quote(have_conf["correlation_search_name"]),
+                            quote(correlation_search_name),
                         )
                         api_response = conn_request.create_update(
                             url,
@@ -446,26 +443,23 @@ class ActionModule(ActionBase):
                         )
 
                         after.append(response_json)
-                    # else:
-                    #     before.append(have_conf)
-                    #     after.append(have_conf)
                 else:
                     before.append(have_conf)
                     after.append(have_conf)
             else:
                 changed = True
                 want_conf = utils.remove_empties(want_conf)
-
                 payload = self.map_objects_to_params(metadata, want_conf)
 
                 url = "{0}/{1}".format(
                     self.api_object,
-                    quote(have_conf["correlation_search_name"]),
+                    quote(correlation_search_name),
                 )
                 api_response = conn_request.create_update(
                     url,
                     data=payload,
                 )
+
                 response_json, metadata = self.map_params_to_object(
                     api_response["entry"][0]
                 )
