@@ -160,7 +160,9 @@ class TestSplunkEsDataInputsMonitorsRules:
         play_context = MagicMock()
         # Ansible <= 2.13 looks for check_mode in play_context
         play_context.check_mode = False
-        connection = patch("ansible_collections.splunk.es.plugins.module_utils.splunk.Connection")
+        connection = patch(
+            "ansible_collections.splunk.es.plugins.module_utils.splunk.Connection"
+        )
         connection._socket_path = tempfile.NamedTemporaryFile().name
         fake_loader = {}
         templar = Templar(loader=fake_loader)
@@ -184,7 +186,9 @@ class TestSplunkEsDataInputsMonitorsRules:
         }
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_adaptive_response_notable_events_merged_01(self, connection, monkeypatch):
+    def test_es_adaptive_response_notable_events_merged_01(
+        self, connection, monkeypatch
+    ):
         metadata = {
             "search": '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authent'
             'ication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Fai'
@@ -201,7 +205,9 @@ class TestSplunkEsDataInputsMonitorsRules:
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
-        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
         self._plugin._connection._shell = MagicMock()
         self._plugin._task.args = {
             "state": "merged",
@@ -211,7 +217,9 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_adaptive_response_notable_events_merged_02(self, connection, monkeypatch):
+    def test_es_adaptive_response_notable_events_merged_02(
+        self, connection, monkeypatch
+    ):
         self._plugin.api_response = RESPONSE_PAYLOAD[0]
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = (
@@ -224,7 +232,9 @@ class TestSplunkEsDataInputsMonitorsRules:
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
-        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
         self._plugin._connection._shell = MagicMock()
         self._plugin._task.args = {
             "state": "merged",
@@ -237,8 +247,12 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_adaptive_response_notable_events_merged_idempotent(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+    def test_es_adaptive_response_notable_events_merged_idempotent(
+        self, conn, monkeypatch
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
         self._plugin._connection._shell = MagicMock()
 
         def create_update(self, rest_path, data=None):
@@ -258,8 +272,12 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_adaptive_response_notable_events_replaced_01(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+    def test_es_adaptive_response_notable_events_replaced_01(
+        self, conn, monkeypatch
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = (
@@ -288,8 +306,12 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_adaptive_response_notable_events_replaced_02(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+    def test_es_adaptive_response_notable_events_replaced_02(
+        self, conn, monkeypatch
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = (
@@ -318,8 +340,12 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_adaptive_response_notable_events_replaced_idempotent(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+    def test_es_adaptive_response_notable_events_replaced_idempotent(
+        self, conn, monkeypatch
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
         self._plugin._connection._shell = MagicMock()
 
         def create_update(self, rest_path, data=None):
@@ -340,8 +366,12 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_adaptive_response_notable_events_deleted(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+    def test_es_adaptive_response_notable_events_deleted(
+        self, conn, monkeypatch
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
         self._plugin._connection._shell = MagicMock()
 
         self._plugin.search_for_resource_name = MagicMock()
@@ -368,8 +398,12 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_adaptive_response_notable_events_deleted_idempotent(self, connection):
-        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+    def test_es_adaptive_response_notable_events_deleted_idempotent(
+        self, connection
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = {}, {}
@@ -386,8 +420,12 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_adaptive_response_notable_events_gathered(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+    def test_es_adaptive_response_notable_events_gathered(
+        self, conn, monkeypatch
+    ):
+        self._plugin._connection.socket_path = (
+            tempfile.NamedTemporaryFile().name
+        )
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = (
