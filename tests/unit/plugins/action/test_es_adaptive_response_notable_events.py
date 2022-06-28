@@ -241,9 +241,7 @@ class TestSplunkEsDataInputsMonitorsRules:
             "config": [REQUEST_PAYLOAD[1]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
-        import q
 
-        q(result)
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
