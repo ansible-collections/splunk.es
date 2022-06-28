@@ -208,27 +208,21 @@ class SplunkRequest(object):
         """
         try:
             splunk_data = {}
-            if self.legacy:
-                for param in self.module.params:
-                    if (self.module.params[param]) is not None and (
-                        param not in self.not_rest_data_keys
-                    ):
-                        if param in self.keymap:
-                            splunk_data[
-                                self.keymap[param]
-                            ] = self.module.params[param]
-                        else:
-                            splunk_data[param] = self.module.params[param]
+            if self.legacy and not config:
+                config = self.module.params
 
-            else:
-                for param in config:
-                    if (config[param]) is not None and (
-                        param not in self.not_rest_data_keys
-                    ):
-                        if param in self.keymap:
-                            splunk_data[self.keymap[param]] = config[param]
-                        else:
-                            splunk_data[param] = config[param]
+            import q
+
+            q(config)
+
+            for param in config:
+                if (config[param]) is not None and (
+                    param not in self.not_rest_data_keys
+                ):
+                    if param in self.keymap:
+                        splunk_data[self.keymap[param]] = config[param]
+                    else:
+                        splunk_data[param] = config[param]
 
             return splunk_data
 
@@ -254,13 +248,13 @@ class SplunkRequest(object):
 
         return self.delete("/{0}?output_mode=json".format(rest_path))
 
-    def create_update(self, rest_path, data, mock=None, mock_data=None):
+    def create_update(self, rest_path, data):
         """
         Create or Update a file/directory monitor data input in Splunk
         """
 
-        if mock:
-            return mock_data
+        # when 'self.override' is True, the 'get_data' function replaces 'data'
+        # in order to make use of keymap
         if data is not None and self.override:
             data = self.get_urlencoded_data(data)
         return self.post(
