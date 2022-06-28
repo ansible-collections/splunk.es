@@ -1,6 +1,6 @@
 ---
 - debug:
-    msg: START data_inputs_monitors round trip integration tests on connection={{ ansible_connection }}
+    msg: START adaptive_response_notable_events round trip integration tests on connection={{ ansible_connection }}
 
 - include_tasks: _remove_din_config.yaml
 - include_tasks: _populate_din_config.yaml
@@ -9,69 +9,95 @@
 
     - name: Apply the provided configuration (base config)
       register: base_config
-      splunk.es.data_inputs_monitors: &id001
+      splunk.es.adaptive_response_notable_events: &id001
         state: merged
         config:
-          - name: "/var/log"
-            blacklist: '/\/var\/log\/[a-z]/gm'
-            check_index: True
-            check_path: True
-            crc_salt: <SOURCE>
-            disabled: False
-            follow_tail: False
-            host: "$decideOnStartup"
-            host_regex: "/(test_host)/gm"
-            host_segment: 3
-            ignore_older_than: 5d
-            index: default
-            recursive: True
-            rename_source: test
-            sourcetype: test_source_type
-            time_before_close: 4
-            whitelist: '/\/var\/log\/[0-9]/gm'
+          - correlation_search_name: Ansible Test
+            description: test notable event
+            drilldown_earliest_offset: $info_min_time$
+            drilldown_latest_offset: $info_max_time$
+            drilldown_name: test_drill_name
+            drilldown_search: test_drill
+            extract_artifacts:
+              asset: 
+                - src
+                - dest
+                - dvc
+                - orig_host
+              identity: 
+                - src_user
+                - user
+                - src_user_id
+                - src_user_role
+                - user_id
+                - user_role
+                - vendor_account
+            investigation_profiles:
+              - test profile 1
+              - test profile 2
+              - test profile 3
+            next_steps:
+              - makestreams
+              - nbtstat
+              - nslookup
+            name: ansible_test_notable
+            recommended_actions: 
+              - email
+              - logevent
+              - makestreams
+              - nbtstat
+            security_domain: threat
+            severity: high
 
-    - name: Gather data inputs monitors configuration facts
+    - name: Gather adaptive response notable events configuration facts
       register: gather_result
-      splunk.es.data_inputs_monitors:
+      splunk.es.adaptive_response_notable_events:
         config:
-          - name: "/var/log"
+          - correlation_search_name: Ansible Test
         state: gathered
 
     - name: Apply the configuration which need to be reverted
       register: result
-      splunk.es.data_inputs_monitors:
+      splunk.es.adaptive_response_notable_events:
         config:
-          - name: "/var/log"
-            blacklist: '/\/var\/log\/[a-z0-9]/gm'
-            crc_salt: <SOURCE>
+          - correlation_search_name: Ansible Test
+            description: test notable event
+            drilldown_earliest_offset: $info_min_time$
+            drilldown_latest_offset: $info_max_time$
+            extract_artifacts:
+              asset: 
+                - src
+                - dest
+              identity: 
+                - src_user
+                - user
+                - src_user_id
+            next_steps:
+              - makestreams
+            name: ansible_test_notable
+            recommended_actions: 
+              - email
+              - logevent
+            security_domain: threat
+            severity: high
         state: replaced
-
-    - debug:
-        msg:
-          - "{{ result }}"
 
     - assert:
         that:
           - result.changed == true
-          - "{{ replaced['before'] | dict2items |\
-            symmetric_difference(result['data_inputs_monitors']['before'][0] |\
-            dict2items) | length==5}}"
-          - "{{ replaced['after'] | dict2items |\
-            symmetric_difference(result['data_inputs_monitors']['after'][0] |\
-            dict2items) | length==3}}"
+          - replaced['before'] == result['adaptive_response_notable_events']['before']
+          - replaced['after'] == result['adaptive_response_notable_events']['after']
 
     - name: Revert back to base config using facts round trip
       register: revert
-      splunk.es.data_inputs_monitors:
-        config: "{{ gather_result['data_inputs_monitors']['gathered'] }}"
+      splunk.es.adaptive_response_notable_events:
+        config: "{{ gather_result['adaptive_response_notable_events']['gathered'] }}"
         state: replaced
 
     - assert:
         that:
           - revert['changed'] == true
-          - "{{ merged['after'] | dict2items |\
-            symmetric_difference(revert['data_inputs_monitors']['after'][0] |\
-            dict2items)| length==5}}"
+          - merged['after'] == revert['adaptive_response_notable_events']['after']
 
   always:
     - include_tasks: _remove_din_config.yaml

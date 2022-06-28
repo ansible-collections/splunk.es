@@ -1,6 +1,6 @@
 ---
-- name: delete data inputs config
-  splunk.es.data_inputs_monitors:
+- name: create test correlation search
+  splunk.es.correlation_searches:
     config:
-      - name: "/var/log"
+      - name: Ansible Test
     state: deleted
