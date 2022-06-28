@@ -128,7 +128,6 @@ options:
       - '"sourcetype=" is automatically prepended to <string>.'
       - Defaults to audittrail (if signedaudit=True) or fschange (if signedaudit=False).
     type: str
-
 author: Ansible Security Automation Team (@maxamillion) <https://github.com/ansible-security>
 """
 
@@ -233,11 +232,7 @@ def main():
                         quote_plus(module.params["datatype"]),
                         quote_plus(module.params["name"]),
                     ),
-<<<<<<< HEAD
                     data=_data,
-=======
-                    data=urlencode(_data),
->>>>>>> a9fb510 (completed fixes)
                 )
             if module.params["state"] in ["present", "enabled"]:
                 module.exit_json(
