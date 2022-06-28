@@ -106,11 +106,7 @@
     - name: Revert back to base config using facts round trip
       register: revert
       splunk.es.splunk_correlation_searches:
-<<<<<<< HEAD
         config: "{{ gather_result['gathered'] }}"
-=======
-        config: "{{ gather_result['correlation_searches']['gathered'] }}"
->>>>>>> 140f60e (minor fix)
         state: replaced
 
     - assert:

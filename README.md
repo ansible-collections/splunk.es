@@ -35,6 +35,7 @@ Name | Description
 Name | Description
 --- | ---
 [splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.adaptive_response_notable_event_module.rst)|Manage Splunk Enterprise Security Notable Event Adaptive Responses
+[splunk.es.adaptive_response_notable_events](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.adaptive_response_notable_events_module.rst)|Manage Splunk Enterprise Security Notable Event Adaptive Responses
 [splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_module.rst)|Manage Splunk Enterprise Security Correlation Searches
 [splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_info_module.rst)|Manage Splunk Enterprise Security Correlation Searches
 [splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_monitor_module.rst)|Manage Splunk Data Inputs of type Monitor
