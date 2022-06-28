@@ -175,19 +175,17 @@ class TestSplunkEsDataInputsMonitorsRules:
             templar=templar,
             shared_loader_obj=None,
         )
-        self._plugin._task.action = "data_inputs_monitors"
+        self._plugin._task.action = "correlation_searches"
         self._plugin._task.async_val = False
         self._task_vars = {}
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_merged(self, connection, monkeypatch):
+    def test_es_correlation_searches_merged(self, connection, monkeypatch):
         self._plugin.api_response = RESPONSE_PAYLOAD
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = {}
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
+        def create_update(self, rest_path, data=None):
             return RESPONSE_PAYLOAD
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
@@ -204,7 +202,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_merged_idempotent(
+    def test_es_correlation_searches_merged_idempotent(
         self, conn, monkeypatch
     ):
         self._plugin._connection.socket_path = (
@@ -212,9 +210,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         )
         self._plugin._connection._shell = MagicMock()
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
+        def create_update(self, rest_path, data=None):
             return RESPONSE_PAYLOAD
 
         def get_by_path(self, path):
@@ -231,7 +227,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_replaced_01(self, conn, monkeypatch):
+    def test_es_correlation_searches_replaced_01(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
@@ -239,9 +235,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
+        def create_update(self, rest_path, data=None):
             return RESPONSE_PAYLOAD
 
         def get_by_path(self, path):
@@ -262,7 +256,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_replaced_02(self, conn, monkeypatch):
+    def test_es_correlation_searches_replaced_02(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
@@ -270,9 +264,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
+        def create_update(self, rest_path, data=None):
             return RESPONSE_PAYLOAD
 
         def get_by_path(self, path):
@@ -293,7 +285,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_replaced_idempotent(
+    def test_es_correlation_searches_replaced_idempotent(
         self, conn, monkeypatch
     ):
         self._plugin._connection.socket_path = (
@@ -301,9 +293,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         )
         self._plugin._connection._shell = MagicMock()
 
-        def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
-        ):
+        def create_update(self, rest_path, data=None):
             return RESPONSE_PAYLOAD
 
         def get_by_path(self, path):
@@ -325,7 +315,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_deleted(self, conn, monkeypatch):
+    def test_es_correlation_searches_deleted(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
@@ -348,7 +338,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_deleted_idempotent(self, connection):
+    def test_es_correlation_searches_deleted_idempotent(self, connection):
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = {}
 
@@ -364,7 +354,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_gathered(self, conn, monkeypatch):
+    def test_es_correlation_searches_gathered(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
