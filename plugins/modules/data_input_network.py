@@ -139,7 +139,7 @@ EXAMPLES = """
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_text
-from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
+from ansible.module_utils.six.moves.urllib.parse import quote_plus
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
 )
@@ -229,7 +229,7 @@ def main():
                         quote_plus(module.params["datatype"]),
                         quote_plus(module.params["name"]),
                     ),
-                    data=urlencode(_data),
+                    data=_data,
                 )
             if module.params["state"] in ["present", "enabled"]:
                 module.exit_json(
@@ -246,7 +246,7 @@ def main():
                     quote_plus(module.params["protocol"]),
                     quote_plus(module.params["datatype"]),
                 ),
-                data=urlencode(_data),
+                data=_data,
             )
             module.exit_json(
                 changed=True, msg="{0} created.", splunk_data=splunk_data

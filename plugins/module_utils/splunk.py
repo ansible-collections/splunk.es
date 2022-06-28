@@ -208,27 +208,21 @@ class SplunkRequest(object):
         """
         try:
             splunk_data = {}
-            if self.legacy:
-                for param in self.module.params:
-                    if (self.module.params[param]) is not None and (
-                        param not in self.not_rest_data_keys
-                    ):
-                        if param in self.keymap:
-                            splunk_data[
-                                self.keymap[param]
-                            ] = self.module.params[param]
-                        else:
-                            splunk_data[param] = self.module.params[param]
+            if self.legacy and not config:
+                config = self.module.params
 
-            else:
-                for param in config:
-                    if (config[param]) is not None and (
-                        param not in self.not_rest_data_keys
-                    ):
-                        if param in self.keymap:
-                            splunk_data[self.keymap[param]] = config[param]
-                        else:
-                            splunk_data[param] = config[param]
+            import q
+
+            q(config)
+
+            for param in config:
+                if (config[param]) is not None and (
+                    param not in self.not_rest_data_keys
+                ):
+                    if param in self.keymap:
+                        splunk_data[self.keymap[param]] = config[param]
+                    else:
+                        splunk_data[param] = config[param]
 
             return splunk_data
 

@@ -321,9 +321,7 @@ class TestSplunkEsDataInputsMonitorsRules:
             "config": [REQUEST_PAYLOAD[0]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
-        from icecream import ic
 
-        ic(result)
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
