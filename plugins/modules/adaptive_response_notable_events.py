@@ -188,29 +188,61 @@ EXAMPLES = """
 # _________________________________________________________________
 # Using gathered
 
-- name:
-  splunk.es.data_inputs_monitors:
+- name: Gather adaptive response notable events config
+  splunk.es.adaptive_response_notable_events:
     config:
-      - name: "/var/log"
-      - name: "/var"
+      - correlation_search_name: Ansible Test
+      - correlation_search_name: Ansible Test 2
     state: gathered
+  register: result
 #
 # Output:
 #
 # "changed": false,
 # "gathered": [
 #     {
-#         "blacklist": "//var/log/[a-z0-9]/gm",
-#         "crc_salt": "<SOURCE>",
-#         "disabled": false,
-#         "host": "$decideOnStartup",
-#         "host_regex": "/(test_host)/gm",
-#         "host_segment": 3,
-#         "index": "default",
-#         "name": "/var/log",
-#         "recursive": true,
-#         "sourcetype": "test_source",
-#         "whitelist": "//var/log/[0-9]/gm"
+#         "correlation_search_name": "Ansible Test",
+#         "description": "test notable event",
+#         "drilldown_earliest_offset": "$info_min_time$",
+#         "drilldown_latest_offset": "$info_max_time$",
+#         "drilldown_name": "test_drill_name",
+#         "drilldown_search": "test_drill",
+#         "extract_artifacts": {
+#             "asset": [
+#                 "src",
+#                 "dest",
+#                 "dvc",
+#                 "orig_host"
+#             ],
+#             "identity": [
+#                 "src_user",
+#                 "user",
+#                 "src_user_id",
+#                 "src_user_role",
+#                 "user_id",
+#                 "user_role",
+#                 "vendor_account"
+#             ]
+#         },
+#         "investigation_profiles": [
+#             "test profile 1",
+#             "test profile 2",
+#             "test profile 3"
+#         ],
+#         "next_steps": [
+#             "makestreams",
+#             "nbtstat",
+#             "nslookup"
+#         ],
+#         "name": "ansible_test_notable",
+#         "recommended_actions": [
+#             "email",
+#             "logevent",
+#             "makestreams",
+#             "nbtstat"
+#         ],
+#         "security_domain": "threat",
+#         "severity": "high"
 #     },
 #     { } # there is no configuration associated with "/var"
 # ]
@@ -218,90 +250,186 @@ EXAMPLES = """
 # ------------------------------
 # _________________________________________________________________
 # Using merged
-- name: Example adding data input monitor with splunk.es.data_input_monitor
-  splunk.es.data_inputs_monitors:
+- name: Example adding config with splunk.es.adaptive_response_notable_events
+  splunk.es.adaptive_response_notable_events:
     config:
-      - name: "/var/log"
-        blacklist: "//var/log/[a-z]/gm"
-        check_index: True
-        check_path: True
-        crc_salt: <SOURCE>
-        rename_source: "test"
-        whitelist: "//var/log/[0-9]/gm"
+      - correlation_search_name: Ansible Test
+        description: test notable event
+        drilldown_earliest_offset: $info_min_time$
+        drilldown_latest_offset: $info_max_time$
+        extract_artifacts:
+            asset:
+              - src
+              - dest
+            identity:
+              - src_user
+              - user
+              - src_user_id
+        next_steps:
+        - makestreams
+        name: ansible_test_notable
+        recommended_actions:
+        - email
+        - logevent
+        security_domain: threat
+        severity: high
     state: merged
 #
 # Output:
 #
 # "after": [
 #     {
-#         "blacklist": "//var/log/[a-z]/gm",
-#         "crc_salt": "<SOURCE>",
-#         "disabled": false,
-#         "host": "$decideOnStartup",
-#         "host_regex": "/(test_host)/gm",
-#         "host_segment": 3,
-#         "index": "default",
-#         "name": "/var/log",
-#         "recursive": true,
-#         "sourcetype": "test_source",
-#         "whitelist": "//var/log/[0-9]/gm"
+#         "correlation_search_name": "Ansible Test",
+#         "description": "test notable event",
+#         "drilldown_earliest_offset": "$info_min_time$",
+#         "drilldown_latest_offset": "$info_max_time$",
+#         "drilldown_name": "test_drill_name",
+#         "drilldown_search": "test_drill",
+#         "extract_artifacts": {
+#             "asset": [
+#                 "src",
+#                 "dest",
+#                 "dvc",
+#                 "orig_host"
+#             ],
+#             "identity": [
+#                 "src_user",
+#                 "user",
+#                 "src_user_id",
+#                 "src_user_role",
+#                 "user_id",
+#                 "user_role",
+#                 "vendor_account"
+#             ]
+#         },
+#         "investigation_profiles": [
+#             "test profile 1",
+#             "test profile 2",
+#             "test profile 3"
+#         ],
+#         "next_steps": [
+#             "makestreams",
+#             "nbtstat",
+#             "nslookup"
+#         ],
+#         "name": "ansible_test_notable",
+#         "recommended_actions": [
+#             "email",
+#             "logevent",
+#             "makestreams",
+#             "nbtstat"
+#         ],
+#         "security_domain": "threat",
+#         "severity": "high"
 #     }
 # ],
-# "before": [
-#     {
-#         "blacklist": "//var/log/[a-z0-9]/gm",
-#         "crc_salt": "<SOURCE>",
-#         "disabled": false,
-#         "host": "$decideOnStartup",
-#         "host_regex": "/(test_host)/gm",
-#         "host_segment": 3,
-#         "index": "default",
-#         "name": "/var/log",
-#         "recursive": true,
-#         "sourcetype": "test_source",
-#         "whitelist": "//var/log/[0-9]/gm"
-#     }
-# ],
+# "before": [],
 # "changed": true
 #
 # ------------------------------
 # _________________________________________________________________
 # Using replaced
 
-- name: Example adding data input monitor with splunk.es.data_input_monitor
-  splunk.es.data_inputs_monitors:
+- name: Example replacing config with splunk.es.adaptive_response_notable_events
+  splunk.es.adaptive_response_notable_events:
     config:
-      - name: "/var/log"
-        blacklist: "//var/log/[a-z0-9]/gm"
-        crc_salt: <SOURCE>
-        index: default
+      - correlation_search_name: Ansible Test
+        description: test notable event
+        drilldown_earliest_offset: $info_min_time$
+        drilldown_latest_offset: $info_max_time$
+        extract_artifacts:
+            asset:
+              - src
+              - dest
+            identity:
+              - src_user
+              - user
+              - src_user_id
+        next_steps:
+        - makestreams
+        name: ansible_test_notable
+        recommended_actions:
+        - email
+        - logevent
+        security_domain: threat
+        severity: high
     state: replaced
 #
 # Output:
 #
 # "after": [
 #     {
-#         "blacklist": "//var/log/[a-z0-9]/gm",
-#         "crc_salt": "<SOURCE>",
-#         "disabled": false,
-#         "host": "$decideOnStartup",
-#         "index": "default",
-#         "name": "/var/log"
+#         "correlation_search_name": "Ansible Test",
+#         "description": "test notable event",
+#         "drilldown_earliest_offset": "$info_min_time$",
+#         "drilldown_latest_offset": "$info_max_time$",
+#         "extract_artifacts": {
+#             "asset": [
+#                 "src",
+#                 "dest"
+#             ],
+#             "identity": [
+#                 "src_user",
+#                 "user",
+#                 "src_user_id"
+#             ]
+#         },
+#         "next_steps": [
+#             "makestreams"
+#         ],
+#         "name": "ansible_test_notable",
+#         "recommended_actions": [
+#             "email",
+#             "logevent"
+#         ],
+#         "security_domain": "threat",
+#         "severity": "high"
 #     }
 # ],
 # "before": [
 #     {
-#         "blacklist": "//var/log/[a-z0-9]/gm",
-#         "crc_salt": "<SOURCE>",
-#         "disabled": false,
-#         "host": "$decideOnStartup",
-#         "host_regex": "/(test_host)/gm",
-#         "host_segment": 3,
-#         "index": "default",
-#         "name": "/var/log",
-#         "recursive": true,
-#         "sourcetype": "test_source",
-#         "whitelist": "//var/log/[0-9]/gm"
+#         "correlation_search_name": "Ansible Test",
+#         "description": "test notable event",
+#         "drilldown_earliest_offset": "$info_min_time$",
+#         "drilldown_latest_offset": "$info_max_time$",
+#         "drilldown_name": "test_drill_name",
+#         "drilldown_search": "test_drill",
+#         "extract_artifacts": {
+#             "asset": [
+#                 "src",
+#                 "dest",
+#                 "dvc",
+#                 "orig_host"
+#             ],
+#             "identity": [
+#                 "src_user",
+#                 "user",
+#                 "src_user_id",
+#                 "src_user_role",
+#                 "user_id",
+#                 "user_role",
+#                 "vendor_account"
+#             ]
+#         },
+#         "investigation_profiles": [
+#             "test profile 1",
+#             "test profile 2",
+#             "test profile 3"
+#         ],
+#         "next_steps": [
+#             "makestreams",
+#             "nbtstat",
+#             "nslookup"
+#         ],
+#         "name": "ansible_test_notable",
+#         "recommended_actions": [
+#             "email",
+#             "logevent",
+#             "makestreams",
+#             "nbtstat"
+#         ],
+#         "security_domain": "threat",
+#         "severity": "high"
 #     }
 # ],
 # "changed": true
@@ -309,10 +437,10 @@ EXAMPLES = """
 # ------------------------------
 # _________________________________________________________________
 # Using deleted
-- name: Example adding data input monitor with splunk.es.data_input_monitor
-  splunk.es.data_inputs_monitors:
+- name: Example removing config with splunk.es.adaptive_response_notable_events
+  splunk.es.adaptive_response_notable_events:
     config:
-      - name: "/var/log"
+      - correlation_search_name: Ansible Test
     state: deleted
 #
 # Output:
@@ -320,12 +448,48 @@ EXAMPLES = """
 # "after": [],
 # "before": [
 #     {
-#         "blacklist": "//var/log/[a-z0-9]/gm",
-#         "crc_salt": "<SOURCE>",
-#         "disabled": false,
-#         "host": "$decideOnStartup",
-#         "index": "default",
-#         "name": "/var/log"
+#         "correlation_search_name": "Ansible Test",
+#         "description": "test notable event",
+#         "drilldown_earliest_offset": "$info_min_time$",
+#         "drilldown_latest_offset": "$info_max_time$",
+#         "drilldown_name": "test_drill_name",
+#         "drilldown_search": "test_drill",
+#         "extract_artifacts": {
+#             "asset": [
+#                 "src",
+#                 "dest",
+#                 "dvc",
+#                 "orig_host"
+#             ],
+#             "identity": [
+#                 "src_user",
+#                 "user",
+#                 "src_user_id",
+#                 "src_user_role",
+#                 "user_id",
+#                 "user_role",
+#                 "vendor_account"
+#             ]
+#         },
+#         "investigation_profiles": [
+#             "test profile 1",
+#             "test profile 2",
+#             "test profile 3"
+#         ],
+#         "next_steps": [
+#             "makestreams",
+#             "nbtstat",
+#             "nslookup"
+#         ],
+#         "name": "ansible_test_notable",
+#         "recommended_actions": [
+#             "email",
+#             "logevent",
+#             "makestreams",
+#             "nbtstat"
+#         ],
+#         "security_domain": "threat",
+#         "severity": "high"
 #     }
 # ],
 # "changed": true
