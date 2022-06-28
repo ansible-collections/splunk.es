@@ -157,13 +157,16 @@ class ActionModule(ActionBase):
             res["extract_artifacts"] = json.loads(res["extract_artifacts"])
 
         if "investigation_profiles" in res:
-            res["investigation_profiles"] = json.loads(
-                res["investigation_profiles"]
-            )
-            investigation_profiles = []
-            for keys in res["investigation_profiles"].keys():
-                investigation_profiles.append(keys.split("profile://")[1])
-            res["investigation_profiles"] = investigation_profiles
+            if res["investigation_profiles"] == "{}":
+                res.pop("investigation_profiles")
+            else:
+                res["investigation_profiles"] = json.loads(
+                    res["investigation_profiles"]
+                )
+                investigation_profiles = []
+                for keys in res["investigation_profiles"].keys():
+                    investigation_profiles.append(keys.split("profile://")[1])
+                res["investigation_profiles"] = investigation_profiles
 
         if "recommended_actions" in res:
             res["recommended_actions"] = res["recommended_actions"].split(",")
@@ -324,9 +327,9 @@ class ActionModule(ActionBase):
                     data=payload,
                 )
                 changed = True
-                after = [diff_cmp]
+                after = []
             else:
-                before = search_by_name
+                before = []
 
         res_config = {}
         res_config["after"] = after
@@ -497,7 +500,6 @@ class ActionModule(ActionBase):
             action_module=self,
             connection=conn,
             not_rest_data_keys=["state"],
-            task_vars=task_vars,
         )
 
         if self._task.args["state"] == "gathered":

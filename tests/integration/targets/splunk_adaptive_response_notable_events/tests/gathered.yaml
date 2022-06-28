@@ -1,24 +1,22 @@
 ---
 - debug:
-    msg: START data_inputs_monitors gathered integration tests on connection={{ ansible_connection }}
+    msg: START adaptive_response_notable_events gathered integration tests on connection={{ ansible_connection }}
 
 - include_tasks: _remove_din_config.yaml
 
 - include_tasks: _populate_din_config.yaml
 
 - block:
-    - name: Gather data inputs monitors config
-      splunk.es.data_inputs_monitors:
+    - name: Gather adaptive response notable events config
+      splunk.es.adaptive_response_notable_events:
         config:
-          - name: "/var/log"
+          - correlation_search_name: Ansible Test
         state: gathered
       register: result
 
     - assert:
         that:
-          - "{{ merged['after'] | dict2items |\
-            symmetric_difference(result['data_inputs_monitors']['gathered'][0] |\
-            dict2items)| length==5}}"
+          - merged['after'] == result['adaptive_response_notable_events']['gathered']
           - result['changed'] == false
   always:
     - include_tasks: _remove_din_config.yaml

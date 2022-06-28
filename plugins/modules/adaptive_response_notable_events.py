@@ -30,7 +30,6 @@ options:
       name:
         description:
         - Name of notable event
-        required: True
         type: str
       correlation_search_name:
         description:
