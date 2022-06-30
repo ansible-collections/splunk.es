@@ -1,14 +1,14 @@
-.. _splunk.es.correlation_searches_module:
+.. _splunk.es.splunk_correlation_searches_module:
 
 
-******************************
-splunk.es.correlation_searches
-******************************
+*************************************
+splunk.es.splunk_correlation_searches
+*************************************
 
 **Manage Splunk Enterprise Security correlation searches**
 
 
-Version added: 2.0.0
+Version added: 2.1.0
 
 .. contents::
    :local:
@@ -997,4 +997,4 @@ Status
 Authors
 ~~~~~~~
 
-- Pranav Bhatt (@pranav-bhatt)
+- Ansible Security Automation Team (@pranav-bhatt) <https://github.com/ansible-security>
