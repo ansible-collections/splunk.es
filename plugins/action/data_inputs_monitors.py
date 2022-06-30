@@ -42,7 +42,7 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
     AnsibleArgSpecValidator,
 )
-from ansible_collections.splunk.es.plugins.modules.data_inputs_monitors import (
+from collections.ansible_collections.splunk.es.plugins.modules.splunk_data_inputs_monitors import (
     DOCUMENTATION,
 )
 
@@ -101,9 +101,7 @@ class ActionModule(ActionBase):
         return res
 
     def search_for_resource_name(self, conn_request, directory_name):
-        query_dict = conn_request.get_by_path(
-            "{0}/{1}".format(self.api_object, quote_plus(directory_name))
-        )
+        query_dict = conn_request.get_by_path("{0}/{1}".format(self.api_object, quote_plus(directory_name)))
 
         search_result = {}
 
@@ -117,16 +115,10 @@ class ActionModule(ActionBase):
         after = None
         changed = False
         for want_conf in config:
-            search_by_name = self.search_for_resource_name(
-                conn_request, want_conf["name"]
-            )
+            search_by_name = self.search_for_resource_name(conn_request, want_conf["name"])
             if search_by_name:
                 before.append(search_by_name)
-                conn_request.delete_by_path(
-                    "{0}/{1}".format(
-                        self.api_object, quote_plus(want_conf["name"])
-                    )
-                )
+                conn_request.delete_by_path("{0}/{1}".format(self.api_object, quote_plus(want_conf["name"])))
                 changed = True
                 after = []
 
@@ -156,9 +148,7 @@ class ActionModule(ActionBase):
             "rename_source",
         ]
         for want_conf in config:
-            have_conf = self.search_for_resource_name(
-                conn_request, want_conf["name"]
-            )
+            have_conf = self.search_for_resource_name(conn_request, want_conf["name"])
 
             if have_conf:
                 want_conf = set_defaults(want_conf, defaults)
@@ -172,24 +162,16 @@ class ActionModule(ActionBase):
                         diff.update(diff2)
 
                 if diff:
-                    diff = remove_get_keys_from_payload_dict(
-                        diff, remove_from_diff_compare
-                    )
+                    diff = remove_get_keys_from_payload_dict(diff, remove_from_diff_compare)
                     if diff:
                         before.append(have_conf)
                         if self._task.args["state"] == "merged":
 
-                            want_conf = utils.remove_empties(
-                                utils.dict_merge(have_conf, want_conf)
-                            )
-                            want_conf = remove_get_keys_from_payload_dict(
-                                want_conf, remove_from_diff_compare
-                            )
+                            want_conf = utils.remove_empties(utils.dict_merge(have_conf, want_conf))
+                            want_conf = remove_get_keys_from_payload_dict(want_conf, remove_from_diff_compare)
                             changed = True
 
-                            payload = map_obj_to_params(
-                                want_conf, self.key_transform
-                            )
+                            payload = map_obj_to_params(want_conf, self.key_transform)
                             url = "{0}/{1}".format(
                                 self.api_object,
                                 quote_plus(payload.pop("name")),
@@ -198,9 +180,7 @@ class ActionModule(ActionBase):
                                 url,
                                 data=payload,
                             )
-                            response_json = self.map_params_to_object(
-                                api_response["entry"][0]
-                            )
+                            response_json = self.map_params_to_object(api_response["entry"][0])
 
                             after.append(response_json)
                         elif self._task.args["state"] == "replaced":
@@ -212,17 +192,13 @@ class ActionModule(ActionBase):
                             )
                             changed = True
 
-                            payload = map_obj_to_params(
-                                want_conf, self.key_transform
-                            )
+                            payload = map_obj_to_params(want_conf, self.key_transform)
                             url = "{0}".format(self.api_object)
                             api_response = conn_request.create_update(
                                 url,
                                 data=payload,
                             )
-                            response_json = self.map_params_to_object(
-                                api_response["entry"][0]
-                            )
+                            response_json = self.map_params_to_object(api_response["entry"][0])
 
                             after.append(response_json)
                     else:
@@ -241,9 +217,7 @@ class ActionModule(ActionBase):
                     url,
                     data=payload,
                 )
-                response_json = self.map_params_to_object(
-                    api_response["entry"][0]
-                )
+                response_json = self.map_params_to_object(api_response["entry"][0])
 
                 after.extend(before)
                 after.append(response_json)
@@ -282,20 +256,11 @@ class ActionModule(ActionBase):
                 self._result["changed"] = False
                 self._result[self.module_name]["gathered"] = []
                 for item in config:
-                    self._result[self.module_name]["gathered"].append(
-                        self.search_for_resource_name(
-                            conn_request, item["name"]
-                        )
-                    )
+                    self._result[self.module_name]["gathered"].append(self.search_for_resource_name(conn_request, item["name"]))
             else:
-                self._result[self.module_name][
-                    "gathered"
-                ] = conn_request.get_by_path(self.api_object)["entry"]
+                self._result[self.module_name]["gathered"] = conn_request.get_by_path(self.api_object)["entry"]
 
-        elif (
-            self._task.args["state"] == "merged"
-            or self._task.args["state"] == "replaced"
-        ):
+        elif self._task.args["state"] == "merged" or self._task.args["state"] == "replaced":
             (
                 self._result[self.module_name],
                 self._result["changed"],

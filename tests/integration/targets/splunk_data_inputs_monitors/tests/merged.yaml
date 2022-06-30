@@ -3,7 +3,7 @@
     msg: START Merged data_inputs_monitors state for integration tests on connection={{
       ansible_connection }}
 
-- include_tasks: _remove_din_config.yaml
+- include_tasks: _remove_dim_config.yaml
 
 - block:
     - name: Merge and create new data inputs monitors configuration
@@ -30,11 +30,6 @@
             time_before_close: 4
             whitelist: '/\/var\/log\/[a-z]/gm'
 
-    - debug:
-        msg: "{{ merged['after'] | dict2items |\
-            symmetric_difference(result['data_inputs_monitors']['after'][0] |\
-            dict2items)}}"
-
     - name: Assert that task reports change and after dict is correctly generated
       assert:
         that:
@@ -59,4 +54,4 @@
 
   always:
 
-    - include_tasks: _remove_din_config.yaml
+    - include_tasks: _remove_dim_config.yaml

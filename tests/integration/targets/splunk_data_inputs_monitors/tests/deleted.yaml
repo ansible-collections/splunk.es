@@ -3,9 +3,9 @@
     msg: Start Deleted integration state for data_inputs_monitors ansible_connection={{ ansible_connection
       }}
 
-- include_tasks: _remove_din_config.yaml
+- include_tasks: _remove_dim_config.yaml
 
-- include_tasks: _populate_din_config.yaml
+- include_tasks: _populate_dim_config.yaml
 
 - block:
     - name: Delete data inputs monitors config
@@ -33,4 +33,4 @@
           - result.changed == false
 
   always:
-    - include_tasks: _remove_din_config.yaml
+    - include_tasks: _remove_dim_config.yaml
