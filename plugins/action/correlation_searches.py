@@ -44,7 +44,7 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
     AnsibleArgSpecValidator,
 )
-from ansible_collections.splunk.es.plugins.modules.correlation_searches import (
+from ansible_collections.splunk.es.plugins.modules.splunk_correlation_searches import (
     DOCUMENTATION,
 )
 
