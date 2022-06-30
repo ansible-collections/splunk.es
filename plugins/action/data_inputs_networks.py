@@ -42,7 +42,7 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
     AnsibleArgSpecValidator,
 )
-from ansible_collections.splunk.es.plugins.modules.data_inputs_networks import (
+from ansible_collections.splunk.es.plugins.modules.splunk_data_inputs_networks import (
     DOCUMENTATION,
 )
 

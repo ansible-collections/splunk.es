@@ -65,7 +65,7 @@ def main():
                     quote_plus(module.params["name"])
                 )
             )
-        except HTTPError:
+        except HTTPError as e:
             # the data monitor doesn't exist
             query_dict = {}
     else:
