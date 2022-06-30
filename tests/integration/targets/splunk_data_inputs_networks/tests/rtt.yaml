@@ -10,7 +10,7 @@
 - block:
     - name: Apply the provided configuration (base config)
       register: base_config
-      splunk.es.data_inputs_networks: &id001
+      splunk.es.splunk_data_inputs_networks: &id001
         state: merged
         config:
           - protocol: tcp
@@ -51,7 +51,7 @@
 
     - name: Gather data inputs networks configuration facts
       register: gather_result
-      splunk.es.data_inputs_networks:
+      splunk.es.splunk_data_inputs_networks:
         config:
           - protocol: tcp
             datatype: raw
@@ -68,7 +68,7 @@
 
     - name: Apply the configuration which need to be reverted
       register: result
-      splunk.es.data_inputs_networks:
+      splunk.es.splunk_data_inputs_networks:
         config:
           - protocol: tcp
             datatype: raw
@@ -117,7 +117,7 @@
 
     - name: Revert back to base config using facts round trip
       register: revert
-      splunk.es.data_inputs_networks:
+      splunk.es.splunk_data_inputs_networks:
         config: "{{ gather_result['gathered'] }}"
         state: replaced
 

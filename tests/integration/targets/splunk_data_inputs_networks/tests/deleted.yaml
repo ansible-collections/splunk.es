@@ -10,7 +10,7 @@
 
 - block:
     - name: Delete data inputs networks config
-      splunk.es.data_inputs_networks: &id001
+      splunk.es.splunk_data_inputs_networks: &id001
         config:
           - protocol: tcp
             datatype: raw
@@ -36,7 +36,7 @@
 
     - name: Delete attributes of all configured interfaces (IDEMPOTENT)
       register: result
-      splunk.es.data_inputs_networks: *id001
+      splunk.es.splunk_data_inputs_networks: *id001
 
     - name: Assert that the previous delete task was idempotent
       assert:

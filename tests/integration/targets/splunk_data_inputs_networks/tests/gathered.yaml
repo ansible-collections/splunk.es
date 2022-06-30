@@ -10,7 +10,7 @@
 
 - block:
     - name: Gather data inputs networks config
-      splunk.es.data_inputs_networks:
+      splunk.es.splunk_data_inputs_networks:
         config:
           - protocol: tcp
             datatype: raw
