@@ -1,9 +1,10 @@
 ---
 - debug:
-    msg: START Merged adaptive_response_notable_events state for integration tests on connection={{
+    msg:
+      START Merged adaptive_response_notable_events state for integration tests on connection={{
       ansible_connection }}
 
-- include_tasks: _remove_din_config.yaml
+- include_tasks: _remove_dim_config.yaml
 
 - block:
     - name: create test correlation search
@@ -27,12 +28,12 @@
             drilldown_name: test_drill_name
             drilldown_search: test_drill
             extract_artifacts:
-              asset: 
+              asset:
                 - src
                 - dest
                 - dvc
                 - orig_host
-              identity: 
+              identity:
                 - src_user
                 - user
                 - src_user_id
@@ -49,7 +50,7 @@
               - nbtstat
               - nslookup
             name: ansible_test_notable
-            recommended_actions: 
+            recommended_actions:
               - email
               - logevent
               - makestreams
@@ -78,5 +79,4 @@
           - result['changed'] == false
 
   always:
-
-    - include_tasks: _remove_din_config.yaml
+    - include_tasks: _remove_dim_config.yaml
