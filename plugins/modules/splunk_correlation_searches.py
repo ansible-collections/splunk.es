@@ -10,7 +10,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: correlation_searches
+module: splunk_correlation_searches
 short_description: Manage Splunk Enterprise Security correlation searches
 description:
   - This module allows for creation, deletion, and modification of Splunk

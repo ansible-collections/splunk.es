@@ -8,7 +8,7 @@
 - block:
     - name: Apply the provided configuration (base config)
       register: base_config
-      splunk.es.correlation_searches: &id001
+      splunk.es.splunk_correlation_searches: &id001
         state: merged
         config:
           - name: Ansible Test 3
@@ -47,14 +47,14 @@
 
     - name: Gather correlation searches configuration facts
       register: gather_result
-      splunk.es.correlation_searches:
+      splunk.es.splunk_correlation_searches:
         config:
           - name: Ansible Test
         state: gathered
 
     - name: Apply the configuration which need to be reverted
       register: result
-      splunk.es.correlation_searches:
+      splunk.es.splunk_correlation_searches:
         config:
           - name: Ansible Test
             disabled: false
@@ -105,7 +105,7 @@
 
     - name: Revert back to base config using facts round trip
       register: revert
-      splunk.es.correlation_searches:
+      splunk.es.splunk_correlation_searches:
         config: "{{ gather_result['correlation_searches']['gathered'] }}"
         state: replaced
 

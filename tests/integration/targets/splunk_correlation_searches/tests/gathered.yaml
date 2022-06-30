@@ -8,7 +8,7 @@
 
 - block:
     - name: Gather correlation searches config
-      splunk.es.correlation_searches:
+      splunk.es.splunk_correlation_searches:
         config:
           - name: Ansible Test
         state: gathered
