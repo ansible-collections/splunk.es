@@ -10,7 +10,7 @@
 - block:
     - name: Replace existing data inputs networks configuration
       register: result
-      splunk.es.data_inputs_networks: &id001
+      splunk.es.splunk_data_inputs_networks: &id001
         state: replaced
         config:
           - protocol: tcp
@@ -61,7 +61,7 @@
         Replaces device configuration of listed  data inputs networks configuration with
         provided configuration (IDEMPOTENT)
       register: result
-      splunk.es.data_inputs_networks: *id001
+      splunk.es.splunk_data_inputs_networks: *id001
 
     - name: Assert that task was idempotent
       assert:

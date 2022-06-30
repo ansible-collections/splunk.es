@@ -10,7 +10,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: data_inputs_networks
+module: splunk_data_inputs_networks
 short_description: Manage Splunk Data Inputs of type TCP or UDP
 description:
   - This module allows for addition or deletion of TCP and UDP Data Inputs in Splunk.
