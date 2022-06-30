@@ -9,7 +9,7 @@
 
 - block:
     - name: Delete data inputs monitors config
-      splunk.es.data_inputs_monitors: &id001
+      splunk.es.splunk_data_inputs_monitors: &id001
         config:
           - name: /var/log
         state: deleted
@@ -25,7 +25,7 @@
 
     - name: Delete attributes of all configured interfaces (IDEMPOTENT)
       register: result
-      splunk.es.data_inputs_monitors: *id001
+      splunk.es.splunk_data_inputs_monitors: *id001
 
     - name: Assert that the previous delete task was idempotent
       assert:

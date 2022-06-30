@@ -10,7 +10,7 @@
 
     - name: Replace existing data inputs monitors configuration
       register: result
-      splunk.es.data_inputs_monitors: &id001
+      splunk.es.splunk_data_inputs_monitors: &id001
         state: replaced
         config:
           - name: "/var/log"
@@ -31,7 +31,7 @@
     - name: Replaces device configuration of listed  data inputs networks configuration with 
             provided configuration (IDEMPOTENT)
       register: result
-      splunk.es.data_inputs_monitors: *id001
+      splunk.es.splunk_data_inputs_monitors: *id001
 
     - name: Assert that task was idempotent
       assert:

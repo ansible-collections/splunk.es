@@ -1,6 +1,6 @@
 ---
 - name: merge data inputs config
-  splunk.es.data_inputs_monitors:
+  splunk.es.splunk_data_inputs_monitors:
     config:
       - name: "/var/log"
         blacklist: '/\/var\/log\/[a-z]/gm'

@@ -9,7 +9,7 @@
 
     - name: Apply the provided configuration (base config)
       register: base_config
-      splunk.es.data_inputs_monitors: &id001
+      splunk.es.splunk_data_inputs_monitors: &id001
         state: merged
         config:
           - name: "/var/log"
@@ -32,14 +32,14 @@
 
     - name: Gather data inputs monitors configuration facts
       register: gather_result
-      splunk.es.data_inputs_monitors:
+      splunk.es.splunk_data_inputs_monitors:
         config:
           - name: "/var/log"
         state: gathered
 
     - name: Apply the configuration which need to be reverted
       register: result
-      splunk.es.data_inputs_monitors:
+      splunk.es.splunk_data_inputs_monitors:
         config:
           - name: "/var/log"
             blacklist: '/\/var\/log\/[a-z0-9]/gm'
@@ -58,7 +58,7 @@
 
     - name: Revert back to base config using facts round trip
       register: revert
-      splunk.es.data_inputs_monitors:
+      splunk.es.splunk_data_inputs_monitors:
         config: "{{ gather_result['data_inputs_monitors']['gathered'] }}"
         state: replaced
 

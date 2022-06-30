@@ -1,14 +1,14 @@
-.. _splunk.es.data_inputs_monitors_module:
+.. _splunk.es.splunk_data_inputs_monitors_module:
 
 
-******************************
-splunk.es.data_inputs_monitors
-******************************
+*************************************
+splunk.es.splunk_data_inputs_monitors
+*************************************
 
 **Manage Splunk Data Inputs of type Monitor**
 
 
-Version added: 2.0.0
+Version added: 2.1.0
 
 .. contents::
    :local:
@@ -401,7 +401,7 @@ Examples
     # _________________________________________________________________
     # Using gathered
 
-    - name:
+    - name: gather config for specified data inputs monitors
       splunk.es.data_inputs_monitors:
         config:
           - name: "/var/log"
@@ -431,7 +431,7 @@ Examples
     # ------------------------------
     # _________________________________________________________________
     # Using merged
-    - name: Example adding data input monitor with splunk.es.data_input_monitor
+    - name: Example adding config with splunk.es.data_inputs_monitors
       splunk.es.data_inputs_monitors:
         config:
           - name: "/var/log"
@@ -481,7 +481,7 @@ Examples
     # _________________________________________________________________
     # Using replaced
 
-    - name: Example adding data input monitor with splunk.es.data_input_monitor
+    - name: Example replacing config with splunk.es.data_inputs_monitors
       splunk.es.data_inputs_monitors:
         config:
           - name: "/var/log"
@@ -522,7 +522,7 @@ Examples
     # ------------------------------
     # _________________________________________________________________
     # Using deleted
-    - name: Example adding data input monitor with splunk.es.data_input_monitor
+    - name: Example deleting config with splunk.es.data_inputs_monitors
       splunk.es.data_inputs_monitors:
         config:
           - name: "/var/log"
@@ -554,4 +554,4 @@ Status
 Authors
 ~~~~~~~
 
-- Pranav Bhatt (@pranav-bhatt)
+- Ansible Security Automation Team (@pranav-bhatt) <https://github.com/ansible-security>

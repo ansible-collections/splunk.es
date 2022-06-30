@@ -8,7 +8,7 @@
 
 - block:
     - name: Gather data inputs monitors config
-      splunk.es.data_inputs_monitors:
+      splunk.es.splunk_data_inputs_monitors:
         config:
           - name: "/var/log"
         state: gathered

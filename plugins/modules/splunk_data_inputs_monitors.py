@@ -10,7 +10,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: data_inputs_monitors
+module: splunk_data_inputs_monitors
 short_description: Manage Splunk Data Inputs of type Monitor
 description:
   - This module allows for addition or deletion of File and Directory Monitor Data Inputs in Splunk.
