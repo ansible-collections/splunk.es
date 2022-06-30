@@ -32,13 +32,13 @@ options:
       - C(ip) sets the host to the IP address of the remote server sending data.
       - C(dns) sets the host to the reverse DNS entry for the IP address of the remote server sending data.
       - C(none) leaves the host as specified in inputs.conf, which is typically the Splunk system hostname.
+    default: "ip"
     required: False
     type: str
     choices:
       - "ip"
       - "dns"
       - "none"
-    default: "ip"
   state:
     description:
       - Enable, disable, create, or destroy
@@ -57,8 +57,8 @@ options:
     choices:
       - "cooked"
       - "raw"
-    required: False
     default: "raw"
+    required: False
     type: str
   host:
     description:
@@ -86,11 +86,13 @@ options:
       - "indexQueue"
     type: str
     required: False
+    default: "parsingQueue"
   rawTcpDoneTimeout:
     description:
       - Specifies in seconds the timeout value for adding a Done-key.
       - If a connection over the port specified by name remains idle after receiving data for specified
         number of seconds, it adds a Done-key. This implies the last event is completely received.
+    default: 10
     type: int
     required: False
   restrictToHost:
@@ -144,6 +146,7 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 
 
 def main():
+
     argspec = dict(
         state=dict(
             required=False,
@@ -157,20 +160,21 @@ def main():
             default="ip",
             type="str",
         ),
-        host=dict(required=False, type="str"),
-        index=dict(required=False, type="str"),
+        host=dict(required=False, type="str", default=None),
+        index=dict(required=False, type="str", default=None),
         name=dict(required=True, type="str"),
         protocol=dict(required=True, type="str", choices=["tcp", "udp"]),
         queue=dict(
             required=False,
             type="str",
             choices=["parsingQueue", "indexQueue"],
+            default="parsingQueue",
         ),
-        rawTcpDoneTimeout=dict(required=False, type="int"),
-        restrictToHost=dict(required=False, type="str"),
-        ssl=dict(required=False, type="bool"),
-        source=dict(required=False, type="str"),
-        sourcetype=dict(required=False, type="str"),
+        rawTcpDoneTimeout=dict(required=False, type="int", default=10),
+        restrictToHost=dict(required=False, type="str", default=None),
+        ssl=dict(required=False, type="bool", default=None),
+        source=dict(required=False, type="str", default=None),
+        sourcetype=dict(required=False, type="str", default=None),
         datatype=dict(
             required=False, choices=["cooked", "raw"], default="raw"
         ),
@@ -224,8 +228,8 @@ def main():
                         quote_plus(module.params["protocol"]),
                         quote_plus(module.params["datatype"]),
                         quote_plus(module.params["name"]),
-                    ),
-                    data=urlencode(_data),
+                        data=urlencode(_data),
+                    )
                 )
             if module.params["state"] in ["present", "enabled"]:
                 module.exit_json(
@@ -242,7 +246,7 @@ def main():
                     quote_plus(module.params["protocol"]),
                     quote_plus(module.params["datatype"]),
                 ),
-                data=_data,
+                data=urlencode(_data),
             )
             module.exit_json(
                 changed=True, msg="{0} created.", splunk_data=splunk_data
