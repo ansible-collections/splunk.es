@@ -8,7 +8,7 @@
 
 - block:
     - name: Gather adaptive response notable events config
-      splunk.es.adaptive_response_notable_events:
+      splunk.es.splunk_adaptive_response_notable_events:
         config:
           - correlation_search_name: Ansible Test
         state: gathered

@@ -8,7 +8,7 @@
 
 - block:
     - name: create test correlation search
-      splunk.es.correlation_searches:
+      splunk.es.splunk_correlation_searches:
         config:
           - name: Ansible Test
             description: test description
@@ -18,7 +18,7 @@
     - name: Merge and create new adaptive response notable events configuration
       tags: merged
       register: result
-      splunk.es.adaptive_response_notable_events: &id001
+      splunk.es.splunk_adaptive_response_notable_events: &id001
         state: merged
         config:
           - correlation_search_name: Ansible Test
@@ -71,7 +71,7 @@
 
     - name: Merge provided configuration with device configuration (IDEMPOTENT)
       register: result
-      splunk.es.adaptive_response_notable_events: *id001
+      splunk.es.splunk_adaptive_response_notable_events: *id001
 
     - name: Assert that the previous task was idempotent
       assert:

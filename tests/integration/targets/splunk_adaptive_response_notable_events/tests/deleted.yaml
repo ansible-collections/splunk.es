@@ -8,7 +8,7 @@
 
 - block:
     - name: Delete adaptive response notable events config
-      splunk.es.adaptive_response_notable_events: &id001
+      splunk.es.splunk_adaptive_response_notable_events: &id001
         config:
           - correlation_search_name: Ansible Test
         state: deleted
@@ -22,7 +22,7 @@
 
     - name: Delete attributes of all configured interfaces (IDEMPOTENT)
       register: result
-      splunk.es.adaptive_response_notable_events: *id001
+      splunk.es.splunk_adaptive_response_notable_events: *id001
 
     - name: Assert that the previous delete task was idempotent
       assert:
