@@ -1,14 +1,14 @@
 ---
 - debug:
-    msg: START data_inputs_networks gathered integration tests on connection={{ ansible_connection
+    msg:
+      START data_inputs_networks gathered integration tests on connection={{ ansible_connection
       }}
 
-- include_tasks: _remove_din_config.yaml
+- include_tasks: _remove_dim_config.yaml
 
-- include_tasks: _populate_din_config.yaml
+- include_tasks: _populate_dim_config.yaml
 
 - block:
-
     - name: Gather data inputs networks config
       splunk.es.data_inputs_networks:
         config:
@@ -35,5 +35,4 @@
             \ length == 0 }}"
           - result['changed'] == false
   always:
-
-    - include_tasks: _remove_din_config.yaml
+    - include_tasks: _remove_dim_config.yaml
