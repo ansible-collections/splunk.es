@@ -2,8 +2,8 @@
 - debug:
     msg: START correlation_searches round trip integration tests on connection={{ ansible_connection }}
 
-- include_tasks: _remove_din_config.yaml
-- include_tasks: _populate_din_config.yaml
+- include_tasks: _remove_dim_config.yaml
+- include_tasks: _populate_dim_config.yaml
 
 - block:
     - name: Apply the provided configuration (base config)
@@ -115,4 +115,4 @@
           - merged['after'] == revert['correlation_searches']['after']
 
   always:
-    - include_tasks: _remove_din_config.yaml
+    - include_tasks: _remove_dim_config.yaml

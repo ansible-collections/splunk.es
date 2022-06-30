@@ -2,9 +2,9 @@
 - debug:
     msg: Start Deleted integration state for correlation_searches ansible_connection={{ ansible_connection }}
 
-- include_tasks: _remove_din_config.yaml
+- include_tasks: _remove_dim_config.yaml
 
-- include_tasks: _populate_din_config.yaml
+- include_tasks: _populate_dim_config.yaml
 
 - block:
     - name: Delete correlation searches config
@@ -30,4 +30,4 @@
           - result.changed == false
 
   always:
-    - include_tasks: _remove_din_config.yaml
+    - include_tasks: _remove_dim_config.yaml
