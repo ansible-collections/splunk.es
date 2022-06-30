@@ -482,8 +482,6 @@ class ActionModule(ActionBase):
         conn_request = SplunkRequest(
             connection=conn,
             action_module=self,
-            not_rest_data_keys=["state"],
-            task_vars=task_vars,
         )
 
         if self._task.args["state"] == "gathered":

@@ -308,11 +308,15 @@ class TestSplunkEsDataInputsMetworksRules:
         # patch update operation
         update_response = RESPONSE_PAYLOAD["tcp_cooked"]
 
+        def get_by_path(self, path):
+            return {}
+
         def create_update(
             self, rest_path, data=None, mock=None, mock_data=None
         ):
             return update_response
 
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
         # tcp_cooked
@@ -434,6 +438,13 @@ class TestSplunkEsDataInputsMetworksRules:
         # patch update operation
         update_response = REPLACED_RESPONSE_PAYLOAD["tcp_cooked"]
 
+        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+
+        def delete_by_path(
+            self, rest_path, data=None, mock=None, mock_data=None
+        ):
+            return {}
+
         def create_update(
             self, rest_path, data=None, mock=None, mock_data=None
         ):
@@ -444,6 +455,7 @@ class TestSplunkEsDataInputsMetworksRules:
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
 
         # tcp_cooked
         get_response = RESPONSE_PAYLOAD["tcp_cooked"]
