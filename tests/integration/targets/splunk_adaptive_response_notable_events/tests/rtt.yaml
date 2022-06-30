@@ -8,7 +8,7 @@
 - block:
     - name: Apply the provided configuration (base config)
       register: base_config
-      splunk.es.adaptive_response_notable_events: &id001
+      splunk.es.splunk_adaptive_response_notable_events: &id001
         state: merged
         config:
           - correlation_search_name: Ansible Test
@@ -50,14 +50,14 @@
 
     - name: Gather adaptive response notable events configuration facts
       register: gather_result
-      splunk.es.adaptive_response_notable_events:
+      splunk.es.splunk_adaptive_response_notable_events:
         config:
           - correlation_search_name: Ansible Test
         state: gathered
 
     - name: Apply the configuration which need to be reverted
       register: result
-      splunk.es.adaptive_response_notable_events:
+      splunk.es.splunk_adaptive_response_notable_events:
         config:
           - correlation_search_name: Ansible Test
             description: test notable event
@@ -89,7 +89,7 @@
 
     - name: Revert back to base config using facts round trip
       register: revert
-      splunk.es.adaptive_response_notable_events:
+      splunk.es.splunk_adaptive_response_notable_events:
         config: "{{ gather_result['adaptive_response_notable_events']['gathered'] }}"
         state: replaced
 

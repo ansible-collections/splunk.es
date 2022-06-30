@@ -8,7 +8,7 @@
 - block:
     - name: Replace existing adaptive response notable events configuration
       register: result
-      splunk.es.adaptive_response_notable_events: &id001
+      splunk.es.splunk_adaptive_response_notable_events: &id001
         state: replaced
         config:
           - correlation_search_name: Ansible Test
@@ -42,7 +42,7 @@
         Replaces device configuration of listed adaptive response notable events configuration with
         provided configuration (IDEMPOTENT)
       register: result
-      splunk.es.adaptive_response_notable_events: *id001
+      splunk.es.splunk_adaptive_response_notable_events: *id001
 
     - name: Assert that task was idempotent
       assert:
