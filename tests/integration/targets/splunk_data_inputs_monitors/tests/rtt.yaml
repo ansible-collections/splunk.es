@@ -28,7 +28,7 @@
             rename_source: test
             sourcetype: test_source_type
             time_before_close: 4
-            whitelist: '/\/var\/log\/[0-9]/gm'
+            whitelist: '/\/var\/log\/[a-z]/gm'
 
     - name: Gather data inputs monitors configuration facts
       register: gather_result

@@ -95,24 +95,37 @@ def set_defaults(config, defaults):
 
 
 class SplunkRequest(object):
+    # TODO: There is a ton of code only present to make sure the legacy modules
+    # work as intended. Once the modules are deprecated and no longer receive
+    # support, this object needs to be rewritten.
     def __init__(
         self,
         module=None,
+        headers=None,
+        action_module=None,  # needs to be dealt with after end of support
         connection=None,
         keymap=None,
         not_rest_data_keys=None,
-        task_vars=None,
+        # The legacy modules had a partial implementation of keymap, where the data
+        # passed to 'create_update' would completely be overwritten, and replaced
+        # by the 'get_data' function. This flag ensures that the modules that hadn't
+        # yet been updated to use the keymap, can continue to work as originally intended
+        override=True,
     ):
+        # check if call being made by legacy module (passes 'module' param)
         self.module = module
         if module:
             # This will be removed, once all of the available modules
             # are moved to use action plugin design, as otherwise test
             # would start to complain without the implementation.
             self.connection = Connection(self.module._socket_path)
+            self.legacy = True
         elif connection:
             self.connection = connection
             try:
                 self.connection.load_platform_plugins("splunk.es.splunk")
+                self.module = action_module
+                self.legacy = False
 
             except ConnectionError:
                 raise
@@ -124,6 +137,9 @@ class SplunkRequest(object):
             self.keymap = {}
         else:
             self.keymap = keymap
+
+        # Select whether payload passed to create update is overriden or not
+        self.override = override
 
         # This allows us to exclude specific argspec keys from being included by
         # the rest data that don't follow the splunk_* naming convention
@@ -210,7 +226,7 @@ class SplunkRequest(object):
                 msg="invalid data type provided: {0}".format(e)
             )
 
-    def get_urlencoded_data(self, config=None):
+    def get_urlencoded_data(self, config):
         return urlencode(self.get_data(config))
 
     def get_by_path(self, rest_path):
@@ -227,13 +243,14 @@ class SplunkRequest(object):
 
         return self.delete("/{0}?output_mode=json".format(rest_path))
 
-    def create_update(self, rest_path, data=None, mock=None, mock_data=None):
+    def create_update(self, rest_path, data):
         """
         Create or Update a file/directory monitor data input in Splunk
         """
-        if mock:
-            return mock_data
-        if data is not None:
+
+        # when 'self.override' is True, the 'get_data' function replaces 'data'
+        # in order to make use of keymap
+        if data is not None and self.override:
             data = self.get_urlencoded_data(data)
         return self.post(
             "/{0}?output_mode=json".format(rest_path), payload=data

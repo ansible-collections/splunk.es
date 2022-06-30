@@ -15,11 +15,6 @@
         state: deleted
       register: result
     
-    - debug:
-        msg: "{{ merged['after'] | dict2items |\
-            symmetric_difference(result['data_inputs_monitors']['before'][0] |\
-            dict2items)| length==5}}"
-    
     - assert:
         that:
           - result.changed == true

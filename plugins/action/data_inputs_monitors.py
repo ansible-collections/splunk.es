@@ -257,10 +257,7 @@ class ActionModule(ActionBase):
         return res_config, changed
 
     def run(self, tmp=None, task_vars=None):
-        # import debugpy
 
-        # debugpy.listen(3000)
-        # debugpy.wait_for_client()
         self._supports_check_mode = True
         self._result = super(ActionModule, self).run(tmp, task_vars)
 
@@ -270,15 +267,14 @@ class ActionModule(ActionBase):
 
         self._result[self.module_name] = {}
 
-        # config is retrieved as a string; need to deserialise
         config = self._task.args.get("config")
 
         conn = Connection(self._connection.socket_path)
 
         conn_request = SplunkRequest(
+            action_module=self,
             connection=conn,
             not_rest_data_keys=["state"],
-            task_vars=task_vars,
         )
 
         if self._task.args["state"] == "gathered":

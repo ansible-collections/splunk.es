@@ -145,7 +145,7 @@ EXAMPLES = """
 # _________________________________________________________________
 # Using gathered
 
-- name:
+- name: gather config for specified data inputs monitors
   splunk.es.data_inputs_monitors:
     config:
       - name: "/var/log"
@@ -175,7 +175,7 @@ EXAMPLES = """
 # ------------------------------
 # _________________________________________________________________
 # Using merged
-- name: Example adding data input monitor with splunk.es.data_input_monitor
+- name: Example adding config with splunk.es.data_inputs_monitors
   splunk.es.data_inputs_monitors:
     config:
       - name: "/var/log"
@@ -225,7 +225,7 @@ EXAMPLES = """
 # _________________________________________________________________
 # Using replaced
 
-- name: Example adding data input monitor with splunk.es.data_input_monitor
+- name: Example replacing config with splunk.es.data_inputs_monitors
   splunk.es.data_inputs_monitors:
     config:
       - name: "/var/log"
@@ -266,7 +266,7 @@ EXAMPLES = """
 # ------------------------------
 # _________________________________________________________________
 # Using deleted
-- name: Example adding data input monitor with splunk.es.data_input_monitor
+- name: Example deleting config with splunk.es.data_inputs_monitors
   splunk.es.data_inputs_monitors:
     config:
       - name: "/var/log"

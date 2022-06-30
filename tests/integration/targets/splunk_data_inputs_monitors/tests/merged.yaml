@@ -28,7 +28,12 @@
             rename_source: test
             sourcetype: test_source_type
             time_before_close: 4
-            whitelist: '/\/var\/log\/[0-9]/gm'
+            whitelist: '/\/var\/log\/[a-z]/gm'
+
+    - debug:
+        msg: "{{ merged['after'] | dict2items |\
+            symmetric_difference(result['data_inputs_monitors']['after'][0] |\
+            dict2items)}}"
 
     - name: Assert that task reports change and after dict is correctly generated
       assert:
