@@ -1,14 +1,14 @@
-.. _splunk.es.adaptive_response_notable_events_module:
+.. _splunk.es.splunk_adaptive_response_notable_events_module:
 
 
-******************************************
-splunk.es.adaptive_response_notable_events
-******************************************
+*************************************************
+splunk.es.splunk_adaptive_response_notable_events
+*************************************************
 
 **Manage Splunk Enterprise Security Notable Event Adaptive Responses**
 
 
-Version added: 2.0.0
+Version added: 2.1.0
 
 .. contents::
    :local:
@@ -844,4 +844,4 @@ Status
 Authors
 ~~~~~~~
 
-- Pranav Bhatt (@pranav-bhatt)
+- Ansible Security Automation Team (@pranav-bhatt) <https://github.com/ansible-security>
