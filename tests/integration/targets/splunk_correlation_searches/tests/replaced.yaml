@@ -9,7 +9,7 @@
 
     - name: Replace existing correlation searches configuration
       register: result
-      splunk.es.correlation_searches: &id001
+      splunk.es.splunk_correlation_searches: &id001
         state: replaced
         config:
           - name: Ansible Test
@@ -61,7 +61,7 @@
     - name: Replaces device configuration of listed  data inputs networks configuration with 
             provided configuration (IDEMPOTENT)
       register: result
-      splunk.es.correlation_searches: *id001
+      splunk.es.splunk_correlation_searches: *id001
 
     - name: Assert that task was idempotent
       assert:

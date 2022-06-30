@@ -29,7 +29,7 @@ if PY2:
 import tempfile
 from ansible.playbook.task import Task
 from ansible.template import Templar
-from ansible_collections.splunk.es.plugins.action.correlation_searches import (
+from ansible_collections.splunk.es.plugins.action.splunk_correlation_searches import (
     ActionModule,
 )
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (

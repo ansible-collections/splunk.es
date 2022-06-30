@@ -18,7 +18,7 @@
 #
 
 """
-The module file for adaptive_response_notable_events
+The module file for splunk_correlation_searches
 """
 
 from __future__ import absolute_import, division, print_function
