@@ -1,13 +1,13 @@
 ---
 - debug:
-    msg: START data_inputs_networks round trip integration tests on connection={{ ansible_connection
+    msg:
+      START data_inputs_networks round trip integration tests on connection={{ ansible_connection
       }}
 
-- include_tasks: _remove_din_config.yaml
-- include_tasks: _populate_din_config.yaml
+- include_tasks: _remove_dim_config.yaml
+- include_tasks: _populate_dim_config.yaml
 
 - block:
-
     - name: Apply the provided configuration (base config)
       register: base_config
       splunk.es.data_inputs_networks: &id001
@@ -107,10 +107,6 @@
             sourcetype: test_source_type
         state: replaced
 
-    - debug:
-        msg:
-          - "{{ result }}"
-
     - assert:
         that:
           - result.changed == true
@@ -125,12 +121,6 @@
         config: "{{ gather_result['gathered'] }}"
         state: replaced
 
-    - debug:
-        msg:
-          - "{{ merged['after'] | symmetric_difference(revert['data_inputs_networks']['after']) |\
-            \ length == 1 }}"
-          - "{{ merged['after'] | symmetric_difference(revert['data_inputs_networks']['after']) }}"
-
     - assert:
         that:
           - revert['changed'] == true
@@ -138,5 +128,4 @@
             \ length == 1 }}"
 
   always:
-
-    - include_tasks: _remove_din_config.yaml
+    - include_tasks: _remove_dim_config.yaml

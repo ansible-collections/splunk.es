@@ -1,12 +1,12 @@
 ---
 - debug:
-    msg: START Merged data_inputs_networks state for integration tests on connection={{
+    msg:
+      START Merged data_inputs_networks state for integration tests on connection={{
       ansible_connection }}
 
-- include_tasks: _remove_din_config.yaml
+- include_tasks: _remove_dim_config.yaml
 
 - block:
-
     - name: Merge and create new data inputs networks configuration
       tags: merged
       register: result
@@ -74,5 +74,4 @@
           - result['changed'] == false
 
   always:
-
-    - include_tasks: _remove_din_config.yaml
+    - include_tasks: _remove_dim_config.yaml
