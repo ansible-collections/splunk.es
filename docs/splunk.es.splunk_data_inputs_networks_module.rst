@@ -1,14 +1,14 @@
-.. _splunk.es.data_inputs_networks_module:
+.. _splunk.es.splunk_data_inputs_networks_module:
 
 
-******************************
-splunk.es.data_inputs_networks
-******************************
+*************************************
+splunk.es.splunk_data_inputs_networks
+*************************************
 
 **Manage Splunk Data Inputs of type TCP or UDP**
 
 
-Version added: 2.0.0
+Version added: 2.1.0
 
 .. contents::
    :local:
@@ -961,4 +961,4 @@ Status
 Authors
 ~~~~~~~
 
-- Pranav Bhatt (@pranav-bhatt)
+- Ansible Security Automation Team (@pranav-bhatt) <https://github.com/ansible-security>

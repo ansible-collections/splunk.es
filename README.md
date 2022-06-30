@@ -55,7 +55,7 @@ Name | Description
 | [splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_info_module.rst)                 | Manage Splunk Enterprise Security Correlation Searches             |
 | [splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_monitor_module.rst)                           | Manage Splunk Data Inputs of type Monitor                          |
 | [splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_network_module.rst)                           | Manage Splunk Data Inputs of type TCP or UDP                       |
-| [splunk.es.data_inputs_networks](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_inputs_networks_module.rst)                       | Manage Splunk Data Inputs of type TCP or UDP                       |
+| [splunk.es.splunk_data_inputs_networks](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_networks_module.rst)         | Manage Splunk Data Inputs of type TCP or UDP                       |
 
 ### Supported connections
 
