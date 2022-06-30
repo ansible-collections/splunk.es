@@ -3,7 +3,7 @@
     msg: START Merged correlation_searches state for integration tests on connection={{
       ansible_connection }}
 
-- include_tasks: _remove_din_config.yaml
+- include_tasks: _remove_dim_config.yaml
 
 - block:
     - name: Merge and create new correlation searches configuration
@@ -68,4 +68,4 @@
 
   always:
 
-    - include_tasks: _remove_din_config.yaml
+    - include_tasks: _remove_dim_config.yaml

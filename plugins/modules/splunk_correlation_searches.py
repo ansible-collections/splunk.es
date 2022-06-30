@@ -1,7 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# https://github.com/ansible/ansible/issues/65816
-# https://github.com/PyCQA/pylint/issues/214
 
 # Copyright 2022 Red Hat
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
@@ -19,7 +17,7 @@ description:
     Enterprise Security correlation searches
   - Tested against Splunk Enterprise Server v8.2.3 with Splunk Enterprise Security v7.0.1
     installed on it.
-version_added: "2.0.0"
+version_added: "2.1.0"
 options:
   config:
     description:
@@ -216,7 +214,7 @@ options:
     - gathered
     default: merged
 
-author: Pranav Bhatt (@pranav-bhatt)
+author: Ansible Security Automation Team (@pranav-bhatt) <https://github.com/ansible-security>
 """
 
 EXAMPLES = """
