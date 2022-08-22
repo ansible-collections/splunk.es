@@ -18,7 +18,7 @@
 #
 
 """
-The module file for data_inputs_monitors
+The module file for data_inputs_monitor
 """
 
 from __future__ import absolute_import, division, print_function
@@ -42,7 +42,7 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
     AnsibleArgSpecValidator,
 )
-from ansible_collections.splunk.es.plugins.modules.splunk_data_inputs_monitors import (
+from ansible_collections.splunk.es.plugins.modules.splunk_data_inputs_monitor import (
     DOCUMENTATION,
 )
 
@@ -54,7 +54,7 @@ class ActionModule(ActionBase):
         super(ActionModule, self).__init__(*args, **kwargs)
         self._result = None
         self.api_object = "servicesNS/nobody/search/data/inputs/monitor"
-        self.module_name = "data_inputs_monitors"
+        self.module_name = "data_inputs_monitor"
         self.key_transform = {
             "blacklist": "blacklist",
             "check-index": "check_index",  # not returned
@@ -265,7 +265,7 @@ class ActionModule(ActionBase):
         if self._result.get("failed"):
             return self._result
 
-        self._result[self.module_name] = {}
+        # self._result[self.module_name] = {}
 
         config = self._task.args.get("config")
 
@@ -279,19 +279,18 @@ class ActionModule(ActionBase):
 
         if self._task.args["state"] == "gathered":
             if config:
+                self._result["gathered"] = []
                 self._result["changed"] = False
-                self._result[self.module_name]["gathered"] = []
                 for item in config:
-                    self._result[self.module_name]["gathered"].append(
-                        self.search_for_resource_name(
-                            conn_request, item["name"]
-                        )
+                    result = self.search_for_resource_name(
+                        conn_request, item["name"]
                     )
+                    if result:
+                        self._result["gathered"].append(result)
             else:
-                self._result[self.module_name][
-                    "gathered"
-                ] = conn_request.get_by_path(self.api_object)["entry"]
-
+                self._result["gathered"] = conn_request.get_by_path(
+                    self.api_object
+                )["entry"]
         elif (
             self._task.args["state"] == "merged"
             or self._task.args["state"] == "replaced"

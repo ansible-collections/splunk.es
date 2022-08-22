@@ -29,7 +29,7 @@ if PY2:
 import tempfile
 from ansible.playbook.task import Task
 from ansible.template import Templar
-from ansible_collections.splunk.es.plugins.action.splunk_data_inputs_monitors import (
+from ansible_collections.splunk.es.plugins.action.splunk_data_inputs_monitor import (
     ActionModule,
 )
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
@@ -98,7 +98,7 @@ REQUEST_PAYLOAD = [
 ]
 
 
-class TestSplunkEsDataInputsMonitorsRules:
+class TestSplunkEsDataInputsMonitorRules:
     def setup(self):
         task = MagicMock(Task)
         # Ansible > 2.13 looks for check_mode in task
@@ -120,12 +120,12 @@ class TestSplunkEsDataInputsMonitorsRules:
             templar=templar,
             shared_loader_obj=None,
         )
-        self._plugin._task.action = "data_inputs_monitors"
+        self._plugin._task.action = "data_inputs_monitor"
         self._plugin._task.async_val = False
         self._task_vars = {}
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_merged(self, connection, monkeypatch):
+    def test_es_data_inputs_monitor_merged(self, connection, monkeypatch):
         self._plugin.api_response = RESPONSE_PAYLOAD
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = {}
@@ -149,9 +149,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_merged_idempotent(
-        self, conn, monkeypatch
-    ):
+    def test_es_data_inputs_monitor_merged_idempotent(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
@@ -191,7 +189,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_replaced(self, conn, monkeypatch):
+    def test_es_data_inputs_monitor_replaced(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
@@ -229,7 +227,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_replaced_idempotent(
+    def test_es_data_inputs_monitor_replaced_idempotent(
         self, conn, monkeypatch
     ):
         self._plugin._connection.socket_path = (
@@ -299,7 +297,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_deleted(self, conn, monkeypatch):
+    def test_es_data_inputs_monitor_deleted(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
@@ -324,7 +322,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_deleted_idempotent(self, connection):
+    def test_es_data_inputs_monitor_deleted_idempotent(self, connection):
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = {}
 
@@ -340,7 +338,7 @@ class TestSplunkEsDataInputsMonitorsRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_monitors_gathered(self, conn, monkeypatch):
+    def test_es_data_inputs_monitor_gathered(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )

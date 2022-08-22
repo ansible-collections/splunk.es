@@ -9,7 +9,7 @@
 
 - block:
     - name: Delete data inputs monitors config
-      splunk.es.splunk_data_inputs_monitors: &id001
+      splunk.es.splunk_data_inputs_monitor: &id001
         config:
           - name: /var/log
         state: deleted
@@ -19,13 +19,13 @@
         that:
           - result.changed == true
           - "{{ merged['after'] | dict2items |\
-            symmetric_difference(result['data_inputs_monitors']['before'][0] |\
+            symmetric_difference(result['data_inputs_monitor']['before'][0] |\
             dict2items)| length==5}}"
-          - merged['before'] == result['data_inputs_monitors']['after']
+          - merged['before'] == result['data_inputs_monitor']['after']
 
     - name: Delete attributes of all configured interfaces (IDEMPOTENT)
       register: result
-      splunk.es.splunk_data_inputs_monitors: *id001
+      splunk.es.splunk_data_inputs_monitor: *id001
 
     - name: Assert that the previous delete task was idempotent
       assert:
