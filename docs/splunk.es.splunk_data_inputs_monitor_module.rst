@@ -1,11 +1,11 @@
-.. _splunk.es.splunk_data_inputs_monitors_module:
+.. _splunk.es.splunk_data_inputs_monitor_module:
 
 
-*************************************
-splunk.es.splunk_data_inputs_monitors
-*************************************
+************************************
+splunk.es.splunk_data_inputs_monitor
+************************************
 
-**Manage Splunk Data Inputs of type Monitor**
+**Splunk Data Inputs of type Monitor resource module**
 
 
 Version added: 2.1.0
@@ -17,7 +17,7 @@ Version added: 2.1.0
 
 Synopsis
 --------
-- This module allows for addition or deletion of File and Directory Monitor Data Inputs in Splunk.
+- Module to add/modify or delete, File and Directory Monitor Data Inputs in Splunk.
 - Tested against Splunk Enterprise Server 8.2.3
 
 
@@ -398,19 +398,19 @@ Examples
 
 .. code-block:: yaml
 
-    # _________________________________________________________________
     # Using gathered
+    # --------------
 
-    - name: gather config for specified data inputs monitors
-      splunk.es.data_inputs_monitors:
+    - name: Gather config for specified Data inputs monitors
+      splunk.es.splunk_data_inputs_monitor:
         config:
           - name: "/var/log"
           - name: "/var"
         state: gathered
-    #
-    # Output:
-    #
-    # "changed": false,
+
+    # RUN output:
+    # -----------
+
     # "gathered": [
     #     {
     #         "blacklist": "//var/log/[a-z0-9]/gm",
@@ -424,15 +424,15 @@ Examples
     #         "recursive": true,
     #         "sourcetype": "test_source",
     #         "whitelist": "//var/log/[0-9]/gm"
-    #     },
-    #     { } # there is no configuration associated with "/var"
+    #     }
     # ]
     #
-    # ------------------------------
-    # _________________________________________________________________
+
     # Using merged
-    - name: Example adding config with splunk.es.data_inputs_monitors
-      splunk.es.data_inputs_monitors:
+    # ------------
+
+    - name: Update Data inputs monitors config
+      splunk.es.splunk_data_inputs_monitor:
         config:
           - name: "/var/log"
             blacklist: "//var/log/[a-z]/gm"
@@ -442,9 +442,10 @@ Examples
             rename_source: "test"
             whitelist: "//var/log/[0-9]/gm"
         state: merged
-    #
-    # Output:
-    #
+
+    # RUN output:
+    # -----------
+
     # "after": [
     #     {
     #         "blacklist": "//var/log/[a-z]/gm",
@@ -475,23 +476,22 @@ Examples
     #         "whitelist": "//var/log/[0-9]/gm"
     #     }
     # ],
-    # "changed": true
-    #
-    # ------------------------------
-    # _________________________________________________________________
-    # Using replaced
 
-    - name: Example replacing config with splunk.es.data_inputs_monitors
-      splunk.es.data_inputs_monitors:
+    # Using replaced
+    # --------------
+
+    - name: To Replace Data inputs monitors config
+      splunk.es.splunk_data_inputs_monitor:
         config:
           - name: "/var/log"
             blacklist: "//var/log/[a-z0-9]/gm"
             crc_salt: <SOURCE>
             index: default
         state: replaced
-    #
-    # Output:
-    #
+
+    # RUN output:
+    # -----------
+
     # "after": [
     #     {
     #         "blacklist": "//var/log/[a-z0-9]/gm",
@@ -517,18 +517,17 @@ Examples
     #         "whitelist": "//var/log/[0-9]/gm"
     #     }
     # ],
-    # "changed": true
-    #
-    # ------------------------------
-    # _________________________________________________________________
+
     # Using deleted
-    - name: Example deleting config with splunk.es.data_inputs_monitors
-      splunk.es.data_inputs_monitors:
+    # -----------
+    - name: To Delete Data inpur monitor config
+      splunk.es.splunk_data_inputs_monitor:
         config:
           - name: "/var/log"
         state: deleted
-    #
-    # Output:
+
+    # RUN output:
+    # -----------
     #
     # "after": [],
     # "before": [
@@ -541,10 +540,57 @@ Examples
     #         "name": "/var/log"
     #     }
     # ],
-    # "changed": true
-    #
 
 
+
+Return Values
+-------------
+Common return values are documented `here <https://docs.ansible.com/ansible/latest/reference_appendices/common_return_values.html#common-return-values>`_, the following are the fields unique to this module:
+
+.. raw:: html
+
+    <table border=0 cellpadding=0 class="documentation-table">
+        <tr>
+            <th colspan="1">Key</th>
+            <th>Returned</th>
+            <th width="100%">Description</th>
+        </tr>
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>after</b>
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">list</span>
+                    </div>
+                </td>
+                <td>when changed</td>
+                <td>
+                            <div>The configuration as structured data after module completion.</div>
+                    <br/>
+                        <div style="font-size: smaller"><b>Sample:</b></div>
+                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">The configuration returned will always be in the same format of the parameters above.</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>before</b>
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">list</span>
+                    </div>
+                </td>
+                <td>always</td>
+                <td>
+                            <div>The configuration as structured data prior to module invocation.</div>
+                    <br/>
+                        <div style="font-size: smaller"><b>Sample:</b></div>
+                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">The configuration returned will always be in the same format of the parameters above.</div>
+                </td>
+            </tr>
+    </table>
+    <br/><br/>
 
 
 Status
