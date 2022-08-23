@@ -2,8 +2,8 @@
 - debug:
     msg: START correlation_searches round trip integration tests on connection={{ ansible_connection }}
 
-- include_tasks: _remove_dim_config.yaml
-- include_tasks: _populate_dim_config.yaml
+- include_tasks: _remove_config.yaml
+- include_tasks: _populate_config.yaml
 
 - block:
     - name: Apply the provided configuration (base config)
@@ -106,7 +106,7 @@
     - name: Revert back to base config using facts round trip
       register: revert
       splunk.es.splunk_correlation_searches:
-        config: "{{ gather_result['correlation_searches']['gathered'] }}"
+        config: "{{ gather_result['gathered'] }}"
         state: replaced
 
     - assert:
@@ -115,4 +115,4 @@
           - merged['after'] == revert['correlation_searches']['after']
 
   always:
-    - include_tasks: _remove_dim_config.yaml
+    - include_tasks: _remove_config.yaml

@@ -5,7 +5,7 @@
 splunk.es.splunk_correlation_searches
 *************************************
 
-**Manage Splunk Enterprise Security correlation searches**
+**Splunk Enterprise Security Correlation searches resource module**
 
 
 Version added: 2.1.0
@@ -593,21 +593,19 @@ Examples
 
 .. code-block:: yaml
 
-    # _________________________________________________________________
     # Using gathered
+    # --------------
 
     - name: Gather correlation searches config
-      splunk.es.correlation_searches:
+      splunk.es.splunk_correlation_searches:
         config:
           - name: Ansible Test
           - name: Ansible Test 2
         state: gathered
-      register: result
 
-    #
-    # Output:
-    #
-    # "changed": false,
+    # RUN output:
+    # -----------
+
     # "gathered": [
     #     {
     #       "annotations": {
@@ -656,15 +654,14 @@ Examples
     #       "trigger_alert_when_condition": "greater than",
     #       "trigger_alert_when_value": "10",
     #       "ui_dispatch_context": "SplunkEnterpriseSecuritySuite"
-    #     },
-    #     { } # there is no configuration associated with "Ansible Test 2"
+    #     }
     # ]
-    #
-    # ------------------------------
-    # _________________________________________________________________
+
     # Using merged
+    # ------------
+
     - name: Merge and create new correlation searches configuration
-      splunk.es.correlation_searches:
+      splunk.es.splunk_correlation_searches:
         config:
           - name: Ansible Test
             disabled: false
@@ -704,9 +701,10 @@ Examples
                     'led_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authenticatio'
                     'n.src" as "src" | where "count">=6'
         state: merged
-    #
-    # Output:
-    #
+
+    # RUN output:
+    # -----------
+
     # "after": [
     #     {
     #       "annotations": {
@@ -758,14 +756,12 @@ Examples
     #     },
     # ],
     # "before": [],
-    # "changed": true
-    #
-    # ------------------------------
-    # _________________________________________________________________
+
     # Using replaced
+    # --------------
 
     - name: Replace existing correlation searches configuration
-      splunk.es.correlation_searches:
+      splunk.es.splunk_correlation_searches:
         state: replaced
         config:
           - name: Ansible Test
@@ -811,9 +807,10 @@ Examples
                     'ication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Fai'
                     'led_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authenticatio'
                     'n.src" as "src" | where "count">=6'
-    #
-    # Output:
-    #
+
+    # RUN output:
+    # -----------
+
     # "after": [
     #     {
     #         "annotations": {
@@ -920,19 +917,19 @@ Examples
     #         "ui_dispatch_context": "SplunkEnterpriseSecuritySuite"
     #     }
     # ]
-    # "changed": true
-    #
-    # ------------------------------
-    # _________________________________________________________________
+
     # Using deleted
-    - name: Example adding data input monitor with splunk.es.data_input_monitor
-      splunk.es.data_inputs_monitors:
+    # -------------
+
+    - name: Example to delete the corelation search
+      splunk.es.splunk_correlation_searches:
         config:
           - name: Ansible Test
         state: deleted
-    #
-    # Output:
-    #
+
+    # RUN output:
+    # -----------
+
     # "after": [],
     # "before": [
     #     {
@@ -984,10 +981,74 @@ Examples
     #       "ui_dispatch_context": "SplunkEnterpriseSecuritySuite"
     #     },
     # ],
-    # "changed": true
-    #
 
 
+
+Return Values
+-------------
+Common return values are documented `here <https://docs.ansible.com/ansible/latest/reference_appendices/common_return_values.html#common-return-values>`_, the following are the fields unique to this module:
+
+.. raw:: html
+
+    <table border=0 cellpadding=0 class="documentation-table">
+        <tr>
+            <th colspan="1">Key</th>
+            <th>Returned</th>
+            <th width="100%">Description</th>
+        </tr>
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>after</b>
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">list</span>
+                    </div>
+                </td>
+                <td>when changed</td>
+                <td>
+                            <div>The configuration as structured data after module completion.</div>
+                    <br/>
+                        <div style="font-size: smaller"><b>Sample:</b></div>
+                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">The configuration returned will always be in the same format of the parameters above.</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>before</b>
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">list</span>
+                    </div>
+                </td>
+                <td>always</td>
+                <td>
+                            <div>The configuration as structured data prior to module invocation.</div>
+                    <br/>
+                        <div style="font-size: smaller"><b>Sample:</b></div>
+                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">The configuration returned will always be in the same format of the parameters above.</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>gathered</b>
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">dictionary</span>
+                    </div>
+                </td>
+                <td>when state is <em>gathered</em></td>
+                <td>
+                            <div>Facts about the network resource gathered from the remote device as structured data.</div>
+                    <br/>
+                        <div style="font-size: smaller"><b>Sample:</b></div>
+                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">This output will always be in the same format as the module argspec.</div>
+                </td>
+            </tr>
+    </table>
+    <br/><br/>
 
 
 Status

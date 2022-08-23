@@ -11,7 +11,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: splunk_correlation_searches
-short_description: Manage Splunk Enterprise Security correlation searches
+short_description: Splunk Enterprise Security Correlation searches resource module
 description:
   - This module allows for creation, deletion, and modification of Splunk
     Enterprise Security correlation searches
@@ -195,44 +195,42 @@ options:
         default: False
   running_config:
     description:
-    - The module, by default, will connect to the remote device and retrieve the current
-      running-config to use as a base for comparing against the contents of source.
-      There are times when it is not desirable to have the task get the current running-config
-      for every task in a playbook.  The I(running_config) argument allows the implementer
-      to pass in the configuration to use as the base config for comparison. This
-      value of this option should be the output received from device by executing
-      command.
+      - The module, by default, will connect to the remote device and retrieve the current
+        running-config to use as a base for comparing against the contents of source.
+        There are times when it is not desirable to have the task get the current running-config
+        for every task in a playbook.  The I(running_config) argument allows the implementer
+        to pass in the configuration to use as the base config for comparison. This
+        value of this option should be the output received from device by executing
+        command.
     type: str
   state:
     description:
-    - The state the configuration should be left in
+      - The state the configuration should be left in
     type: str
     choices:
-    - merged
-    - replaced
-    - deleted
-    - gathered
+      - merged
+      - replaced
+      - deleted
+      - gathered
     default: merged
 
 author: Ansible Security Automation Team (@pranav-bhatt) <https://github.com/ansible-security>
 """
 
 EXAMPLES = """
-# _________________________________________________________________
 # Using gathered
+# --------------
 
 - name: Gather correlation searches config
-  splunk.es.correlation_searches:
+  splunk.es.splunk_correlation_searches:
     config:
       - name: Ansible Test
       - name: Ansible Test 2
     state: gathered
-  register: result
 
-#
-# Output:
-#
-# "changed": false,
+# RUN output:
+# -----------
+
 # "gathered": [
 #     {
 #       "annotations": {
@@ -281,15 +279,14 @@ EXAMPLES = """
 #       "trigger_alert_when_condition": "greater than",
 #       "trigger_alert_when_value": "10",
 #       "ui_dispatch_context": "SplunkEnterpriseSecuritySuite"
-#     },
-#     { } # there is no configuration associated with "Ansible Test 2"
+#     }
 # ]
-#
-# ------------------------------
-# _________________________________________________________________
+
 # Using merged
+# ------------
+
 - name: Merge and create new correlation searches configuration
-  splunk.es.correlation_searches:
+  splunk.es.splunk_correlation_searches:
     config:
       - name: Ansible Test
         disabled: false
@@ -329,9 +326,10 @@ EXAMPLES = """
                 'led_Authentication\" by \"Authentication.app\",\"Authentication.src\" | rename \"Authentication.app\" as \"app\",\"Authenticatio'
                 'n.src\" as \"src\" | where \"count\">=6'
     state: merged
-#
-# Output:
-#
+
+# RUN output:
+# -----------
+
 # "after": [
 #     {
 #       "annotations": {
@@ -383,14 +381,12 @@ EXAMPLES = """
 #     },
 # ],
 # "before": [],
-# "changed": true
-#
-# ------------------------------
-# _________________________________________________________________
+
 # Using replaced
+# --------------
 
 - name: Replace existing correlation searches configuration
-  splunk.es.correlation_searches:
+  splunk.es.splunk_correlation_searches:
     state: replaced
     config:
       - name: Ansible Test
@@ -436,9 +432,10 @@ EXAMPLES = """
                 'ication.dest\") as \"dest_count\",count from datamodel=\"Authentication\".\"Authentication\" where nodename=\"Authentication.Fai'
                 'led_Authentication\" by \"Authentication.app\",\"Authentication.src\" | rename \"Authentication.app\" as \"app\",\"Authenticatio'
                 'n.src\" as \"src\" | where \"count\">=6'
-#
-# Output:
-#
+
+# RUN output:
+# -----------
+
 # "after": [
 #     {
 #         "annotations": {
@@ -545,19 +542,19 @@ EXAMPLES = """
 #         "ui_dispatch_context": "SplunkEnterpriseSecuritySuite"
 #     }
 # ]
-# "changed": true
-#
-# ------------------------------
-# _________________________________________________________________
+
 # Using deleted
-- name: Example adding data input monitor with splunk.es.data_input_monitor
-  splunk.es.data_inputs_monitors:
+# -------------
+
+- name: Example to delete the corelation search
+  splunk.es.splunk_correlation_searches:
     config:
       - name: Ansible Test
     state: deleted
-#
-# Output:
-#
+
+# RUN output:
+# -----------
+
 # "after": [],
 # "before": [
 #     {
@@ -609,6 +606,25 @@ EXAMPLES = """
 #       "ui_dispatch_context": "SplunkEnterpriseSecuritySuite"
 #     },
 # ],
-# "changed": true
-#
+
+"""
+
+RETURN = """
+before:
+  description: The configuration as structured data prior to module invocation.
+  returned: always
+  type: list
+  sample: The configuration returned will always be in the same format of the parameters above.
+after:
+  description: The configuration as structured data after module completion.
+  returned: when changed
+  type: list
+  sample: The configuration returned will always be in the same format of the parameters above.
+gathered:
+  description: Facts about the network resource gathered from the remote device as structured data.
+  returned: when state is I(gathered)
+  type: dict
+  sample: >
+    This output will always be in the same format as the
+    module argspec.
 """

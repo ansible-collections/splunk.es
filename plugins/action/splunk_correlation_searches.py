@@ -400,13 +400,13 @@ class ActionModule(ActionBase):
         if self._task.args["state"] == "gathered":
             if config:
                 self._result["changed"] = False
-                self._result[self.module_name]["gathered"] = []
+                self._result["gathered"] = []
                 for item in config:
-                    self._result[self.module_name]["gathered"].append(
-                        self.search_for_resource_name(
-                            conn_request, item["name"]
-                        )
+                    result = self.search_for_resource_name(
+                        conn_request, item["name"]
                     )
+                    if result:
+                        self._result["gathered"].append(result)
 
         elif (
             self._task.args["state"] == "merged"
