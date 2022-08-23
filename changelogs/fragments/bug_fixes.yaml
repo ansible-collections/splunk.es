@@ -1,4 +1,0 @@
----
-trivial:
-  - Performed various bug fixes for integration tests, adaptive_response_notable_event,
-    correlation_search_info, correlation_search, data_input_monitor, data_input_network

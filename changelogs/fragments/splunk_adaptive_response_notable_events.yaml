@@ -1,0 +1,3 @@
+---
+minor_changes:
+  - Added adaptive_response_notable_events action plugin to manage notable events
