@@ -160,39 +160,47 @@ options:
             elements: str
   running_config:
     description:
-    - The module, by default, will connect to the remote device and retrieve the current
-      running-config to use as a base for comparing against the contents of source.
-      There are times when it is not desirable to have the task get the current running-config
-      for every task in a playbook.  The I(running_config) argument allows the implementer
-      to pass in the configuration to use as the base config for comparison. This
-      value of this option should be the output received from device by executing
-      command.
+      - The module, by default, will connect to the remote device and retrieve the current
+        running-config to use as a base for comparing against the contents of source.
+        There are times when it is not desirable to have the task get the current running-config
+        for every task in a playbook.  The I(running_config) argument allows the implementer
+        to pass in the configuration to use as the base config for comparison. This
+        value of this option should be the output received from device by executing
+        command.
     type: str
   state:
     description:
-    - The state the configuration should be left in
+      - The state the configuration should be left in
     type: str
     choices:
-    - merged
-    - replaced
-    - deleted
-    - gathered
+      - merged
+      - replaced
+      - deleted
+      - gathered
     default: merged
 
 author: Ansible Security Automation Team (@pranav-bhatt) <https://github.com/ansible-security>
 """
 
 EXAMPLES = """
+<<<<<<< HEAD
 # USING GATHERED
+=======
+
+# Using gathered
+>>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
 # --------------
 
 - name: Gather adaptive response notable events config
-  splunk.es.adaptive_response_notable_events:
+  splunk.es.splunk_adaptive_response_notable_events:
     config:
       - correlation_search_name: Ansible Test
       - correlation_search_name: Ansible Test 2
     state: gathered
+<<<<<<< HEAD
   register: result
+=======
+>>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
 
 # RUN output:
 # -----------
@@ -245,11 +253,19 @@ EXAMPLES = """
 #     { } # there is no configuration associated with "/var"
 # ]
 
+<<<<<<< HEAD
 # USING MERGED
 # ------------
 
 - name: Example adding config with splunk.es.adaptive_response_notable_events
   splunk.es.adaptive_response_notable_events:
+=======
+# Using merged
+# ------------
+
+- name: Example to add config
+  splunk.es.splunk_adaptive_response_notable_events:
+>>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
     config:
       - correlation_search_name: Ansible Test
         description: test notable event
@@ -324,11 +340,15 @@ EXAMPLES = """
 # ],
 # "before": [],
 
+<<<<<<< HEAD
 # USING REPLACED
+=======
+# Using replaced
+>>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
 # --------------
 
-- name: Example replacing config with splunk.es.adaptive_response_notable_events
-  splunk.es.adaptive_response_notable_events:
+- name: Example to Replace the config
+  splunk.es.splunk_adaptive_response_notable_events:
     config:
       - correlation_search_name: Ansible Test
         description: test notable event
@@ -431,11 +451,18 @@ EXAMPLES = """
 #     }
 # ],
 
+<<<<<<< HEAD
 # USING DELETED
 # -------------
 
 - name: Example removing config with splunk.es.adaptive_response_notable_events
   splunk.es.adaptive_response_notable_events:
+=======
+# Using deleted
+# -------------
+- name: Example to remove the config
+  splunk.es.splunk_adaptive_response_notable_events:
+>>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
     config:
       - correlation_search_name: Ansible Test
     state: deleted
@@ -489,7 +516,12 @@ EXAMPLES = """
 #         "security_domain": "threat",
 #         "severity": "high"
 #     }
+<<<<<<< HEAD
 # ]
+=======
+# ],
+
+>>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
 """
 
 RETURN = """

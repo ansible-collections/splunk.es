@@ -460,16 +460,24 @@ Examples
 
 .. code-block:: yaml
 
+    <<<<<<< HEAD
     # USING GATHERED
+    =======
+
+    # Using gathered
+    >>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
     # --------------
 
     - name: Gather adaptive response notable events config
-      splunk.es.adaptive_response_notable_events:
+      splunk.es.splunk_adaptive_response_notable_events:
         config:
           - correlation_search_name: Ansible Test
           - correlation_search_name: Ansible Test 2
         state: gathered
+    <<<<<<< HEAD
       register: result
+    =======
+    >>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
 
     # RUN output:
     # -----------
@@ -522,11 +530,19 @@ Examples
     #     { } # there is no configuration associated with "/var"
     # ]
 
+    <<<<<<< HEAD
     # USING MERGED
     # ------------
 
     - name: Example adding config with splunk.es.adaptive_response_notable_events
       splunk.es.adaptive_response_notable_events:
+    =======
+    # Using merged
+    # ------------
+
+    - name: Example to add config
+      splunk.es.splunk_adaptive_response_notable_events:
+    >>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
         config:
           - correlation_search_name: Ansible Test
             description: test notable event
@@ -601,11 +617,15 @@ Examples
     # ],
     # "before": [],
 
+    <<<<<<< HEAD
     # USING REPLACED
+    =======
+    # Using replaced
+    >>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
     # --------------
 
-    - name: Example replacing config with splunk.es.adaptive_response_notable_events
-      splunk.es.adaptive_response_notable_events:
+    - name: Example to Replace the config
+      splunk.es.splunk_adaptive_response_notable_events:
         config:
           - correlation_search_name: Ansible Test
             description: test notable event
@@ -708,11 +728,18 @@ Examples
     #     }
     # ],
 
+    <<<<<<< HEAD
     # USING DELETED
     # -------------
 
     - name: Example removing config with splunk.es.adaptive_response_notable_events
       splunk.es.adaptive_response_notable_events:
+    =======
+    # Using deleted
+    # -------------
+    - name: Example to remove the config
+      splunk.es.splunk_adaptive_response_notable_events:
+    >>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
         config:
           - correlation_search_name: Ansible Test
         state: deleted
@@ -766,7 +793,12 @@ Examples
     #         "security_domain": "threat",
     #         "severity": "high"
     #     }
+    <<<<<<< HEAD
     # ]
+    =======
+    # ],
+
+    >>>>>>> 1979bd9 (fix adaptive_response_notable_event PR)
 
 
 

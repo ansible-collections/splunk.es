@@ -19,6 +19,10 @@ description:
     Enterprise Security Notable Event Adaptive Responses that are associated
     with a correlation search
 version_added: "1.0.0"
+deprecated:
+  alternative: splunk_adaptive_response_notable_events
+  why: Newer and updated modules released with more functionality.
+  removed_at_date: '2024-09-01'
 options:
   name:
     description:
