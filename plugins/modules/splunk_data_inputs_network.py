@@ -10,10 +10,10 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: splunk_data_inputs_networks
-short_description: Manage Splunk Data Inputs of type TCP or UDP
+module: splunk_data_inputs_network
+short_description: Manage Splunk Data Inputs of type TCP or UDP resource module
 description:
-  - This module allows for addition or deletion of TCP and UDP Data Inputs in Splunk.
+  - Module that allows to add/update or delete of TCP and UDP Data Inputs in Splunk.
 version_added: "2.1.0"
 options:
   config:
@@ -158,42 +158,43 @@ options:
 
   running_config:
     description:
-    - The module, by default, will connect to the remote device and retrieve the current
-      running-config to use as a base for comparing against the contents of source.
-      There are times when it is not desirable to have the task get the current running-config
-      for every task in a playbook.  The I(running_config) argument allows the implementer
-      to pass in the configuration to use as the base config for comparison. This
-      value of this option should be the output received from device by executing
-      command.
+      - The module, by default, will connect to the remote device and retrieve the current
+        running-config to use as a base for comparing against the contents of source.
+        There are times when it is not desirable to have the task get the current running-config
+        for every task in a playbook.  The I(running_config) argument allows the implementer
+        to pass in the configuration to use as the base config for comparison. This
+        value of this option should be the output received from device by executing
+        command.
     type: str
   state:
     description:
-    - The state the configuration should be left in
+      - The state the configuration should be left in
     type: str
     choices:
-    - merged
-    - replaced
-    - deleted
-    - gathered
+      - merged
+      - replaced
+      - deleted
+      - gathered
     default: merged
 
 author: Ansible Security Automation Team (@pranav-bhatt) <https://github.com/ansible-security>
 """
 
 EXAMPLES = """
-# _________________________________________________________________
-# Using gathered
 
-- name: Gathering information about TCP Cooked inputs using splunk.es.data_inputs_networks
-  splunk.es.data_inputs_networks:
+# Using gathered
+# --------------
+
+- name: Gathering information about TCP Cooked Inputs
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: cooked
     state: gathered
-#
-# Output:
-#
-# "changed": false,
+
+# RUN output:
+# -----------
+
 # "gathered": [
 #     {
 #         "connection_host": "ip",
@@ -217,19 +218,19 @@ EXAMPLES = """
 #         "restrict_to_host": "default"
 #     }
 # ]
-#
-# ------------------------------
-- name: Gathering information about TCP Cooked inputs using splunk.es.data_inputs_networks
-  splunk.es.data_inputs_networks:
+
+
+- name: Gathering information about TCP Cooked Inputs by Name
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: cooked
         name: 9997
     state: gathered
-#
-# Output:
-#
-# "changed": false,
+
+# RUN output:
+# -----------
+
 # "gathered": [
 #     {
 #         "datatype": "cooked",
@@ -239,16 +240,18 @@ EXAMPLES = """
 #         "protocol": "tcp"
 #     }
 # ]
-#
-# ------------------------------
-- name: Gathering information about TCP raw inputs using splunk.es.data_inputs_networks
-  splunk.es.data_inputs_networks:
+
+
+- name: Gathering information about TCP Raw Inputs
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: raw
     state: gathered
-#
-# "changed": false,
+
+# RUN output:
+# -----------
+
 # "gathered": [
 #     {
 #         "connection_host": "ip",
@@ -272,19 +275,18 @@ EXAMPLES = """
 #         "sourcetype": "test_source_type"
 #     }
 # ]
-#
-# ------------------------------
-- name: Gathering information about TCP raw inputs using splunk.es.data_inputs_networks
-  splunk.es.data_inputs_networks:
+
+- name: Gathering information about TCP Raw inputs by Name
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: raw
         name: 8099
     state: gathered
-#
-# Output:
-#
-# "changed": false,
+
+# RUN output:
+# -----------
+
 # "gathered": [
 #     {
 #         "connection_host": "ip",
@@ -298,18 +300,17 @@ EXAMPLES = """
 #         "raw_tcp_done_timeout": 10
 #     }
 # ]
-#
-# ------------------------------
-- name: Gathering information about TCP SSL configuration using splunk.es.data_inputs_networks
-  splunk.es.data_inputs_networks:
+
+- name: Gathering information about TCP SSL configuration
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: ssl
     state: gathered
-#
-# Output:
-#
-# "changed": false,
+
+# RUN output:
+# -----------
+
 # "gathered": [
 #     {
 #         "cipher_suite": <cipher-suites>,
@@ -319,18 +320,17 @@ EXAMPLES = """
 #         "name": "test_host"
 #     }
 # ]
-#
-# ------------------------------
-- name: Gathering information about TCP SplunkTcpTokens using splunk.es.data_inputs_networks
-  splunk.es.data_inputs_networks:
+
+- name: Gathering information about TCP SplunkTcpTokens
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: splunktcptoken
     state: gathered
-#
-# Output:
-#
-# "changed": false,
+
+# RUN output:
+# -----------
+
 # "gathered": [
 #     {
 #         "disabled": false,
@@ -347,11 +347,12 @@ EXAMPLES = """
 #         "token": <token2>
 #     }
 # ]
-# _________________________________________________________________
+
 # Using merged
-#
-- name: tcp raw
-  splunk.es.data_inputs_networks:
+# ------------
+
+- name: To add the TCP raw config
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: raw
@@ -364,9 +365,10 @@ EXAMPLES = """
         source: test_source
         sourcetype: test_source_type
     state: merged
-#
-# Output:
-#
+
+# RUN output:
+# -----------
+
 # "after": [
 #     {
 #         "connection_host": "ip",
@@ -399,9 +401,9 @@ EXAMPLES = """
 #         "sourcetype": "test_source_type"
 #     }
 # ]
-#
-- name: tcp cooked
-  splunk.es.data_inputs_networks:
+
+- name: To add the TCP cooked config
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: cooked
@@ -410,9 +412,10 @@ EXAMPLES = """
         disabled: False
         restrict_to_host: default
     state: merged
-#
-# Output:
-#
+
+# RUN output:
+# -----------
+
 # "after": [
 #     {
 #         "connection_host": "ip",
@@ -435,18 +438,18 @@ EXAMPLES = """
 #         "restrict_to_host": "default"
 #     }
 # ],
-# "changed": true
-#
-- name: splunktcptoken
-  splunk.es.data_inputs_networks:
+
+- name: To add the Splunk TCP token
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: splunktcptoken
         name: test_token
     state: merged
-#
-# Output:
-#
+
+# RUN output:
+# -----------
+
 # "after": [
 #     {
 #         "datatype": "splunktcptoken",
@@ -456,10 +459,9 @@ EXAMPLES = """
 #     }
 # ],
 # "before": [],
-# "changed": true
-#
-- name: ssl
-  splunk.es.data_inputs_networks:
+
+- name:  To add the Splunk SSL
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: ssl
@@ -467,9 +469,10 @@ EXAMPLES = """
         root_ca: {root CA directory}
         server_cert: {server cretificate directory}
     state: merged
-#
-# Output:
-#
+
+# RUN output:
+# -----------
+
 # "after": [
 #     {
 #         "cipher_suite": <cipher suite>,
@@ -481,22 +484,23 @@ EXAMPLES = """
 #         "protocol": "tcp"
 #     }
 # ],
-# "before": [],
-# "changed": false
-#
-# _________________________________________________________________
+# "before": []
+
+
 # Using deleted
-#
-- name: tcp raw
-  splunk.es.data_inputs_networks:
+# -------------
+
+- name: To Delete TCP Raw
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: raw
         name: default:8100
     state: deleted
-#
-# Output:
-#
+
+# RUN output:
+# -----------
+
 # "after": [],
 # "before": [
 #     {
@@ -513,15 +517,14 @@ EXAMPLES = """
 #         "source": "test_source",
 #         "sourcetype": "test_source_type"
 #     }
-# ],
-# "changed": true
-#
-# _________________________________________________________________
+# ]
+
 # Using replaced
-#
+# --------------
+
 - name: Replace existing data inputs networks configuration
   register: result
-  splunk.es.data_inputs_networks: &id001
+  splunk.es.splunk_data_inputs_network:
     state: replaced
     config:
       - protocol: tcp
@@ -536,9 +539,10 @@ EXAMPLES = """
         restrict_to_host: default
         source: test_source
         sourcetype: test_source_type
-#
-# Output:
-#
+
+# RUN output:
+# -----------
+
 # "after": [
 #     {
 #         "connection_host": "ip",
@@ -571,9 +575,9 @@ EXAMPLES = """
 #         "sourcetype": "test_source_type"
 #     }
 # ],
-# "changed": true
-#
+
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module execution.

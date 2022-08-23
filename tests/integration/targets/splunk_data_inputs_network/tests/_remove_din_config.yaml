@@ -1,6 +1,6 @@
 ---
 - name: delete data inputs config
-  splunk.es.splunk_data_inputs_networks:
+  splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
         datatype: raw

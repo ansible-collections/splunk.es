@@ -18,7 +18,7 @@
 #
 
 """
-The module file for data_inputs_networks
+The module file for data_inputs_network
 """
 
 from __future__ import absolute_import, division, print_function
@@ -42,7 +42,7 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
     AnsibleArgSpecValidator,
 )
-from ansible_collections.splunk.es.plugins.modules.splunk_data_inputs_networks import (
+from ansible_collections.splunk.es.plugins.modules.splunk_data_inputs_network import (
     DOCUMENTATION,
 )
 
@@ -54,7 +54,7 @@ class ActionModule(ActionBase):
         super(ActionModule, self).__init__(*args, **kwargs)
         self._result = None
         self.api_object = "servicesNS/nobody/search/data/inputs"
-        self.module_return = "data_inputs_networks"
+        self.module_return = "data_inputs_network"
         self.key_transform = {
             "name": "name",
             "connection_host": "connection_host",
@@ -490,14 +490,15 @@ class ActionModule(ActionBase):
                 self._result["changed"] = False
                 for item in config:
                     if item.get("name"):
-                        self._result["gathered"].append(
-                            self.search_for_resource_name(
-                                conn_request,
-                                item["protocol"],
-                                item.get("datatype"),
-                                item.get("name"),
-                            )
+
+                        result = self.search_for_resource_name(
+                            conn_request,
+                            item["protocol"],
+                            item.get("datatype"),
+                            item.get("name"),
                         )
+                        if result:
+                            self._result["gathered"].append(result)
                     else:
                         response_list = self.request_by_path(
                             conn_request,

@@ -29,7 +29,7 @@ if PY2:
 import tempfile
 from ansible.playbook.task import Task
 from ansible.template import Templar
-from ansible_collections.splunk.es.plugins.action.splunk_data_inputs_networks import (
+from ansible_collections.splunk.es.plugins.action.splunk_data_inputs_network import (
     ActionModule,
 )
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
@@ -294,12 +294,12 @@ class TestSplunkEsDataInputsMetworksRules:
             templar=templar,
             shared_loader_obj=None,
         )
-        self._plugin._task.action = "data_inputs_networks"
+        self._plugin._task.action = "data_inputs_network"
         self._plugin._task.async_val = False
         self._task_vars = {}
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_networks_merged(self, connection, monkeypatch):
+    def test_es_data_inputs_network_merged(self, connection, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
@@ -365,9 +365,7 @@ class TestSplunkEsDataInputsMetworksRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_networks_merged_idempotent(
-        self, conn, monkeypatch
-    ):
+    def test_es_data_inputs_network_merged_idempotent(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
@@ -427,7 +425,7 @@ class TestSplunkEsDataInputsMetworksRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_networks_replaced(self, conn, monkeypatch):
+    def test_es_data_inputs_network_replaced(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
@@ -498,7 +496,7 @@ class TestSplunkEsDataInputsMetworksRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_networks_replaced_idempotent(
+    def test_es_data_inputs_network_replaced_idempotent(
         self, conn, monkeypatch
     ):
         self._plugin._connection.socket_path = (
@@ -551,7 +549,7 @@ class TestSplunkEsDataInputsMetworksRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_networks_deleted(self, conn, monkeypatch):
+    def test_es_data_inputs_network_deleted(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )
@@ -607,7 +605,7 @@ class TestSplunkEsDataInputsMetworksRules:
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_networks_deleted_idempotent(
+    def test_es_data_inputs_network_deleted_idempotent(
         self, conn, monkeypatch
     ):
         self._plugin._connection.socket_path = (
@@ -653,7 +651,7 @@ class TestSplunkEsDataInputsMetworksRules:
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_data_inputs_networks_gathered(self, conn, monkeypatch):
+    def test_es_data_inputs_network_gathered(self, conn, monkeypatch):
         self._plugin._connection.socket_path = (
             tempfile.NamedTemporaryFile().name
         )

@@ -1,16 +1,16 @@
 ---
 - debug:
     msg:
-      START data_inputs_networks round trip integration tests on connection={{ ansible_connection
+      START data_inputs_network round trip integration tests on connection={{ ansible_connection
       }}
 
-- include_tasks: _remove_dim_config.yaml
-- include_tasks: _populate_dim_config.yaml
+- include_tasks: _remove_din_config.yaml
+- include_tasks: _populate_din_config.yaml
 
 - block:
     - name: Apply the provided configuration (base config)
       register: base_config
-      splunk.es.splunk_data_inputs_networks: &id001
+      splunk.es.splunk_data_inputs_network: &id001
         state: merged
         config:
           - protocol: tcp
@@ -51,7 +51,7 @@
 
     - name: Gather data inputs networks configuration facts
       register: gather_result
-      splunk.es.splunk_data_inputs_networks:
+      splunk.es.splunk_data_inputs_network:
         config:
           - protocol: tcp
             datatype: raw
@@ -68,7 +68,7 @@
 
     - name: Apply the configuration which need to be reverted
       register: result
-      splunk.es.splunk_data_inputs_networks:
+      splunk.es.splunk_data_inputs_network:
         config:
           - protocol: tcp
             datatype: raw
@@ -110,22 +110,22 @@
     - assert:
         that:
           - result.changed == true
-          - "{{ replaced['before'] | symmetric_difference(result['data_inputs_networks']['before']) |\
+          - "{{ replaced['before'] | symmetric_difference(result['data_inputs_network']['before']) |\
             \ length == 0 }}"
-          - "{{ replaced['after'] | symmetric_difference(result['data_inputs_networks']['after']) |\
+          - "{{ replaced['after'] | symmetric_difference(result['data_inputs_network']['after']) |\
             \ length == 0 }}"
 
     - name: Revert back to base config using facts round trip
       register: revert
-      splunk.es.splunk_data_inputs_networks:
+      splunk.es.splunk_data_inputs_network:
         config: "{{ gather_result['gathered'] }}"
         state: replaced
 
     - assert:
         that:
           - revert['changed'] == true
-          - "{{ merged['after'] | symmetric_difference(revert['data_inputs_networks']['after']) |\
+          - "{{ merged['after'] | symmetric_difference(revert['data_inputs_network']['after']) |\
             \ length == 1 }}"
 
   always:
-    - include_tasks: _remove_dim_config.yaml
+    - include_tasks: _remove_din_config.yaml

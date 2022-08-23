@@ -1,16 +1,2 @@
 ---
-plugin_routing:
-  action:
-    correlation_search:
-      redirect: splunk.es.splunk
-    correlation_searches:
-      redirect: splunk.es.splunk
-  modules:
-    correlation_search:
-      deprecation:
-        removal_date: "2024-09-01"
-        warning_text: See the plugin documentation for more details
-      redirect: splunk.es.splunk_correlation_search
-    correlation_searches:
-      redirect: splunk.es.splunk_correlation_searches
-requires_ansible: ">=2.9.10"
+requires_ansible: '>=2.9.10,<2.11'

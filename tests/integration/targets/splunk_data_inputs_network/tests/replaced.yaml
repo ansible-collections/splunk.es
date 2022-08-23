@@ -1,16 +1,16 @@
 ---
 - debug:
     msg:
-      START Replaced data_inputs_networks state for integration tests on connection={{ ansible_connection
+      START Replaced data_inputs_network state for integration tests on connection={{ ansible_connection
       }}
 
-- include_tasks: _remove_dim_config.yaml
-- include_tasks: _populate_dim_config.yaml
+- include_tasks: _remove_din_config.yaml
+- include_tasks: _populate_din_config.yaml
 
 - block:
     - name: Replace existing data inputs networks configuration
       register: result
-      splunk.es.splunk_data_inputs_networks: &id001
+      splunk.es.splunk_data_inputs_network: &id001
         state: replaced
         config:
           - protocol: tcp
@@ -52,16 +52,16 @@
     - assert:
         that:
           - result.changed == true
-          - "{{ replaced['before'] | symmetric_difference(result['data_inputs_networks']['before']) |\
+          - "{{ replaced['before'] | symmetric_difference(result['data_inputs_network']['before']) |\
             \ length == 0 }}"
-          - "{{ replaced['after'] | symmetric_difference(result['data_inputs_networks']['after']) |\
+          - "{{ replaced['after'] | symmetric_difference(result['data_inputs_network']['after']) |\
             \ length == 0 }}"
 
     - name:
         Replaces device configuration of listed  data inputs networks configuration with
         provided configuration (IDEMPOTENT)
       register: result
-      splunk.es.splunk_data_inputs_networks: *id001
+      splunk.es.splunk_data_inputs_network: *id001
 
     - name: Assert that task was idempotent
       assert:
@@ -69,4 +69,4 @@
           - result['changed'] == false
 
   always:
-    - include_tasks: _remove_dim_config.yaml
+    - include_tasks: _remove_din_config.yaml
