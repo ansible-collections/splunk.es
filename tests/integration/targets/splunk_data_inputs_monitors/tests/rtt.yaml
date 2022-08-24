@@ -1,0 +1,73 @@
+---
+- debug:
+    msg: START data_inputs_monitor round trip integration tests on connection={{ ansible_connection }}
+
+- include_tasks: _remove_dim_config.yaml
+- include_tasks: _populate_dim_config.yaml
+
+- block:
+
+    - name: Apply the provided configuration (base config)
+      register: base_config
+      splunk.es.splunk_data_inputs_monitor: &id001
+        state: merged
+        config:
+          - name: "/var/log"
+            blacklist: '/\/var\/log\/[a-z]/gm'
+            check_index: True
+            check_path: True
+            crc_salt: <SOURCE>
+            disabled: False
+            follow_tail: False
+            host: "$decideOnStartup"
+            host_regex: "/(test_host)/gm"
+            host_segment: 3
+            ignore_older_than: 5d
+            index: default
+            recursive: True
+            rename_source: test
+            sourcetype: test_source_type
+            time_before_close: 4
+            whitelist: '/\/var\/log\/[a-z]/gm'
+
+    - name: Gather data inputs monitors configuration facts
+      register: gather_result
+      splunk.es.splunk_data_inputs_monitor:
+        config:
+          - name: "/var/log"
+        state: gathered
+
+    - name: Apply the configuration which need to be reverted
+      register: result
+      splunk.es.splunk_data_inputs_monitor:
+        config:
+          - name: "/var/log"
+            blacklist: '/\/var\/log\/[a-z0-9]/gm'
+            crc_salt: <SOURCE>
+        state: replaced
+
+    - assert:
+        that:
+          - result.changed == true
+          - "{{ replaced['before'] | dict2items |\
+            symmetric_difference(result['data_inputs_monitor']['before'][0] |\
+            dict2items) | length==5}}"
+          - "{{ replaced['after'] | dict2items |\
+            symmetric_difference(result['data_inputs_monitor']['after'][0] |\
+            dict2items) | length==3}}"
+
+    - name: Revert back to base config using facts round trip
+      register: revert
+      splunk.es.splunk_data_inputs_monitor:
+        config: "{{ gather_result['gathered'] }}"
+        state: replaced
+
+    - assert:
+        that:
+          - revert['changed'] == true
+          - "{{ merged['after'] | dict2items |\
+            symmetric_difference(revert['data_inputs_monitor']['after'][0] |\
+            dict2items)| length==5}}"
+
+  always:
+    - include_tasks: _remove_dim_config.yaml

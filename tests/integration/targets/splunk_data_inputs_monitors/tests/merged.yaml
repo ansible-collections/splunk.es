@@ -1,0 +1,57 @@
+---
+- debug:
+    msg: START Merged data_inputs_monitor state for integration tests on connection={{
+      ansible_connection }}
+
+- include_tasks: _remove_dim_config.yaml
+
+- block:
+    - name: Merge and create new data inputs monitors configuration
+      tags: merged
+      register: result
+      splunk.es.splunk_data_inputs_monitor: &id001
+        state: merged
+        config:
+          - name: "/var/log"
+            blacklist: '/\/var\/log\/[a-z]/gm'
+            check_index: True
+            check_path: True
+            crc_salt: <SOURCE>
+            disabled: False
+            follow_tail: False
+            host: "$decideOnStartup"
+            host_regex: "/(test_host)/gm"
+            host_segment: 3
+            ignore_older_than: 5d
+            index: default
+            recursive: True
+            rename_source: test
+            sourcetype: test_source_type
+            time_before_close: 4
+            whitelist: '/\/var\/log\/[a-z]/gm'
+
+    - name: Assert that task reports change and after dict is correctly generated
+      assert:
+        that:
+          - result['changed'] == true
+          - "{{ merged['after'] | dict2items |\
+            symmetric_difference(result['data_inputs_monitor']['after'][0] |\
+            dict2items)| length==5}}"
+
+    - name: Assert that before dicts are correctly generated
+      assert:
+        that:
+          - merged['before'] == result['data_inputs_monitor']['before']
+
+    - name: Merge provided configuration with device configuration (IDEMPOTENT)
+      register: result
+      splunk.es.splunk_data_inputs_monitor: *id001
+
+    - name: Assert that the previous task was idempotent
+      assert:
+        that:
+          - result['changed'] == false
+
+  always:
+
+    - include_tasks: _remove_dim_config.yaml

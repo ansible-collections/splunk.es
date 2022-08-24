@@ -24,6 +24,7 @@ PEP440 is the schema used to describe the versions of Ansible.
 <!--end requires_ansible-->
 
 ## Collection Content
+
 <!--start collection content-->
 ### Httpapi plugins
 Name | Description
@@ -38,9 +39,9 @@ Name | Description
 [splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_info_module.rst)|Manage Splunk Enterprise Security Correlation Searches
 [splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_monitor_module.rst)|Manage Splunk Data Inputs of type Monitor
 [splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_network_module.rst)|Manage Splunk Data Inputs of type TCP or UDP
+[splunk.es.splunk_data_inputs_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_monitor_module.rst)|Splunk Data Inputs of type Monitor resource module
 
 <!--end collection content-->
-
 
 ### Supported connections
 
@@ -55,7 +56,6 @@ Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html)
 
 **NOTE:** the default port for Splunk's REST API is 8089
 
-
     [splunk]
     splunk.example.com
 
@@ -67,7 +67,6 @@ Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html)
     ansible_httpapi_use_ssl=yes
     ansible_httpapi_validate_certs=True
     ansible_connection=httpapi
-
 
 ## Installing this collection
 
@@ -83,7 +82,6 @@ collections:
   - name: splunk.es
 ```
 
-
 ## Using this collection
 
 **NOTE**: For Ansible 2.9, you may not see deprecation warnings when you run your playbooks with this collection. Use this documentation to track when a module is deprecated.
@@ -91,6 +89,7 @@ collections:
 An example for using this collection to manage a log source with [Splunk Enterprise Security SIEM](https://www.splunk.com/en_us/software/enterprise-security.html) is as follows.
 
 `inventory.ini` (Note the password should be managed by a [Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html) for a production environment.
+
 ```
 [splunk]
 splunk.example.com
@@ -114,10 +113,11 @@ the Collection, such as a module, by it's Fully Qualified Collection Name (FQCN)
 as we'll show in this example or by defining a Collection Search Path as the
 examples below will display.
 
-We recommend the FQCN method  but the
+We recommend the FQCN method but the
 shorthand options listed below exist for convenience.
 
 `splunk_with_collections_fqcn_example.yml`
+
 ```
 ---
 - name: demo splunk
@@ -159,6 +159,7 @@ Below we specify our collection at the Play level which allows us to use the
 splunk modules without specifying the need for the FQCN.
 
 `splunk_with_collections_example.yml`
+
 ```
 ---
 - name: demo splunk
@@ -203,6 +204,7 @@ level keyword, we are able to use the splunk modules without the need for the
 FQCN.
 
 `splunk_with_collections_block_example.yml`
+
 ```
 ---
 - name: demo splunk
@@ -247,11 +249,12 @@ We welcome community contributions to this collection. If you find problems, ple
 
 You can also join us on:
 
-- IRC - the ``#ansible-security`` [irc.libera.chat](https://libera.chat/) channel
+- IRC - the `#ansible-security` [irc.libera.chat](https://libera.chat/) channel
 
 See the [Ansible Community Guide](https://docs.ansible.com/ansible/latest/community/index.html) for details on contributing to Ansible.
 
 ### Code of Conduct
+
 This collection follows the Ansible project's
 [Code of Conduct](https://docs.ansible.com/ansible/devel/community/code_of_conduct.html).
 Please read and familiarize yourself with this document.
@@ -277,7 +280,6 @@ Release notes are available [here](https://github.com/ansible-collections/splunk
 GNU General Public License v3.0 or later.
 
 See [LICENSE](https://www.gnu.org/licenses/gpl-3.0.txt) to see the full text.
-
 
 ## Author Information
 

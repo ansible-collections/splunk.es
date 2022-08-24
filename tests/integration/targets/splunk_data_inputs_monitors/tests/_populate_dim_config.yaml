@@ -1,0 +1,22 @@
+---
+- name: Populate data inputs config
+  splunk.es.splunk_data_inputs_monitor:
+    config:
+      - name: "/var/log"
+        blacklist: '/\/var\/log\/[a-z]/gm'
+        check_index: True
+        check_path: True
+        crc_salt: <SOURCE>
+        disabled: False
+        follow_tail: False
+        host: "$decideOnStartup"
+        host_regex: "/(test_host)/gm"
+        host_segment: 3
+        ignore_older_than: 5d
+        index: default
+        recursive: True
+        rename_source: test
+        sourcetype: test_source_type
+        time_before_close: 4
+        whitelist: '/\/var\/log\/[a-z]/gm'
+    state: merged

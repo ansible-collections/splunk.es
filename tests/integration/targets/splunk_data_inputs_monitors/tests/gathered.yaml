@@ -1,0 +1,25 @@
+---
+- debug:
+    msg: START data_inputs_monitors gathered integration tests on connection={{ ansible_connection }}
+
+- include_tasks: _remove_dim_config.yaml
+
+- include_tasks: _populate_dim_config.yaml
+
+- block:
+    - name: Gather data inputs monitors config
+      splunk.es.splunk_data_inputs_monitor:
+        config:
+          - name: "/var/log"
+        state: gathered
+      register: result
+
+    - assert:
+        that:
+          - "{{ merged['after'] | dict2items |\
+            symmetric_difference(result['gathered'][0] |\
+            dict2items)| length==5}}"
+          - result['changed'] == false
+
+  always:
+    - include_tasks: _remove_dim_config.yaml
