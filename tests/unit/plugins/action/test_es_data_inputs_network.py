@@ -272,7 +272,7 @@ REPLACED_REQUEST_PAYLOAD = {
 }
 
 
-class TestSplunkEsDataInputsMetworksRules:
+class TestSplunkEsDataInputsNetworksRules:
     def setup(self):
         task = MagicMock(Task)
         # Ansible > 2.13 looks for check_mode in task
