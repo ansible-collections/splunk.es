@@ -1,2 +1,2 @@
-plugins/modules/splunk_correlation_search.py validate-modules:deprecation-mismatch
-plugins/modules/splunk_correlation_search.py validate-modules:invalid-documentation
+plugins/modules/correlation_search.py validate-modules:deprecation-mismatch
+plugins/modules/correlation_search.py validate-modules:invalid-documentation
