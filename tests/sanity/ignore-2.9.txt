@@ -1,2 +1,3 @@
 plugins/modules/correlation_search.py validate-modules:deprecation-mismatch
 plugins/modules/correlation_search.py validate-modules:invalid-documentation
+plugins/action/splunk_correlation_searches.py compile-2.6!skip
