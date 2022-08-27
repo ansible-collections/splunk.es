@@ -1,5 +1,5 @@
 ---
-- name: Remove prexisting configuration
+- name: Cleanup previous data_input_network
   data_input_network:
     name: "8099"
     protocol: "tcp"

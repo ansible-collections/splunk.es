@@ -208,8 +208,12 @@ class SplunkRequest(object):
         """
         try:
             splunk_data = {}
-            if not config:
+            if self.legacy and not config:
                 config = self.module.params
+
+            import q
+
+            q(config)
 
             for param in config:
                 if (config[param]) is not None and (
@@ -219,6 +223,7 @@ class SplunkRequest(object):
                         splunk_data[self.keymap[param]] = config[param]
                     else:
                         splunk_data[param] = config[param]
+
             return splunk_data
 
         except TypeError as e:

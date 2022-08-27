@@ -1,0 +1,118 @@
+---
+- debug:
+    msg: START correlation_searches round trip integration tests on connection={{ ansible_connection }}
+
+- include_tasks: _remove_config.yaml
+- include_tasks: _populate_config.yaml
+
+- block:
+    - name: Apply the provided configuration (base config)
+      register: base_config
+      splunk.es.splunk_correlation_searches: &id001
+        state: merged
+        config:
+          - name: Ansible Test 3
+            disabled: false
+            description: test description
+            app: DA-ESS-EndpointProtection
+            annotations:
+              cis20:
+                - test1
+              mitre_attack:
+                - test2
+              kill_chain_phases:
+                - test3
+              nist:
+                - test4
+              custom:
+                - framework: test_framework
+                  custom_annotations:
+                    - test5
+            ui_dispatch_context: SplunkEnterpriseSecuritySuite
+            time_earliest: -24h
+            time_latest: now
+            cron_schedule: "*/5 * * * *"
+            scheduling: realtime
+            schedule_window: 0
+            schedule_priority: default
+            trigger_alert: once
+            trigger_alert_when: number of events
+            trigger_alert_when_condition: greater than
+            trigger_alert_when_value: 10
+            throttle_window_duration: 5s
+            throttle_fields_to_group_by:
+              - test_field1
+            suppress_alerts: False
+            search: '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authentication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Failed_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authentication.src" as "src" | where "count">=6'
+
+    - name: Gather correlation searches configuration facts
+      register: gather_result
+      splunk.es.splunk_correlation_searches:
+        config:
+          - name: Ansible Test
+        state: gathered
+
+    - name: Apply the configuration which need to be reverted
+      register: result
+      splunk.es.splunk_correlation_searches:
+        config:
+          - name: Ansible Test
+            disabled: false
+            description: test description
+            app: SplunkEnterpriseSecuritySuite
+            annotations:
+              cis20:
+                - test1
+                - test2
+              mitre_attack:
+                - test3
+                - test4
+              kill_chain_phases:
+                - test5
+                - test6
+              nist:
+                - test7
+                - test8
+              custom:
+                - framework: test_framework2
+                  custom_annotations:
+                    - test9
+                    - test10
+            ui_dispatch_context: SplunkEnterpriseSecuritySuite
+            time_earliest: -24h
+            time_latest: now
+            cron_schedule: "*/5 * * * *"
+            scheduling: continuous
+            schedule_window: auto
+            schedule_priority: default
+            trigger_alert: once
+            trigger_alert_when: number of events
+            trigger_alert_when_condition: greater than
+            trigger_alert_when_value: 10
+            throttle_window_duration: 5s
+            throttle_fields_to_group_by:
+              - test_field1
+              - test_field2
+            suppress_alerts: True
+            search: '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authentication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Failed_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authentication.src" as "src" | where "count">=6'
+        state: replaced
+
+    - assert:
+        that:
+          - result.changed == true
+          - replaced['before'] == result['correlation_searches']['before']
+          - replaced['after'] == result['correlation_searches']['after']
+
+    - name: Revert back to base config using facts round trip
+      register: revert
+      splunk.es.splunk_correlation_searches:
+        config: "{{ gather_result['gathered'] }}"
+        state: replaced
+
+    - assert:
+        that:
+          - revert['changed'] == true
+          - merged['after'] == revert['correlation_searches']['after']
+
+  always:
+    - include_tasks: _remove_config.yaml

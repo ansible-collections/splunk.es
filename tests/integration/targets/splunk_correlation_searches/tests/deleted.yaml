@@ -1,0 +1,33 @@
+---
+- debug:
+    msg: Start Deleted integration state for correlation_searches ansible_connection={{ ansible_connection }}
+
+- include_tasks: _remove_config.yaml
+
+- include_tasks: _populate_config.yaml
+
+- block:
+    - name: Delete correlation searches config
+      splunk.es.splunk_correlation_searches: &id001
+        config:
+          - name: Ansible Test
+        state: deleted
+      register: result
+
+    - assert:
+        that:
+          - result.changed == true
+          - merged['after'] == result['correlation_searches']['before']
+          - merged['before'] == result['correlation_searches']['after']
+
+    - name: Delete attributes of all configured interfaces (IDEMPOTENT)
+      register: result
+      splunk.es.splunk_correlation_searches: *id001
+
+    - name: Assert that the previous delete task was idempotent
+      assert:
+        that:
+          - result.changed == false
+
+  always:
+    - include_tasks: _remove_config.yaml

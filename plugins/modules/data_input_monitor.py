@@ -138,7 +138,10 @@ EXAMPLES = """
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_text
-from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
+from ansible.module_utils.six.moves.urllib.parse import quote_plus
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
+    utils,
+)
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
 )
@@ -194,6 +197,7 @@ def main():
             quote_plus(module.params["name"])
         )
     )
+    query_dict = utils.remove_empties(query_dict)
 
     if module.params["state"] == "present":
         if query_dict:
@@ -229,7 +233,7 @@ def main():
             _data["name"] = module.params["name"]
             splunk_data = splunk_request.create_update(
                 "servicesNS/nobody/search/data/inputs/monitor",
-                data=urlencode(_data),
+                data=_data,
             )
             module.exit_json(
                 changed=True, msg="{0} created.", splunk_data=splunk_data

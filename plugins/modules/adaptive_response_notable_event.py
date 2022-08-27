@@ -186,6 +186,9 @@ import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_text
 from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
+    utils,
+)
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
 )
@@ -233,7 +236,6 @@ def main():
                 "closed",
             ],
             required=False,
-            default="",
         ),
         drill_down_name=dict(required=False, type="str"),
         drill_down_search=dict(required=False, type="str"),
@@ -270,6 +272,7 @@ def main():
 
     splunk_request = SplunkRequest(
         module,
+        override=False,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         not_rest_data_keys=["state"],
     )
@@ -350,6 +353,8 @@ def main():
         request_post_data[
             "action.notable.param.default_status"
         ] = module.params["default_status"]
+
+    request_post_data = utils.remove_empties(request_post_data)
 
     if query_dict:
         request_post_data["search"] = query_dict["entry"][0]["content"][
