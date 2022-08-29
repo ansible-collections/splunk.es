@@ -1,3 +1,7 @@
+plugins/action/splunk_correlation_searches.py compile-2.6!skip
 plugins/modules/correlation_search.py validate-modules:deprecation-mismatch
 plugins/modules/correlation_search.py validate-modules:invalid-documentation
-plugins/action/splunk_correlation_searches.py compile-2.6!skip
+plugins/modules/data_input_monitor.py validate-modules:deprecation-mismatch
+plugins/modules/data_input_monitor.py validate-modules:invalid-documentation
+plugins/modules/data_input_network.py validate-modules:deprecation-mismatch
+plugins/modules/data_input_network.py validate-modules:invalid-documentation

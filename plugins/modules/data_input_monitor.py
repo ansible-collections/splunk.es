@@ -17,6 +17,10 @@ short_description: Manage Splunk Data Inputs of type Monitor
 description:
   - This module allows for addition or deletion of File and Directory Monitor Data Inputs in Splunk.
 version_added: "1.0.0"
+deprecated:
+  alternative: splunk_data_inputs_monitor
+  why: Newer and updated modules released with more functionality.
+  removed_at_date: '2024-09-01'
 options:
   name:
     description:
