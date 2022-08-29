@@ -1,2 +1,38 @@
 ---
-requires_ansible: '>=2.9.10'
+plugin_routing:
+  action:
+    correlation_search:
+      redirect: splunk.es.splunk
+    splunk_correlation_searches:
+      redirect: splunk.es.splunk
+    data_input_monitor:
+      redirect: splunk.es.splunk
+    data_inputs_monitor:
+      redirect: splunk.es.splunk
+    data_input_network:
+      redirect: splunk.es.splunk
+    data_inputs_network:
+      redirect: splunk.es.splunk
+  modules:
+    correlation_search:
+      deprecation:
+        removal_date: "2024-09-01"
+        warning_text: See the plugin documentation for more details
+      redirect: splunk.es.correlation_search
+    correlation_searches:
+      redirect: splunk.es.splunk_correlation_searches
+    data_input_monitor:
+      deprecation:
+        removal_date: "2024-09-01"
+        warning_text: See the plugin documentation for more details
+      redirect: splunk.es.data_input_monitor
+    splunk_data_inputs_monitor:
+      redirect: splunk.es.splunk_data_inputs_monitor
+    data_input_network:
+      deprecation:
+        removal_date: "2024-09-01"
+        warning_text: See the plugin documentation for more details
+      redirect: splunk.es.data_input_network
+    splunk_data_inputs_network:
+      redirect: splunk.es.splunk_data_inputs_network
+requires_ansible: ">=2.9.10"
