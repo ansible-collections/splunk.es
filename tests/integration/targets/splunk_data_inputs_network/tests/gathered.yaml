@@ -1,0 +1,38 @@
+---
+- debug:
+    msg:
+      START data_inputs_network gathered integration tests on connection={{ ansible_connection
+      }}
+
+- include_tasks: _remove_din_config.yaml
+
+- include_tasks: _populate_din_config.yaml
+
+- block:
+    - name: Gather data inputs networks config
+      splunk.es.splunk_data_inputs_network:
+        config:
+          - protocol: tcp
+            datatype: raw
+            name: default:8100
+          - protocol: tcp
+            datatype: cooked
+            name: default:8101
+          - protocol: tcp
+            datatype: splunktcptoken
+            name: test_token
+          - protocol: tcp
+            datatype: ssl
+            name: test_host
+          - protocol: udp
+            name: default:7890
+        state: gathered
+      register: result
+
+    - assert:
+        that:
+          - "{{ merged['after'] | symmetric_difference(result['gathered']) |\
+            \ length == 0 }}"
+          - result['changed'] == false
+  always:
+    - include_tasks: _remove_din_config.yaml

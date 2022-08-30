@@ -210,11 +210,6 @@ class SplunkRequest(object):
             splunk_data = {}
             if self.legacy and not config:
                 config = self.module.params
-
-            import q
-
-            q(config)
-
             for param in config:
                 if (config[param]) is not None and (
                     param not in self.not_rest_data_keys
@@ -252,7 +247,6 @@ class SplunkRequest(object):
         """
         Create or Update a file/directory monitor data input in Splunk
         """
-
         # when 'self.override' is True, the 'get_data' function replaces 'data'
         # in order to make use of keymap
         if data is not None and self.override:

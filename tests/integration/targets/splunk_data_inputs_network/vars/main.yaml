@@ -1,0 +1,129 @@
+---
+merged:
+  before: []
+  before_merged:
+    - cipher_suite: ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+      datatype: ssl
+      disabled: true
+      host: $decideOnStartup
+      index: default
+      name: test_host
+      protocol: tcp
+
+  after:
+    - protocol: tcp
+      datatype: raw
+      name: default:8100
+      connection_host: ip
+      disabled: True
+      host: $decideOnStartup
+      index: default
+      queue: parsingQueue
+      raw_tcp_done_timeout: 9
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type
+    - protocol: tcp
+      datatype: cooked
+      name: default:8101
+      connection_host: ip
+      disabled: False
+      host: $decideOnStartup
+      restrict_to_host: default
+    - protocol: tcp
+      datatype: splunktcptoken
+      name: splunktcptoken://test_token
+      token: 01234567-0123-0123-0123-012345678901
+    - protocol: tcp
+      datatype: ssl
+      name: test_host
+      cipher_suite: ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+      disabled: true
+      host: $decideOnStartup
+      index: default
+    - protocol: udp
+      name: default:7890
+      connection_host: ip
+      disabled: True
+      host: $decideOnStartup
+      index: default
+      no_appending_timestamp: True
+      no_priority_stripping: True
+      queue: parsingQueue
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type
+
+replaced:
+  before:
+    - protocol: tcp
+      datatype: raw
+      name: default:8100
+      connection_host: ip
+      disabled: True
+      host: $decideOnStartup
+      index: default
+      queue: parsingQueue
+      raw_tcp_done_timeout: 9
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type
+    - protocol: tcp
+      datatype: cooked
+      name: default:8101
+      connection_host: ip
+      disabled: False
+      host: $decideOnStartup
+      restrict_to_host: default
+    - protocol: tcp
+      datatype: splunktcptoken
+      name: splunktcptoken://test_token
+      token: 01234567-0123-0123-0123-012345678901
+    - protocol: udp
+      name: default:7890
+      connection_host: ip
+      disabled: True
+      host: $decideOnStartup
+      index: default
+      no_appending_timestamp: True
+      no_priority_stripping: True
+      queue: parsingQueue
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type
+  after:
+    - protocol: tcp
+      datatype: raw
+      name: default:8100
+      connection_host: ip
+      disabled: True
+      host: $decideOnStartup
+      index: default
+      queue: parsingQueue
+      raw_tcp_done_timeout: 10
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type
+    - protocol: tcp
+      datatype: cooked
+      name: default:8101
+      connection_host: ip
+      disabled: True
+      host: $decideOnStartup
+      restrict_to_host: default
+    - protocol: tcp
+      datatype: splunktcptoken
+      name: splunktcptoken://test_token
+      token: 01234567-0123-0123-0123-012345678900
+    - protocol: udp
+      name: default:7890
+      connection_host: ip
+      disabled: True
+      host: $decideOnStartup
+      index: default
+      no_appending_timestamp: False
+      no_priority_stripping: False
+      queue: parsingQueue
+      restrict_to_host: default
+      source: test_source
+      sourcetype: test_source_type

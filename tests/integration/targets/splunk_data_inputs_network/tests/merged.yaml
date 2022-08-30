@@ -1,0 +1,77 @@
+---
+- debug:
+    msg:
+      START Merged data_inputs_network state for integration tests on connection={{
+      ansible_connection }}
+
+- include_tasks: _remove_din_config.yaml
+
+- block:
+    - name: Merge and create new data inputs networks configuration
+      tags: merged
+      register: result
+      splunk.es.splunk_data_inputs_network: &id001
+        state: merged
+        config:
+          - protocol: tcp
+            datatype: raw
+            name: 8100
+            connection_host: ip
+            disabled: True
+            host: "$decideOnStartup"
+            index: default
+            queue: parsingQueue
+            raw_tcp_done_timeout: 9
+            restrict_to_host: default
+            source: test_source
+            sourcetype: test_source_type
+          - protocol: tcp
+            datatype: cooked
+            name: 8101
+            connection_host: ip
+            disabled: False
+            host: "$decideOnStartup"
+            restrict_to_host: default
+          - protocol: tcp
+            datatype: splunktcptoken
+            name: test_token
+            token: 01234567-0123-0123-0123-012345678901
+          - protocol: tcp
+            datatype: ssl
+            name: test_host
+          - protocol: udp
+            name: 7890
+            connection_host: ip
+            disabled: True
+            host: "$decideOnStartup"
+            index: default
+            no_appending_timestamp: True
+            no_priority_stripping: True
+            queue: parsingQueue
+            restrict_to_host: default
+            source: test_source
+            sourcetype: test_source_type
+
+    - name: Assert that task reports change and after dict is correctly generated
+      assert:
+        that:
+          - result['changed'] == true
+          - "{{ merged['after'] | symmetric_difference(result['data_inputs_network']['after']) |\
+            \ length == 0 }}"
+
+    - name: Assert that before dicts are correctly generated
+      assert:
+        that:
+          - merged['before_merged'] == result['data_inputs_network']['before']
+
+    - name: Merge provided configuration with device configuration (IDEMPOTENT)
+      register: result
+      splunk.es.splunk_data_inputs_network: *id001
+
+    - name: Assert that the previous task was idempotent
+      assert:
+        that:
+          - result['changed'] == false
+
+  always:
+    - include_tasks: _remove_din_config.yaml

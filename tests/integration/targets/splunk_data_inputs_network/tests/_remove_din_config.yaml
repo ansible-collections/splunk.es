@@ -1,0 +1,16 @@
+---
+- name: delete data inputs config
+  splunk.es.splunk_data_inputs_network:
+    config:
+      - protocol: tcp
+        datatype: raw
+        name: default:8100
+      - protocol: tcp
+        datatype: cooked
+        name: default:8101
+      - protocol: tcp
+        datatype: splunktcptoken
+        name: test_token
+      - protocol: udp
+        name: default:7890
+    state: deleted
