@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD:tests/integration/targets/splunk_correlation_searches/tests/_populate_config.yaml
-- name: merge core config
-=======
 - name: merge corre config
->>>>>>> 140f60e (minor fix):tests/integration/targets/splunk_correlation_searches/tests/_populate_dim_config.yaml
   splunk.es.splunk_correlation_searches:
     config:
       - name: Ansible Test
