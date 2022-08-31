@@ -152,7 +152,7 @@ REQUEST_PAYLOAD = [
 ]
 
 
-class TestSplunkEsDataInputsMonitorsRules:
+class TestSplunkEsAdaptiveResponseNotableEvents:
     def setup(self):
         task = MagicMock(Task)
         # Ansible > 2.13 looks for check_mode in task
