@@ -1,5 +1,5 @@
 ---
-- name: merge core config
+- name: merge corre config
   splunk.es.splunk_correlation_searches:
     config:
       - name: Ansible Test

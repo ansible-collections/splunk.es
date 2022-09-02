@@ -1,0 +1,22 @@
+---
+- debug:
+    msg: START adaptive_response_notable_events gathered integration tests on connection={{ ansible_connection }}
+
+- include_tasks: _remove_dim_config.yaml
+
+- include_tasks: _populate_dim_config.yaml
+
+- block:
+    - name: Gather adaptive response notable events config
+      splunk.es.splunk_adaptive_response_notable_events:
+        config:
+          - correlation_search_name: Ansible Test
+        state: gathered
+      register: result
+
+    - assert:
+        that:
+          - merged['after'] == result['adaptive_response_notable_events']['gathered']
+          - result['changed'] == false
+  always:
+    - include_tasks: _remove_dim_config.yaml

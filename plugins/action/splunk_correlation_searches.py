@@ -407,7 +407,12 @@ class ActionModule(ActionBase):
                     )
                     if result:
                         self._result["gathered"].append(result)
-
+                for item in config:
+                    self._result["gathered"].append(
+                        self.search_for_resource_name(
+                            conn_request, item["name"]
+                        )
+                    )
         elif (
             self._task.args["state"] == "merged"
             or self._task.args["state"] == "replaced"

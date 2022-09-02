@@ -1,0 +1,82 @@
+---
+- debug:
+    msg:
+      START Merged adaptive_response_notable_events state for integration tests on connection={{
+      ansible_connection }}
+
+- include_tasks: _remove_dim_config.yaml
+
+- block:
+    - name: create test correlation search
+      splunk.es.splunk_correlation_searches:
+        config:
+          - name: Ansible Test
+            description: test description
+            search: '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authentication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Failed_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authentication.src" as "src" | where "count">=6'
+        state: merged
+
+    - name: Merge and create new adaptive response notable events configuration
+      tags: merged
+      register: result
+      splunk.es.splunk_adaptive_response_notable_events: &id001
+        state: merged
+        config:
+          - correlation_search_name: Ansible Test
+            description: test notable event
+            drilldown_earliest_offset: $info_min_time$
+            drilldown_latest_offset: $info_max_time$
+            drilldown_name: test_drill_name
+            drilldown_search: test_drill
+            extract_artifacts:
+              asset:
+                - src
+                - dest
+                - dvc
+                - orig_host
+              identity:
+                - src_user
+                - user
+                - src_user_id
+                - src_user_role
+                - user_id
+                - user_role
+                - vendor_account
+            investigation_profiles:
+              - test profile 1
+              - test profile 2
+              - test profile 3
+            next_steps:
+              - makestreams
+              - nbtstat
+              - nslookup
+            name: ansible_test_notable
+            recommended_actions:
+              - email
+              - logevent
+              - makestreams
+              - nbtstat
+            security_domain: threat
+            severity: high
+
+    - name: Assert that task reports change and after dict is correctly generated
+      assert:
+        that:
+          - result['changed'] == true
+          - merged['after'] == result['adaptive_response_notable_events']['after']
+
+    - name: Assert that before dicts are correctly generated
+      assert:
+        that:
+          - merged['before'] == result['adaptive_response_notable_events']['before']
+
+    - name: Merge provided configuration with device configuration (IDEMPOTENT)
+      register: result
+      splunk.es.splunk_adaptive_response_notable_events: *id001
+
+    - name: Assert that the previous task was idempotent
+      assert:
+        that:
+          - result['changed'] == false
+
+  always:
+    - include_tasks: _remove_dim_config.yaml

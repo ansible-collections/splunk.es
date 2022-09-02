@@ -128,7 +128,6 @@ options:
       - Specify a regular expression for a file path. Only file paths that match this regular expression are indexed.
     required: False
     type: str
-
 author: Ansible Security Automation Team (@maxamillion) <https://github.com/ansible-security>
 """
 

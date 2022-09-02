@@ -128,7 +128,6 @@ options:
       - '"sourcetype=" is automatically prepended to <string>.'
       - Defaults to audittrail (if signedaudit=True) or fschange (if signedaudit=False).
     type: str
-
 author: Ansible Security Automation Team (@maxamillion) <https://github.com/ansible-security>
 """
 

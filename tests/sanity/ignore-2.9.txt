@@ -5,3 +5,5 @@ plugins/modules/data_input_monitor.py validate-modules:deprecation-mismatch
 plugins/modules/data_input_monitor.py validate-modules:invalid-documentation
 plugins/modules/data_input_network.py validate-modules:deprecation-mismatch
 plugins/modules/data_input_network.py validate-modules:invalid-documentation
+plugins/modules/adaptive_response_notable_event.py validate-modules:deprecation-mismatch
+plugins/modules/adaptive_response_notable_event.py validate-modules:invalid-documentation
