@@ -40,3 +40,28 @@ releases:
     - netcommon_ref_update.yaml
     - update_tests_unit_black_requirements.yaml
     release_date: '2022-04-29'
+  2.1.0:
+    changes:
+      minor_changes:
+      - Added adaptive_response_notable_events resource module
+      - Added data_inputs_monitors resource module
+      - Added data_inputs_networks resource module
+      - Added correlation_searches resource module
+    fragments:
+    - data_inputs_monitors.yaml
+    - data_inputs_networks.yaml
+    - fix_doc_for_sanity_failures.yaml
+    - splunk_adaptive_response_notable_events.yaml
+    modules:
+    - description: Manage Adaptive Responses notable events resource module
+      name: splunk_adaptive_response_notable_events
+    - description: Splunk Enterprise Security Correlation searches resource module
+      name: splunk_correlation_searches
+      namespace: ansible_collections.splunk.es.plugins.modules
+    - description: Splunk Data Inputs of type Monitor resource module
+      name: splunk_data_inputs_monitor
+      namespace: ansible_collections.splunk.es.plugins.modules
+    - description: Manage Splunk Data Inputs of type TCP or UDP resource module
+      name: splunk_data_inputs_network
+      namespace: ansible_collections.splunk.es.plugins.modules
+    release_date: '2022-09-03'
