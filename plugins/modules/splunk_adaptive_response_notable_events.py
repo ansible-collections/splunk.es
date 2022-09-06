@@ -11,7 +11,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: splunk_adaptive_response_notable_events
-short_description: Manage Splunk Enterprise Security Notable Event Adaptive Responses
+short_description: Manage Adaptive Responses notable events resource module
 description:
   - This module allows for creation, deletion, and modification of Splunk
     Enterprise Security Notable Event Adaptive Responses that are associated
