@@ -33,8 +33,18 @@ Bugfixes
 v1.0.2
 ======
 
+Release Summary
+---------------
+
+- Re-releasing the 1.0.2 with updated galaxy file
+
 v1.0.1
 ======
+
+Release Summary
+---------------
+
+- Releasing 1.0.1 with updated changelog.
 
 v1.0.0
 ======
