@@ -50,11 +50,13 @@ releases:
     fragments:
     - data_inputs_monitors.yaml
     - data_inputs_networks.yaml
+    - fix_adaptive_response_ne_description.yaml
     - fix_doc_for_sanity_failures.yaml
     - splunk_adaptive_response_notable_events.yaml
     modules:
     - description: Manage Adaptive Responses notable events resource module
       name: splunk_adaptive_response_notable_events
+      namespace: ansible_collections.splunk.es.plugins.modules
     - description: Splunk Enterprise Security Correlation searches resource module
       name: splunk_correlation_searches
       namespace: ansible_collections.splunk.es.plugins.modules
