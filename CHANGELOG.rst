@@ -5,6 +5,17 @@ Splunk Enterprise Security Collection Release Notes
 .. contents:: Topics
 
 
+v2.1.0
+======
+
+Minor Changes
+-------------
+
+- splunk_adaptive_response_notable_events - Manage Adaptive Responses notable events resource module
+- splunk_correlation_searches - Splunk Enterprise Security Correlation searches resource module
+- splunk_data_inputs_monitor - Splunk Data Inputs of type Monitor resource module
+- splunk_data_inputs_network - Manage Splunk Data Inputs of type TCP or UDP resource module
+
 v2.0.0
 ======
 

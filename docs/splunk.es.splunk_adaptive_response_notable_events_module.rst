@@ -5,7 +5,7 @@
 splunk.es.splunk_adaptive_response_notable_events
 *************************************************
 
-**Manage Splunk Enterprise Security Notable Event Adaptive Responses**
+**Manage Adaptive Responses notable events resource module**
 
 
 Version added: 2.1.0
