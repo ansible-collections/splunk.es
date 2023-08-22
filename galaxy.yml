@@ -5,7 +5,7 @@ namespace: splunk
 name: es
 # a list of the collection's content authors: 'Full Name <email> (http://site) @nicks:irc/im/site#channel'
 authors:
-  - 'Ansible Seurity Team (https://github.com/ansible-security)'
+  - "Ansible Seurity Team (https://github.com/ansible-security)"
 
 ### optional but strongly advised
 # short summary of the collection
@@ -14,7 +14,7 @@ dependencies:
 description: Ansible Security Collection for Splunk Enterprise Security SIEM
 # a valid SPDX license identifier https://spdx.org/licenses/
 license:
-  - 'GPL-3.0-or-later'
+  - "GPL-3.0-or-later"
 # list of keywords you want to associate the collection with for indexing/search systems
 tags:
   - security
@@ -24,13 +24,13 @@ tags:
 
 ### urls
 # url of originating SCM repository
-repository: 'https://github.com/ansible-collections/splunk.es'
+repository: "https://github.com/ansible-collections/splunk.es"
 # url to online docs
-documentation: 'https://github.com/ansible-collections/splunk.es'
+documentation: "https://github.com/ansible-collections/splunk.es"
 # homepage of the collection/project
-homepage: 'https://github.com/ansible-collections/splunk.es'
+homepage: "https://github.com/ansible-collections/splunk.es"
 # issue tracker url
-issues: 'https://github.com/ansible-collections/splunk.es/issues'
+issues: "https://github.com/ansible-collections/splunk.es/issues"
 
 readme: README.md
-version: null
+version: 2.1.0
