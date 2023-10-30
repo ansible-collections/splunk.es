@@ -149,7 +149,6 @@ class ActionModule(ActionBase):
             # need to check for custom annotation frameworks
             for k, v in res["annotations"].items():
                 if k in {"cis20", "nist", "mitre_attack", "kill_chain_phases"}:
-
                     continue
                 entry = {}
                 entry["framework"] = k

@@ -17,12 +17,12 @@
       drilldown_name: test_drill_name
       drilldown_search: test_drill
       extract_artifacts:
-        asset: 
+        asset:
           - src
           - dest
           - dvc
           - orig_host
-        identity: 
+        identity:
           - src_user
           - user
           - src_user_id
@@ -39,7 +39,7 @@
         - nbtstat
         - nslookup
       name: ansible_test_notable
-      recommended_actions: 
+      recommended_actions:
         - email
         - logevent
         - makestreams

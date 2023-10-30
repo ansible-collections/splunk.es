@@ -14,7 +14,7 @@
           - name: /var/log
         state: deleted
       register: result
-    
+
     - assert:
         that:
           - result.changed == true

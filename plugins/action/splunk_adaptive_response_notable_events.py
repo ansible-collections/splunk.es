@@ -385,7 +385,6 @@ class ActionModule(ActionBase):
                 if diff:
                     before.append(have_conf)
                     if self._task.args["state"] == "merged":
-
                         # need to store 'recommended_actions','extract_artifacts'
                         # 'next_steps' and 'investigation_profiles'
                         # since merging in the parsed form will eliminate any differences

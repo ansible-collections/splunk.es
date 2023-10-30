@@ -58,7 +58,7 @@
           - replaced['before'] == result['correlation_searches']['before']
           - replaced['after'] == result['correlation_searches']['after']
 
-    - name: Replaces device configuration of listed  data inputs networks configuration with 
+    - name: Replaces device configuration of listed  data inputs networks configuration with
             provided configuration (IDEMPOTENT)
       register: result
       splunk.es.splunk_correlation_searches: *id001
