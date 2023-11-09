@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 DOCUMENTATION = """
@@ -174,17 +175,13 @@ EXAMPLES = """
     state: "present"
 """
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_text
-
-from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves.urllib.error import HTTPError
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
-    utils,
-)
-from ansible_collections.splunk.es.plugins.module_utils.splunk import (
-    SplunkRequest,
-)
+from ansible.module_utils.six.moves.urllib.parse import quote_plus, urlencode
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
+
+from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
 
 def main():
@@ -258,8 +255,8 @@ def main():
     try:
         query_dict = splunk_request.get_by_path(
             "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches/{0}".format(
-                quote_plus(module.params["name"])
-            )
+                quote_plus(module.params["name"]),
+            ),
         )
     except HTTPError as e:
         # the data monitor doesn't exist
@@ -277,9 +274,7 @@ def main():
     request_post_data["search"] = module.params["search"]
     request_post_data["request.ui_dispatch_app"] = module.params["app"]
     if module.params["ui_dispatch_context"]:
-        request_post_data["request.ui_dispatch_context"] = module.params[
-            "ui_dispatch_context"
-        ]
+        request_post_data["request.ui_dispatch_context"] = module.params["ui_dispatch_context"]
     request_post_data["dispatch.earliest_time"] = module.params["time_earliest"]
     request_post_data["dispatch.latest_time"] = module.params["time_latest"]
     request_post_data["cron_schedule"] = module.params["cron_schedule"]
@@ -290,9 +285,7 @@ def main():
     request_post_data["schedule_window"] = module.params["schedule_window"]
     request_post_data["schedule_priority"] = module.params["schedule_priority"].lower()
     request_post_data["alert_type"] = module.params["trigger_alert_when"]
-    request_post_data["alert_comparator"] = module.params[
-        "trigger_alert_when_condition"
-    ]
+    request_post_data["alert_comparator"] = module.params["trigger_alert_when_condition"]
     request_post_data["alert_threshold"] = module.params["trigger_alert_when_value"]
     request_post_data["alert.suppress"] = module.params["suppress_alerts"]
     request_post_data["disabled"] = module_disabled_state
@@ -305,12 +298,14 @@ def main():
             for arg in request_post_data:
                 if arg in query_dict["entry"][0]["content"]:
                     if to_text(query_dict["entry"][0]["content"][arg]) != to_text(
-                        request_post_data[arg]
+                        request_post_data[arg],
                     ):
                         needs_change = True
             if not needs_change:
                 module.exit_json(
-                    changed=False, msg="Nothing to do.", splunk_data=query_dict
+                    changed=False,
+                    msg="Nothing to do.",
+                    splunk_data=query_dict,
                 )
             if module.check_mode and needs_change:
                 module.exit_json(
@@ -325,12 +320,14 @@ def main():
                 ]  # If this is present, splunk assumes we're trying to create a new one wit the same name
                 splunk_data = splunk_request.create_update(
                     "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches/{0}".format(
-                        quote_plus(module.params["name"])
+                        quote_plus(module.params["name"]),
                     ),
                     data=urlencode(request_post_data),
                 )
                 module.exit_json(
-                    changed=True, msg="{0} updated.", splunk_data=splunk_data
+                    changed=True,
+                    msg="{0} updated.",
+                    splunk_data=splunk_data,
                 )
         else:
             # Create it
@@ -343,7 +340,7 @@ def main():
     elif module.params["state"] == "absent":
         if query_dict:
             splunk_data = splunk_request.delete_by_path(
-                "services/saved/searches/{0}".format(quote_plus(module.params["name"]))
+                "services/saved/searches/{0}".format(quote_plus(module.params["name"])),
             )
             module.exit_json(
                 changed=True,

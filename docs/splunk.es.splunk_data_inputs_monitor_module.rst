@@ -83,7 +83,7 @@ Parameters
                         </ul>
                 </td>
                 <td>
-                        <div>If set to <code>True</code>, the index value is checked to ensure that it is the name of a valid index.</div>
+                        <div>If set to <code>true</code>, the index value is checked to ensure that it is the name of a valid index.</div>
                         <div>This parameter is not returned back by Splunk while obtaining object information. It is therefore left out while performing idempotency checks</div>
                 </td>
             </tr>
@@ -104,7 +104,7 @@ Parameters
                         </ul>
                 </td>
                 <td>
-                        <div>If set to <code>True</code>, the name value is checked to ensure that it exists.</div>
+                        <div>If set to <code>true</code>, the name value is checked to ensure that it exists.</div>
                         <div>This parameter is not returned back by Splunk while obtaining object information. It is therefore left out while performing idempotency checks</div>
                 </td>
             </tr>
@@ -161,7 +161,7 @@ Parameters
                         </ul>
                 </td>
                 <td>
-                        <div>If set to <code>True</code>, files that are seen for the first time is read from the end.</div>
+                        <div>If set to <code>true</code>, files that are seen for the first time is read from the end.</div>
                 </td>
             </tr>
             <tr>

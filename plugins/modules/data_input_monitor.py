@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 DOCUMENTATION = """
@@ -139,15 +140,12 @@ EXAMPLES = """
     recursive: true
 """
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_text
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves.urllib.parse import quote_plus
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
-    utils,
-)
-from ansible_collections.splunk.es.plugins.module_utils.splunk import (
-    SplunkRequest,
-)
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
+
+from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
 
 def main():
@@ -196,8 +194,8 @@ def main():
 
     query_dict = splunk_request.get_by_path(
         "servicesNS/nobody/search/data/inputs/monitor/{0}".format(
-            quote_plus(module.params["name"])
-        )
+            quote_plus(module.params["name"]),
+        ),
     )
     query_dict = utils.remove_empties(query_dict)
 
@@ -207,12 +205,14 @@ def main():
             for arg in request_data:
                 if arg in query_dict["entry"][0]["content"]:
                     if to_text(query_dict["entry"][0]["content"][arg]) != to_text(
-                        request_data[arg]
+                        request_data[arg],
                     ):
                         needs_change = True
             if not needs_change:
                 module.exit_json(
-                    changed=False, msg="Nothing to do.", splunk_data=query_dict
+                    changed=False,
+                    msg="Nothing to do.",
+                    splunk_data=query_dict,
                 )
             if module.check_mode and needs_change:
                 module.exit_json(
@@ -223,11 +223,13 @@ def main():
             if needs_change:
                 splunk_data = splunk_request.create_update(
                     "servicesNS/nobody/search/data/inputs/monitor/{0}".format(
-                        quote_plus(module.params["name"])
-                    )
+                        quote_plus(module.params["name"]),
+                    ),
                 )
                 module.exit_json(
-                    changed=True, msg="{0} updated.", splunk_data=splunk_data
+                    changed=True,
+                    msg="{0} updated.",
+                    splunk_data=splunk_data,
                 )
         else:
             # Create it
@@ -243,8 +245,8 @@ def main():
         if query_dict:
             splunk_data = splunk_request.delete_by_path(
                 "servicesNS/nobody/search/data/inputs/monitor/{0}".format(
-                    quote_plus(module.params["name"])
-                )
+                    quote_plus(module.params["name"]),
+                ),
             )
             module.exit_json(
                 changed=True,

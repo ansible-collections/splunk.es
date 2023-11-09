@@ -18,27 +18,27 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 from ansible.module_utils.six import PY2
+
 
 builtin_import = "builtins.__import__"
 if PY2:
     builtin_import = "__builtin__.__import__"
 
 import tempfile
+
 from ansible.playbook.task import Task
 from ansible.template import Templar
+from ansible_collections.ansible.utils.tests.unit.compat.mock import MagicMock, patch
+
 from ansible_collections.splunk.es.plugins.action.splunk_adaptive_response_notable_events import (
     ActionModule,
 )
-from ansible_collections.splunk.es.plugins.module_utils.splunk import (
-    SplunkRequest,
-)
-from ansible_collections.ansible.utils.tests.unit.compat.mock import (
-    MagicMock,
-    patch,
-)
+from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
+
 
 RESPONSE_PAYLOAD = [
     {
@@ -68,8 +68,8 @@ RESPONSE_PAYLOAD = [
                     "actions": "notable",
                 },
                 "name": "Ansible Test",
-            }
-        ]
+            },
+        ],
     },
     {
         "entry": [
@@ -97,8 +97,8 @@ RESPONSE_PAYLOAD = [
                     "actions": "notable",
                 },
                 "name": "Ansible Test",
-            }
-        ]
+            },
+        ],
     },
 ]
 
@@ -161,7 +161,7 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
         # Ansible <= 2.13 looks for check_mode in play_context
         play_context.check_mode = False
         connection = patch(
-            "ansible_collections.splunk.es.plugins.module_utils.splunk.Connection"
+            "ansible_collections.splunk.es.plugins.module_utils.splunk.Connection",
         )
         connection._socket_path = tempfile.NamedTemporaryFile().name
         fake_loader = {}
@@ -187,7 +187,9 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_merged_01(
-        self, connection, monkeypatch
+        self,
+        connection,
+        monkeypatch,
     ):
         metadata = {
             "search": '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authent'
@@ -205,9 +207,7 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin._task.args = {
             "state": "merged",
@@ -218,7 +218,9 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_merged_02(
-        self, connection, monkeypatch
+        self,
+        connection,
+        monkeypatch,
     ):
         self._plugin.api_response = RESPONSE_PAYLOAD[0]
         self._plugin.search_for_resource_name = MagicMock()
@@ -232,9 +234,7 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin._task.args = {
             "state": "merged",
@@ -246,11 +246,11 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_merged_idempotent(
-        self, conn, monkeypatch
+        self,
+        conn,
+        monkeypatch,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def create_update(self, rest_path, data=None):
@@ -271,11 +271,11 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_replaced_01(
-        self, conn, monkeypatch
+        self,
+        conn,
+        monkeypatch,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = (
@@ -305,11 +305,11 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_replaced_02(
-        self, conn, monkeypatch
+        self,
+        conn,
+        monkeypatch,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = (
@@ -339,11 +339,11 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_replaced_idempotent(
-        self, conn, monkeypatch
+        self,
+        conn,
+        monkeypatch,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def create_update(self, rest_path, data=None):
@@ -365,11 +365,11 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_deleted(
-        self, conn, monkeypatch
+        self,
+        conn,
+        monkeypatch,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         self._plugin.search_for_resource_name = MagicMock()
@@ -388,7 +388,7 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
             "config": [
                 {
                     "correlation_search_name": "Ansible Test",
-                }
+                },
             ],
         }
         result = self._plugin.run(task_vars=self._task_vars)
@@ -397,11 +397,10 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_deleted_idempotent(
-        self, connection
+        self,
+        connection,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = {}, {}
@@ -411,7 +410,7 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
             "config": [
                 {
                     "correlation_search_name": "Ansible Test",
-                }
+                },
             ],
         }
         result = self._plugin.run(task_vars=self._task_vars)
@@ -419,11 +418,11 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_gathered(
-        self, conn, monkeypatch
+        self,
+        conn,
+        monkeypatch,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = (
@@ -436,7 +435,7 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
             "config": [
                 {
                     "correlation_search_name": "Ansible Test",
-                }
+                },
             ],
         }
         result = self._plugin.run(task_vars=self._task_vars)

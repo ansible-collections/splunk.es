@@ -405,7 +405,7 @@ Parameters
                 <td>
                         <div>Set the source type for events from this input.</div>
                         <div>&quot;sourcetype=&quot; is automatically prepended to &lt;string&gt;.</div>
-                        <div>Defaults to audittrail (if signedaudit=True) or fschange (if signedaudit=False).</div>
+                        <div>Defaults to audittrail (if signedaudit=true) or fschange (if signedaudit=false).</div>
                 </td>
             </tr>
             <tr>
@@ -770,7 +770,7 @@ Examples
     # ],
     # "before": [],
 
-    - name:  To add the Splunk SSL
+    - name: To add the Splunk SSL
       splunk.es.splunk_data_inputs_network:
         config:
           - protocol: tcp

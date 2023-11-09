@@ -23,27 +23,26 @@ The module file for adaptive_response_notable_events
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 import json
 
-from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleActionFail
-from ansible.module_utils.six.moves.urllib.parse import quote
 from ansible.module_utils.connection import Connection
-
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
-    utils,
+from ansible.module_utils.six.moves.urllib.parse import quote
+from ansible.plugins.action import ActionBase
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
+from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
+    AnsibleArgSpecValidator,
 )
+
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
     map_obj_to_params,
     map_params_to_obj,
     remove_get_keys_from_payload_dict,
     set_defaults,
-)
-from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
-    AnsibleArgSpecValidator,
 )
 from ansible_collections.splunk.es.plugins.modules.splunk_adaptive_response_notable_events import (
     DOCUMENTATION,
@@ -56,9 +55,7 @@ class ActionModule(ActionBase):
     def __init__(self, *args, **kwargs):
         super(ActionModule, self).__init__(*args, **kwargs)
         self._result = None
-        self.api_object = (
-            "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches"
-        )
+        self.api_object = "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches"
         self.module_name = "adaptive_response_notable_events"
         self.key_transform = {
             "action.notable.param.default_owner": "default_owner",
@@ -103,17 +100,13 @@ class ActionModule(ActionBase):
     def save_params(self, want_conf):
         param_store = {}
         if "recommended_actions" in want_conf:
-            param_store["recommended_actions"] = want_conf[
-                "recommended_actions"
-            ]
+            param_store["recommended_actions"] = want_conf["recommended_actions"]
         if "extract_artifacts" in want_conf:
             param_store["extract_artifacts"] = want_conf["extract_artifacts"]
         if "next_steps" in want_conf:
             param_store["next_steps"] = want_conf["next_steps"]
         if "investigation_profiles" in want_conf:
-            param_store["investigation_profiles"] = want_conf[
-                "investigation_profiles"
-            ]
+            param_store["investigation_profiles"] = want_conf["investigation_profiles"]
 
         return param_store
 
@@ -125,8 +118,7 @@ class ActionModule(ActionBase):
                 if metadata["actions"] == "notable":
                     pass
                 elif (
-                    len(metadata["actions"].split(",")) > 0
-                    and "notable" not in metadata["actions"]
+                    len(metadata["actions"].split(",")) > 0 and "notable" not in metadata["actions"]
                 ):
                     metadata["actions"] = metadata["actions"] + ", notable"
                 else:
@@ -136,10 +128,7 @@ class ActionModule(ActionBase):
             if "actions" in metadata:
                 if metadata["actions"] == "notable":
                     metadata["actions"] = ""
-                elif (
-                    len(metadata["actions"].split(",")) > 0
-                    and "notable" in metadata["actions"]
-                ):
+                elif len(metadata["actions"].split(",")) > 0 and "notable" in metadata["actions"]:
                     tmp_list = metadata["actions"].split(",")
                     tmp_list.remove(" notable")
                     metadata["actions"] = ",".join(tmp_list)
@@ -161,7 +150,7 @@ class ActionModule(ActionBase):
                 res.pop("investigation_profiles")
             else:
                 res["investigation_profiles"] = json.loads(
-                    res["investigation_profiles"]
+                    res["investigation_profiles"],
                 )
                 investigation_profiles = []
                 for keys in res["investigation_profiles"].keys():
@@ -209,12 +198,12 @@ class ActionModule(ActionBase):
 
         if "action.notable.param.extract_artifacts" in res:
             res["action.notable.param.extract_artifacts"] = json.dumps(
-                res["action.notable.param.extract_artifacts"]
+                res["action.notable.param.extract_artifacts"],
             )
 
         if "action.notable.param.recommended_actions" in res:
             res["action.notable.param.recommended_actions"] = ",".join(
-                res["action.notable.param.recommended_actions"]
+                res["action.notable.param.recommended_actions"],
             )
 
         if "action.notable.param.investigation_profiles" in res:
@@ -222,7 +211,7 @@ class ActionModule(ActionBase):
             for element in res["action.notable.param.investigation_profiles"]:
                 investigation_profiles["profile://" + element] = {}
             res["action.notable.param.investigation_profiles"] = json.dumps(
-                investigation_profiles
+                investigation_profiles,
             )
 
         if "action.notable.param.next_steps" in res:
@@ -233,7 +222,7 @@ class ActionModule(ActionBase):
             # NOTE: version:1 appears to be hard coded when you create this via the splunk web UI
             next_steps_dict = {"version": 1, "data": next_steps}
             res["action.notable.param.next_steps"] = json.dumps(
-                next_steps_dict
+                next_steps_dict,
             )
 
         if "action.notable.param.default_status" in res:
@@ -259,20 +248,20 @@ class ActionModule(ActionBase):
             "{0}/{1}".format(
                 self.api_object,
                 quote(correlation_search_name),
-            )
+            ),
         )
 
         search_result = {}
 
         if query_dict:
             search_result, metadata = self.map_params_to_object(
-                query_dict["entry"][0]
+                query_dict["entry"][0],
             )
         else:
             raise AnsibleActionFail(
                 "Correlation Search '{0}' doesn't exist".format(
-                    correlation_search_name
-                )
+                    correlation_search_name,
+                ),
             )
 
         return search_result, metadata
@@ -285,15 +274,14 @@ class ActionModule(ActionBase):
         changed = False
         for want_conf in config:
             search_by_name, metadata = self.search_for_resource_name(
-                conn_request, want_conf["correlation_search_name"]
+                conn_request,
+                want_conf["correlation_search_name"],
             )
             search_by_name = utils.remove_empties(search_by_name)
 
             # Compare obtained values with a dict representing values in a 'deleted' state
             diff_cmp = {
-                "correlation_search_name": want_conf[
-                    "correlation_search_name"
-                ],
+                "correlation_search_name": want_conf["correlation_search_name"],
                 "drilldown_earliest_offset": "$info_min_time$",
                 "drilldown_latest_offset": "$info_max_time$",
             }
@@ -367,7 +355,8 @@ class ActionModule(ActionBase):
         remove_from_diff_compare = []
         for want_conf in config:
             have_conf, metadata = self.search_for_resource_name(
-                conn_request, want_conf["correlation_search_name"]
+                conn_request,
+                want_conf["correlation_search_name"],
             )
             correlation_search_name = want_conf["correlation_search_name"]
 
@@ -385,17 +374,17 @@ class ActionModule(ActionBase):
                 if diff:
                     before.append(have_conf)
                     if self._task.args["state"] == "merged":
-
                         # need to store 'recommended_actions','extract_artifacts'
                         # 'next_steps' and 'investigation_profiles'
                         # since merging in the parsed form will eliminate any differences
                         param_store = self.save_params(want_conf)
 
                         want_conf = utils.remove_empties(
-                            utils.dict_merge(have_conf, want_conf)
+                            utils.dict_merge(have_conf, want_conf),
                         )
                         want_conf = remove_get_keys_from_payload_dict(
-                            want_conf, remove_from_diff_compare
+                            want_conf,
+                            remove_from_diff_compare,
                         )
 
                         # restoring parameters
@@ -404,7 +393,8 @@ class ActionModule(ActionBase):
                         changed = True
 
                         payload = self.map_objects_to_params(
-                            metadata, want_conf
+                            metadata,
+                            want_conf,
                         )
 
                         url = "{0}/{1}".format(
@@ -416,18 +406,20 @@ class ActionModule(ActionBase):
                             data=payload,
                         )
                         response_json, metadata = self.map_params_to_object(
-                            api_response["entry"][0]
+                            api_response["entry"][0],
                         )
 
                         after.append(response_json)
                     elif self._task.args["state"] == "replaced":
                         self.delete_module_api_config(
-                            conn_request=conn_request, config=[want_conf]
+                            conn_request=conn_request,
+                            config=[want_conf],
                         )
                         changed = True
 
                         payload = self.map_objects_to_params(
-                            metadata, want_conf
+                            metadata,
+                            want_conf,
                         )
 
                         url = "{0}/{1}".format(
@@ -439,7 +431,7 @@ class ActionModule(ActionBase):
                             data=payload,
                         )
                         response_json, metadata = self.map_params_to_object(
-                            api_response["entry"][0]
+                            api_response["entry"][0],
                         )
 
                         after.append(response_json)
@@ -461,7 +453,7 @@ class ActionModule(ActionBase):
                 )
 
                 response_json, metadata = self.map_params_to_object(
-                    api_response["entry"][0]
+                    api_response["entry"][0],
                 )
 
                 after.extend(before)
@@ -503,14 +495,12 @@ class ActionModule(ActionBase):
                 for item in config:
                     self._result[self.module_name]["gathered"].append(
                         self.search_for_resource_name(
-                            conn_request, item["correlation_search_name"]
-                        )[0]
+                            conn_request,
+                            item["correlation_search_name"],
+                        )[0],
                     )
 
-        elif (
-            self._task.args["state"] == "merged"
-            or self._task.args["state"] == "replaced"
-        ):
+        elif self._task.args["state"] == "merged" or self._task.args["state"] == "replaced":
             (
                 self._result[self.module_name],
                 self._result["changed"],

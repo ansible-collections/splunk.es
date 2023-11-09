@@ -71,7 +71,7 @@ Parameters
                         </ul>
                 </td>
                 <td>
-                        <div>If set to <code>True</code>, the index value is checked to ensure that it is the name of a valid index.</div>
+                        <div>If set to <code>true</code>, the index value is checked to ensure that it is the name of a valid index.</div>
                 </td>
             </tr>
             <tr>
@@ -90,7 +90,7 @@ Parameters
                         </ul>
                 </td>
                 <td>
-                        <div>If set to <code>True</code>, the name value is checked to ensure that it exists.</div>
+                        <div>If set to <code>true</code>, the name value is checked to ensure that it exists.</div>
                 </td>
             </tr>
             <tr>
@@ -143,7 +143,7 @@ Parameters
                         </ul>
                 </td>
                 <td>
-                        <div>If set to <code>True</code>, files that are seen for the first time is read from the end.</div>
+                        <div>If set to <code>true</code>, files that are seen for the first time is read from the end.</div>
                 </td>
             </tr>
             <tr>
@@ -253,7 +253,7 @@ Parameters
                         </ul>
                 </td>
                 <td>
-                        <div>Setting this to False prevents monitoring of any subdirectories encountered within this data input.</div>
+                        <div>Setting this to false prevents monitoring of any subdirectories encountered within this data input.</div>
                 </td>
             </tr>
             <tr>

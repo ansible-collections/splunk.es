@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 DOCUMENTATION = """
@@ -140,12 +141,11 @@ EXAMPLES = """
 """
 
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_text
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves.urllib.parse import quote_plus
-from ansible_collections.splunk.es.plugins.module_utils.splunk import (
-    SplunkRequest,
-)
+
+from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
 
 def main():
@@ -195,7 +195,7 @@ def main():
             quote_plus(module.params["protocol"]),
             quote_plus(module.params["datatype"]),
             quote_plus(module.params["name"]),
-        )
+        ),
     )
 
     if module.params["state"] in ["present", "enabled", "disabled"]:
@@ -209,12 +209,14 @@ def main():
             for arg in request_data:
                 if arg in query_dict["entry"][0]["content"]:
                     if to_text(query_dict["entry"][0]["content"][arg]) != to_text(
-                        request_data[arg]
+                        request_data[arg],
                     ):
                         needs_change = True
             if not needs_change:
                 module.exit_json(
-                    changed=False, msg="Nothing to do.", splunk_data=query_dict
+                    changed=False,
+                    msg="Nothing to do.",
+                    splunk_data=query_dict,
                 )
             if module.check_mode and needs_change:
                 module.exit_json(
@@ -233,11 +235,15 @@ def main():
                 )
             if module.params["state"] in ["present", "enabled"]:
                 module.exit_json(
-                    changed=True, msg="{0} updated.", splunk_data=splunk_data
+                    changed=True,
+                    msg="{0} updated.",
+                    splunk_data=splunk_data,
                 )
             else:
                 module.exit_json(
-                    changed=True, msg="{0} disabled.", splunk_data=splunk_data
+                    changed=True,
+                    msg="{0} disabled.",
+                    splunk_data=splunk_data,
                 )
         else:
             # Create it
@@ -256,7 +262,7 @@ def main():
                     quote_plus(module.params["protocol"]),
                     quote_plus(module.params["datatype"]),
                     quote_plus(module.params["name"]),
-                )
+                ),
             )
             module.exit_json(
                 changed=True,
