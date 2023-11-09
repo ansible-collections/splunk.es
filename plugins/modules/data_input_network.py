@@ -25,7 +25,7 @@ options:
   protocol:
     description:
       - Choose between tcp or udp
-    required: True
+    required: true
     choices:
       - 'tcp'
       - 'udp'
@@ -37,7 +37,7 @@ options:
       - C(dns) sets the host to the reverse DNS entry for the IP address of the remote server sending data.
       - C(none) leaves the host as specified in inputs.conf, which is typically the Splunk system hostname.
     default: "ip"
-    required: False
+    required: false
     type: str
     choices:
       - "ip"
@@ -51,7 +51,7 @@ options:
       - "absent"
       - "enabled"
       - "disable"
-    required: False
+    required: false
     default: "present"
     type: str
   datatype:
@@ -62,12 +62,12 @@ options:
       - "cooked"
       - "raw"
     default: "raw"
-    required: False
+    required: false
     type: str
   host:
     description:
       - Host from which the indexer gets data.
-    required: False
+    required: false
     type: str
   index:
     description:
@@ -76,7 +76,7 @@ options:
   name:
     description:
       - The input port which receives raw data.
-    required: True
+    required: true
     type: str
   queue:
     description:
@@ -89,7 +89,7 @@ options:
       - "parsingQueue"
       - "indexQueue"
     type: str
-    required: False
+    required: false
     default: "parsingQueue"
   rawTcpDoneTimeout:
     description:
@@ -98,16 +98,16 @@ options:
         number of seconds, it adds a Done-key. This implies the last event is completely received.
     default: 10
     type: int
-    required: False
+    required: false
   restrictToHost:
     description:
       - Allows for restricting this input to only accept data from the host specified here.
-    required: False
+    required: false
     type: str
   ssl:
     description:
       - Enable or disble ssl for the data stream
-    required: False
+    required: false
     type: bool
   source:
     description:
@@ -126,7 +126,7 @@ options:
     description:
       - Set the source type for events from this input.
       - '"sourcetype=" is automatically prepended to <string>.'
-      - Defaults to audittrail (if signedaudit=True) or fschange (if signedaudit=False).
+      - Defaults to audittrail (if signedaudit=True) or fschange (if signedaudit=false).
     type: str
 author: Ansible Security Automation Team (@maxamillion) <https://github.com/ansible-security>
 """
@@ -149,7 +149,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 
 
 def main():
-
     argspec = dict(
         state=dict(
             required=False,
@@ -178,9 +177,7 @@ def main():
         ssl=dict(required=False, type="bool", default=None),
         source=dict(required=False, type="str", default=None),
         sourcetype=dict(required=False, type="str", default=None),
-        datatype=dict(
-            required=False, choices=["cooked", "raw"], default="raw"
-        ),
+        datatype=dict(required=False, choices=["cooked", "raw"], default="raw"),
     )
 
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
@@ -211,9 +208,9 @@ def main():
             needs_change = False
             for arg in request_data:
                 if arg in query_dict["entry"][0]["content"]:
-                    if to_text(
-                        query_dict["entry"][0]["content"][arg]
-                    ) != to_text(request_data[arg]):
+                    if to_text(query_dict["entry"][0]["content"][arg]) != to_text(
+                        request_data[arg]
+                    ):
                         needs_change = True
             if not needs_change:
                 module.exit_json(
@@ -251,9 +248,7 @@ def main():
                 ),
                 data=_data,
             )
-            module.exit_json(
-                changed=True, msg="{0} created.", splunk_data=splunk_data
-            )
+            module.exit_json(changed=True, msg="{0} created.", splunk_data=splunk_data)
     elif module.params["state"] == "absent":
         if query_dict:
             splunk_data = splunk_request.delete_by_path(

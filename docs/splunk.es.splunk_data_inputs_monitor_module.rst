@@ -436,8 +436,8 @@ Examples
         config:
           - name: "/var/log"
             blacklist: "//var/log/[a-z]/gm"
-            check_index: True
-            check_path: True
+            check_index: true
+            check_path: true
             crc_salt: <SOURCE>
             rename_source: "test"
             whitelist: "//var/log/[0-9]/gm"

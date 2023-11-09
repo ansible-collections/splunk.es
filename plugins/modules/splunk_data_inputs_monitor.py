@@ -26,7 +26,7 @@ options:
       name:
         description:
         - The file or directory path to monitor on the system.
-        required: True
+        required: true
         type: str
       blacklist:
         description:
@@ -34,13 +34,13 @@ options:
         type: str
       check_index:
         description:
-          - If set to C(True), the index value is checked to ensure that it is the name of a valid index.
+          - If set to C(true), the index value is checked to ensure that it is the name of a valid index.
           - This parameter is not returned back by Splunk while obtaining object information.
             It is therefore left out while performing idempotency checks
         type: bool
       check_path:
         description:
-          - If set to C(True), the name value is checked to ensure that it exists.
+          - If set to C(true), the name value is checked to ensure that it exists.
           - This parameter is not returned back by Splunk while obtaining object information.
             It is therefore left out while performing idempotency checks
         type: bool
@@ -53,10 +53,10 @@ options:
         description:
           - Indicates if input monitoring is disabled.
         type: bool
-        default: False
+        default: false
       follow_tail:
         description:
-          - If set to C(True), files that are seen for the first time is read from the end.
+          - If set to C(true), files that are seen for the first time is read from the end.
         type: bool
       host:
         description:
@@ -179,8 +179,8 @@ EXAMPLES = """
     config:
       - name: "/var/log"
         blacklist: "//var/log/[a-z]/gm"
-        check_index: True
-        check_path: True
+        check_index: true
+        check_path: true
         crc_salt: <SOURCE>
         rename_source: "test"
         whitelist: "//var/log/[0-9]/gm"
@@ -283,7 +283,6 @@ EXAMPLES = """
 #         "name": "/var/log"
 #     }
 # ],
-
 """
 
 RETURN = """

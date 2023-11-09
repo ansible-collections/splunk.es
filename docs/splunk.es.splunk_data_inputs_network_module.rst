@@ -668,7 +668,7 @@ Examples
             datatype: raw
             name: 8100
             connection_host: ip
-            disabled: True
+            disabled: true
             raw_tcp_done_timeout: 9
             restrict_to_host: default
             queue: parsingQueue
@@ -719,7 +719,7 @@ Examples
             datatype: cooked
             name: 8101
             connection_host: ip
-            disabled: False
+            disabled: false
             restrict_to_host: default
         state: merged
 
@@ -841,7 +841,7 @@ Examples
             datatype: raw
             name: 8100
             connection_host: ip
-            disabled: True
+            disabled: true
             host: "$decideOnStartup"
             index: default
             queue: parsingQueue

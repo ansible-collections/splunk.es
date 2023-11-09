@@ -29,12 +29,12 @@ options:
         description:
         - Name of correlation search
         type: str
-        required: True
+        required: true
       disabled:
         description:
           - Disable correlation search
         type: bool
-        default: False
+        default: false
       description:
         description:
           - Description of the coorelation search, this will populate the description field for the web console
@@ -192,7 +192,7 @@ options:
         description:
           - To suppress alerts from this correlation search or not
         type: bool
-        default: False
+        default: false
   running_config:
     description:
       - The module, by default, will connect to the remote device and retrieve the current
@@ -319,7 +319,7 @@ EXAMPLES = """
         throttle_window_duration: 5s
         throttle_fields_to_group_by:
           - test_field1
-        suppress_alerts: False
+        suppress_alerts: false
         search: >
                 '| tstats summariesonly=true values(\"Authentication.tag\") as \"tag\",dc(\"Authentication.user\") as \"user_count\",dc(\"Authent'
                 'ication.dest\") as \"dest_count\",count from datamodel=\"Authentication\".\"Authentication\" where nodename=\"Authentication.Fai'
@@ -426,7 +426,7 @@ EXAMPLES = """
         throttle_fields_to_group_by:
           - test_field1
           - test_field2
-        suppress_alerts: True
+        suppress_alerts: true
         search: >
                 '| tstats summariesonly=true values(\"Authentication.tag\") as \"tag\",dc(\"Authentication.user\") as \"user_count\",dc(\"Authent'
                 'ication.dest\") as \"dest_count\",count from datamodel=\"Authentication\".\"Authentication\" where nodename=\"Authentication.Fai'
@@ -606,7 +606,6 @@ EXAMPLES = """
 #       "ui_dispatch_context": "SplunkEnterpriseSecuritySuite"
 #     },
 # ],
-
 """
 
 RETURN = """

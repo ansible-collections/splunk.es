@@ -351,7 +351,7 @@ Examples
       splunk.es.data_input_monitor:
         name: "/var/log/example.log"
         state: "present"
-        recursive: True
+        recursive: true
 
 
 

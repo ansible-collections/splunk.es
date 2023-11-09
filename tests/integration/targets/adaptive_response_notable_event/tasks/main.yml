@@ -1,24 +1,24 @@
 ---
-- name: remove previous correlation_search
+- name: Remove previous correlation_search
   correlation_search:
-    name: "Test Fake Coorelation Search From Playbook"
-    description: "Test Fake Coorelation Search From Playbook, description edition."
-    search: 'source="/var/log/snort.log"'
-    state: "absent"
+    name: Test Fake Coorelation Search From Playbook
+    description: Test Fake Coorelation Search From Playbook, description edition.
+    search: source="/var/log/snort.log"
+    state: absent
 
-- name: create correlation_search
+- name: Create correlation_search
   correlation_search:
-    name: "Test Fake Coorelation Search From Playbook"
-    description: "Test Fake Coorelation Search From Playbook, description edition."
-    search: 'source="/var/log/snort.log"'
-    state: "present"
+    name: Test Fake Coorelation Search From Playbook
+    description: Test Fake Coorelation Search From Playbook, description edition.
+    search: source="/var/log/snort.log"
+    state: present
 
 - name: Test splunk.es.adaptive_response_notable_event
   adaptive_response_notable_event:
-    name: "Fake notable event from playbook"
-    correlation_search_name: "Test Fake Coorelation Search From Playbook"
-    description: "Test Fake notable event from playbook, description edition."
-    state: "present"
+    name: Fake notable event from playbook
+    correlation_search_name: Test Fake Coorelation Search From Playbook
+    description: Test Fake notable event from playbook, description edition.
+    state: present
     next_steps:
       - ping
       - nslookup
@@ -29,17 +29,17 @@
   register: adaptive_response_notable_event_out
 
 - name: Assert Create splunk.es.adaptive_response_notable_event CHANGED
-  assert:
+  ansible.builtin.assert:
     that:
       - adaptive_response_notable_event_out['changed'] == True
       - adaptive_response_notable_event_out['failed'] == False
 
 - name: Validate splunk.es.adaptive_response_notable_event idempotent
   adaptive_response_notable_event:
-    name: "Fake notable event from playbook"
-    correlation_search_name: "Test Fake Coorelation Search From Playbook"
-    description: "Test Fake notable event from playbook, description edition."
-    state: "present"
+    name: Fake notable event from playbook
+    correlation_search_name: Test Fake Coorelation Search From Playbook
+    description: Test Fake notable event from playbook, description edition.
+    state: present
     next_steps:
       - ping
       - nslookup
@@ -49,7 +49,7 @@
   register: adaptive_response_notable_event_out2
 
 - name: Assert Create splunk.es.adaptive_response_notable_event IDEMPOTENT
-  assert:
+  ansible.builtin.assert:
     that:
       - adaptive_response_notable_event_out2['changed'] == False
       - adaptive_response_notable_event_out2['failed'] == False

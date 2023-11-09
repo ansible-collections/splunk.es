@@ -1,6 +1,7 @@
 ---
 - debug:
-    msg: START Merged data_inputs_monitor state for integration tests on connection={{
+    msg:
+      START Merged data_inputs_monitor state for integration tests on connection={{
       ansible_connection }}
 
 - include_tasks: _remove_dim_config.yaml
@@ -14,17 +15,17 @@
         config:
           - name: "/var/log"
             blacklist: '/\/var\/log\/[a-z]/gm'
-            check_index: True
-            check_path: True
+            check_index: true
+            check_path: true
             crc_salt: <SOURCE>
-            disabled: False
-            follow_tail: False
+            disabled: false
+            follow_tail: false
             host: "$decideOnStartup"
             host_regex: "/(test_host)/gm"
             host_segment: 3
             ignore_older_than: 5d
             index: default
-            recursive: True
+            recursive: true
             rename_source: test
             sourcetype: test_source_type
             time_before_close: 4
@@ -53,5 +54,4 @@
           - result['changed'] == false
 
   always:
-
     - include_tasks: _remove_dim_config.yaml

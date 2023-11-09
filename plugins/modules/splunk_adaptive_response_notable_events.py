@@ -255,19 +255,19 @@ EXAMPLES = """
         drilldown_earliest_offset: $info_min_time$
         drilldown_latest_offset: $info_max_time$
         extract_artifacts:
-            asset:
-              - src
-              - dest
-            identity:
-              - src_user
-              - user
-              - src_user_id
+          asset:
+            - src
+            - dest
+          identity:
+            - src_user
+            - user
+            - src_user_id
         next_steps:
-        - makestreams
+          - makestreams
         name: ansible_test_notable
         recommended_actions:
-        - email
-        - logevent
+          - email
+          - logevent
         security_domain: threat
         severity: high
     state: merged
@@ -334,19 +334,19 @@ EXAMPLES = """
         drilldown_earliest_offset: $info_min_time$
         drilldown_latest_offset: $info_max_time$
         extract_artifacts:
-            asset:
-              - src
-              - dest
-            identity:
-              - src_user
-              - user
-              - src_user_id
+          asset:
+            - src
+            - dest
+          identity:
+            - src_user
+            - user
+            - src_user_id
         next_steps:
-        - makestreams
+          - makestreams
         name: ansible_test_notable
         recommended_actions:
-        - email
-        - logevent
+          - email
+          - logevent
         security_domain: threat
         severity: high
     state: replaced

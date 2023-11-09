@@ -1,6 +1,7 @@
 ---
 - debug:
-    msg: Start Deleted integration state for data_inputs_monitors ansible_connection={{ ansible_connection
+    msg:
+      Start Deleted integration state for data_inputs_monitors ansible_connection={{ ansible_connection
       }}
 
 - include_tasks: _remove_dim_config.yaml
@@ -14,7 +15,7 @@
           - name: /var/log
         state: deleted
       register: result
-    
+
     - assert:
         that:
           - result.changed == true

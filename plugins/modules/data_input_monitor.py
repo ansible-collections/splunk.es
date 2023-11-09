@@ -25,12 +25,12 @@ options:
   name:
     description:
      - The file or directory path to monitor on the system.
-    required: True
+    required: true
     type: str
   state:
     description:
       - Add or remove a data source.
-    required: True
+    required: true
     choices:
       - "present"
       - "absent"
@@ -38,41 +38,41 @@ options:
   blacklist:
     description:
       - Specify a regular expression for a file path. The file path that matches this regular expression is not indexed.
-    required: False
+    required: false
     type: str
   check_index:
     description:
-      - If set to C(True), the index value is checked to ensure that it is the name of a valid index.
-    required: False
+      - If set to C(true), the index value is checked to ensure that it is the name of a valid index.
+    required: false
     type: bool
-    default: False
+    default: false
   check_path:
     description:
-      - If set to C(True), the name value is checked to ensure that it exists.
-    required: False
+      - If set to C(true), the name value is checked to ensure that it exists.
+    required: false
     type: bool
   crc_salt:
     description:
       - A string that modifies the file tracking identity for files in this input.
         The magic value <SOURCE> invokes special behavior (see admin documentation).
-    required: False
+    required: false
     type: str
   disabled:
     description:
       - Indicates if input monitoring is disabled.
-    required: False
-    default: False
+    required: false
+    default: false
     type: bool
   followTail:
     description:
-      - If set to C(True), files that are seen for the first time is read from the end.
-    required: False
+      - If set to C(true), files that are seen for the first time is read from the end.
+    required: false
     type: bool
-    default: False
+    default: false
   host:
     description:
       - The value to populate in the host field for events from this data input.
-    required: False
+    required: false
     type: str
   host_regex:
     description:
@@ -80,40 +80,40 @@ options:
         matches this regular expression, the captured value is used to populate
         the host field for events from this data input. The regular expression
         must have one capture group.
-    required: False
+    required: false
     type: str
   host_segment:
     description:
       - Use the specified slash-separate segment of the filepath as the host field value.
-    required: False
+    required: false
     type: int
   ignore_older_than:
     description:
       - Specify a time value. If the modification time of a file being monitored
         falls outside of this rolling time window, the file is no longer being monitored.
-    required: False
+    required: false
     type: str
   index:
     description:
       - Which index events from this input should be stored in. Defaults to default.
-    required: False
+    required: false
     type: str
   recursive:
     description:
-      - Setting this to False prevents monitoring of any subdirectories encountered within this data input.
-    required: False
+      - Setting this to false prevents monitoring of any subdirectories encountered within this data input.
+    required: false
     type: bool
-    default: False
+    default: false
   rename_source:
     description:
       - The value to populate in the source field for events from this data input.
         The same source should not be used for multiple data inputs.
-    required: False
+    required: false
     type: str
   sourcetype:
     description:
       - The value to populate in the sourcetype field for incoming events.
-    required: False
+    required: false
     type: str
   time_before_close:
     description:
@@ -121,12 +121,12 @@ options:
         file is kept open for a minimum of the number of seconds specified in
         this value. After this period has elapsed, the file is checked again for
         more data.
-    required: False
+    required: false
     type: int
   whitelist:
     description:
       - Specify a regular expression for a file path. Only file paths that match this regular expression are indexed.
-    required: False
+    required: false
     type: str
 author: Ansible Security Automation Team (@maxamillion) <https://github.com/ansible-security>
 """
@@ -136,7 +136,7 @@ EXAMPLES = """
   splunk.es.data_input_monitor:
     name: "/var/log/example.log"
     state: "present"
-    recursive: True
+    recursive: true
 """
 
 from ansible.module_utils.basic import AnsibleModule
@@ -151,7 +151,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 
 
 def main():
-
     argspec = dict(
         name=dict(required=True, type="str"),
         state=dict(choices=["present", "absent"], required=True),
@@ -207,9 +206,9 @@ def main():
             needs_change = False
             for arg in request_data:
                 if arg in query_dict["entry"][0]["content"]:
-                    if to_text(
-                        query_dict["entry"][0]["content"][arg]
-                    ) != to_text(request_data[arg]):
+                    if to_text(query_dict["entry"][0]["content"][arg]) != to_text(
+                        request_data[arg]
+                    ):
                         needs_change = True
             if not needs_change:
                 module.exit_json(
@@ -238,9 +237,7 @@ def main():
                 "servicesNS/nobody/search/data/inputs/monitor",
                 data=_data,
             )
-            module.exit_json(
-                changed=True, msg="{0} created.", splunk_data=splunk_data
-            )
+            module.exit_json(changed=True, msg="{0} created.", splunk_data=splunk_data)
 
     if module.params["state"] == "absent":
         if query_dict:
@@ -255,9 +252,7 @@ def main():
                 splunk_data=splunk_data,
             )
 
-    module.exit_json(
-        changed=False, msg="Nothing to do.", splunk_data=query_dict
-    )
+    module.exit_json(changed=False, msg="Nothing to do.", splunk_data=query_dict)
 
 
 if __name__ == "__main__":

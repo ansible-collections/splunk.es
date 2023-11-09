@@ -17,7 +17,7 @@
             datatype: raw
             name: 8100
             connection_host: ip
-            disabled: True
+            disabled: true
             host: "$decideOnStartup"
             index: default
             queue: parsingQueue
@@ -29,7 +29,7 @@
             datatype: cooked
             name: 8101
             connection_host: ip
-            disabled: False
+            disabled: false
             host: "$decideOnStartup"
             restrict_to_host: default
           - protocol: tcp
@@ -42,11 +42,11 @@
           - protocol: udp
             name: 7890
             connection_host: ip
-            disabled: True
+            disabled: true
             host: "$decideOnStartup"
             index: default
-            no_appending_timestamp: True
-            no_priority_stripping: True
+            no_appending_timestamp: true
+            no_priority_stripping: true
             queue: parsingQueue
             restrict_to_host: default
             source: test_source

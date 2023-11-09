@@ -25,29 +25,29 @@ options:
   name:
     description:
       - Name of coorelation search
-    required: True
+    required: true
     type: str
   description:
     description:
       - Description of the coorelation search, this will populate the description field for the web console
-    required: True
+    required: true
     type: str
   state:
     description:
       - Add, remove, enable, or disiable a correlation search.
-    required: True
+    required: true
     choices: [ "present", "absent", "enabled", "disabled" ]
     type: str
   search:
     description:
       - SPL search string
     type: str
-    required: True
+    required: true
   app:
     description:
       - Splunk app to associate the correlation seach with
     type: str
-    required: False
+    required: false
     default: "SplunkEnterpriseSecuritySuite"
   ui_dispatch_context:
     description:
@@ -55,18 +55,18 @@ options:
         event or links in an email adaptive response action. If None, uses the
         Application Context.
     type: str
-    required: False
+    required: false
   time_earliest:
     description:
       - Earliest time using relative time modifiers.
     type: str
-    required: False
+    required: false
     default: "-24h"
   time_latest:
     description:
       - Latest time using relative time modifiers.
     type: str
-    required: False
+    required: false
     default: "now"
   cron_schedule:
     description:
@@ -74,7 +74,7 @@ options:
       - For example C('*/5 * * * *') (every 5 minutes) or C('0 21 * * *') (every day at 9 PM).
       - Real-time searches use a default schedule of C('*/5 * * * *').
     type: str
-    required: False
+    required: false
     default: "*/5 * * * *"
   scheduling:
     description:
@@ -83,7 +83,7 @@ options:
         Learn more:
         https://docs.splunk.com/Documentation/Splunk/7.2.3/Report/Configurethepriorityofscheduledreports#Real-time_scheduling_and_continuous_scheduling
     type: str
-    required: False
+    required: false
     default: "real-time"
     choices:
       - "real-time"
@@ -94,7 +94,7 @@ options:
         to improve efficiency when there are many concurrently scheduled reports.
         The "auto" setting automatically determines the best window width for the report.
     type: str
-    required: False
+    required: false
     default: "0"
   schedule_priority:
     description:
@@ -102,7 +102,7 @@ options:
         it above other searches of the same scheduling mode, or "Highest" to
         prioritize it above other searches regardless of mode. Use with discretion.
     type: str
-    required: False
+    required: false
     default: "Default"
     choices:
       - "Default"
@@ -114,7 +114,7 @@ options:
         it above other searches of the same scheduling mode, or "Highest" to
         prioritize it above other searches regardless of mode. Use with discretion.
     type: str
-    required: False
+    required: false
     default: "number of events"
     choices:
       - "number of events"
@@ -125,7 +125,7 @@ options:
     description:
       - Conditional to pass to C(trigger_alert_when)
     type: str
-    required: False
+    required: false
     default: "greater than"
     choices:
       - "greater than"
@@ -138,24 +138,24 @@ options:
     description:
       - Value to pass to C(trigger_alert_when)
     type: str
-    required: False
+    required: false
     default: "10"
   throttle_window_duration:
     description:
       - "How much time to ignore other events that match the field values specified in Fields to group by."
     type: str
-    required: False
+    required: false
   throttle_fields_to_group_by:
     description:
       - "Type the fields to consider for matching events for throttling."
     type: str
-    required: False
+    required: false
   suppress_alerts:
     description:
       - "To suppress alerts from this correlation search or not"
     type: bool
-    required: False
-    default: False
+    required: false
+    default: false
 notes:
   - >
     The following options are not yet supported:
@@ -191,13 +191,9 @@ def main():
     argspec = dict(
         name=dict(required=True, type="str"),
         description=dict(required=True, type="str"),
-        state=dict(
-            choices=["present", "absent", "enabled", "disabled"], required=True
-        ),
+        state=dict(choices=["present", "absent", "enabled", "disabled"], required=True),
         search=dict(required=True, type="str"),
-        app=dict(
-            type="str", required=False, default="SplunkEnterpriseSecuritySuite"
-        ),
+        app=dict(type="str", required=False, default="SplunkEnterpriseSecuritySuite"),
         ui_dispatch_context=dict(type="str", required=False),
         time_earliest=dict(type="str", required=False, default="-24h"),
         time_latest=dict(type="str", required=False, default="now"),
@@ -239,9 +235,7 @@ def main():
                 "rises by",
             ],
         ),
-        trigger_alert_when_value=dict(
-            type="str", required=False, default="10"
-        ),
+        trigger_alert_when_value=dict(type="str", required=False, default="10"),
         throttle_window_duration=dict(type="str", required=False),
         throttle_fields_to_group_by=dict(type="str", required=False),
         suppress_alerts=dict(type="bool", required=False, default=False),
@@ -286,9 +280,7 @@ def main():
         request_post_data["request.ui_dispatch_context"] = module.params[
             "ui_dispatch_context"
         ]
-    request_post_data["dispatch.earliest_time"] = module.params[
-        "time_earliest"
-    ]
+    request_post_data["dispatch.earliest_time"] = module.params["time_earliest"]
     request_post_data["dispatch.latest_time"] = module.params["time_latest"]
     request_post_data["cron_schedule"] = module.params["cron_schedule"]
     if module.params["scheduling"] == "real-time":
@@ -296,16 +288,12 @@ def main():
     else:
         request_post_data["realtime_schedule"] = False
     request_post_data["schedule_window"] = module.params["schedule_window"]
-    request_post_data["schedule_priority"] = module.params[
-        "schedule_priority"
-    ].lower()
+    request_post_data["schedule_priority"] = module.params["schedule_priority"].lower()
     request_post_data["alert_type"] = module.params["trigger_alert_when"]
     request_post_data["alert_comparator"] = module.params[
         "trigger_alert_when_condition"
     ]
-    request_post_data["alert_threshold"] = module.params[
-        "trigger_alert_when_value"
-    ]
+    request_post_data["alert_threshold"] = module.params["trigger_alert_when_value"]
     request_post_data["alert.suppress"] = module.params["suppress_alerts"]
     request_post_data["disabled"] = module_disabled_state
 
@@ -316,9 +304,9 @@ def main():
             needs_change = False
             for arg in request_post_data:
                 if arg in query_dict["entry"][0]["content"]:
-                    if to_text(
-                        query_dict["entry"][0]["content"][arg]
-                    ) != to_text(request_post_data[arg]):
+                    if to_text(query_dict["entry"][0]["content"][arg]) != to_text(
+                        request_post_data[arg]
+                    ):
                         needs_change = True
             if not needs_change:
                 module.exit_json(
@@ -350,16 +338,12 @@ def main():
                 "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches",
                 data=urlencode(request_post_data),
             )
-            module.exit_json(
-                changed=True, msg="{0} created.", splunk_data=splunk_data
-            )
+            module.exit_json(changed=True, msg="{0} created.", splunk_data=splunk_data)
 
     elif module.params["state"] == "absent":
         if query_dict:
             splunk_data = splunk_request.delete_by_path(
-                "services/saved/searches/{0}".format(
-                    quote_plus(module.params["name"])
-                )
+                "services/saved/searches/{0}".format(quote_plus(module.params["name"]))
             )
             module.exit_json(
                 changed=True,
@@ -367,9 +351,7 @@ def main():
                 splunk_data=splunk_data,
             )
 
-    module.exit_json(
-        changed=False, msg="Nothing to do.", splunk_data=query_dict
-    )
+    module.exit_json(changed=False, msg="Nothing to do.", splunk_data=query_dict)
 
 
 if __name__ == "__main__":
