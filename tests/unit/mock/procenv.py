@@ -30,6 +30,7 @@ from io import BytesIO, StringIO
 
 from ansible.module_utils._text import to_bytes
 from ansible.module_utils.six import PY3
+
 from ansible_collections.splunk.es.tests.unit.compat import unittest
 
 
