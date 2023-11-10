@@ -127,6 +127,7 @@ options:
     type: list
     elements: str
     required: false
+    default: []
   recommended_actions:
     description:
       - List of adaptive responses that are recommended to be run next
@@ -136,6 +137,7 @@ options:
     type: list
     elements: str
     required: false
+    default: []
   asset_extraction:
     description:
       - list of assets to extract, select any one or many of the available choices
@@ -166,10 +168,9 @@ options:
       - user
       - src_user
     required: false
-
 author: Ansible Security Automation Team (@maxamillion) <https://github.com/ansible-security>
 """
-# FIXME - adaptive response action association is probaby going to need to be a separate module we stitch together in a role
+# FIXME - adaptive response action association is probably going to need to be a separate module we stitch together in a role
 
 EXAMPLES = """
 - name: Example of using splunk.es.adaptive_response_notable_event module
@@ -191,7 +192,9 @@ import json
 from ansible.module_utils._text import to_text
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves.urllib.parse import quote_plus, urlencode
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
+    utils,
+)
 
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
@@ -317,19 +320,25 @@ def main():
 
     if module.params["recommended_actions"]:
         if len(module.params["recommended_actions"]) == 1:
-            request_post_data["action.notable.param.recommended_actions"] = module.params[
-                "recommended_actions"
-            ][0]
+            request_post_data[
+                "action.notable.param.recommended_actions"
+            ] = module.params["recommended_actions"][0]
         else:
             request_post_data["action.notable.param.recommended_actions"] = ",".join(
                 module.params["recommended_actions"],
             )
 
-    request_post_data["action.notable.param.rule_description"] = module.params["description"]
+    request_post_data["action.notable.param.rule_description"] = module.params[
+        "description"
+    ]
     request_post_data["action.notable.param.rule_title"] = module.params["name"]
-    request_post_data["action.notable.param.security_domain"] = module.params["security_domain"]
+    request_post_data["action.notable.param.security_domain"] = module.params[
+        "security_domain"
+    ]
     request_post_data["action.notable.param.severity"] = module.params["severity"]
-    request_post_data["action.notable.param.asset_extraction"] = module.params["asset_extraction"]
+    request_post_data["action.notable.param.asset_extraction"] = module.params[
+        "asset_extraction"
+    ]
     request_post_data["action.notable.param.identity_extraction"] = module.params[
         "identity_extraction"
     ]
@@ -339,10 +348,14 @@ def main():
     request_post_data["action.notable.param.verbose"] = "0"
 
     if module.params["default_owner"]:
-        request_post_data["action.notable.param.default_owner"] = module.params["default_owner"]
+        request_post_data["action.notable.param.default_owner"] = module.params[
+            "default_owner"
+        ]
 
     if module.params["default_status"]:
-        request_post_data["action.notable.param.default_status"] = module.params["default_status"]
+        request_post_data["action.notable.param.default_status"] = module.params[
+            "default_status"
+        ]
 
     request_post_data = utils.remove_empties(request_post_data)
 
