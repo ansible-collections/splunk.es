@@ -63,9 +63,7 @@ def map_params_to_obj(module_params, key_transform):
     obj = {}
     for k, v in iteritems(key_transform):
         if k in module_params and (
-            module_params.get(k)
-            or module_params.get(k) == 0
-            or module_params.get(k) is False
+            module_params.get(k) or module_params.get(k) == 0 or module_params.get(k) is False
         ):
             obj[v] = module_params.pop(k)
     return obj
@@ -215,9 +213,7 @@ class SplunkRequest(object):
             if self.legacy and not config:
                 config = self.module.params
             for param in config:
-                if (config[param]) is not None and (
-                    param not in self.not_rest_data_keys
-                ):
+                if (config[param]) is not None and (param not in self.not_rest_data_keys):
                     if param in self.keymap:
                         splunk_data[self.keymap[param]] = config[param]
                     else:
