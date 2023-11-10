@@ -267,7 +267,7 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
             "config": [REQUEST_PAYLOAD[0]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
-        assert result["changed"] == True
+        assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_replaced_01(
@@ -360,7 +360,7 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
             "config": [REQUEST_PAYLOAD[0]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
-        assert result["changed"] == True
+        assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_deleted(
