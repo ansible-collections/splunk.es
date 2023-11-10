@@ -34,9 +34,7 @@ from ansible.playbook.task import Task
 from ansible.template import Templar
 from ansible_collections.ansible.utils.tests.unit.compat.mock import MagicMock, patch
 
-from ansible_collections.splunk.es.plugins.action.splunk_correlation_searches import (
-    ActionModule,
-)
+from ansible_collections.splunk.es.plugins.action.splunk_correlation_searches import ActionModule
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
 
