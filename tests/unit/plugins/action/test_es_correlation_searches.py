@@ -34,9 +34,7 @@ from ansible.playbook.task import Task
 from ansible.template import Templar
 from ansible_collections.ansible.utils.tests.unit.compat.mock import MagicMock, patch
 
-from ansible_collections.splunk.es.plugins.action.splunk_correlation_searches import (
-    ActionModule,
-)
+from ansible_collections.splunk.es.plugins.action.splunk_correlation_searches import ActionModule
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
 
@@ -223,10 +221,7 @@ class TestSplunkEsCorrelationSearches:
         }
         result = self._plugin.run(task_vars=self._task_vars)
         # recheck with module
-        assert (
-            result["correlation_searches"]["after"][0]["app"]
-            == "DA-ESS-EndpointProtection"
-        )
+        assert result["correlation_searches"]["after"][0]["app"] == "DA-ESS-EndpointProtection"
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_correlation_searches_replaced_01(self, conn, monkeypatch):

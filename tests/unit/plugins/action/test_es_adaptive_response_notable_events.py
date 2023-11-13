@@ -210,9 +210,7 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
         result = self._plugin.run(task_vars=self._task_vars)
         # recheck with module
         assert (
-            result["adaptive_response_notable_events"]["before"][0][
-                "correlation_search_name"
-            ]
+            result["adaptive_response_notable_events"]["before"][0]["correlation_search_name"]
             == "Ansible Test"
         )
 
@@ -367,9 +365,7 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert (
-            result["adaptive_response_notable_events"]["before"][0][
-                "correlation_search_name"
-            ]
+            result["adaptive_response_notable_events"]["before"][0]["correlation_search_name"]
             == "Ansible Test"
         )
 
