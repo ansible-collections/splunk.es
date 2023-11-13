@@ -151,7 +151,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 
 
 def main():
-
     argspec = dict(
         name=dict(required=True, type="str"),
         state=dict(choices=["present", "absent"], required=True),

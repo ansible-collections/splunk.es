@@ -178,7 +178,6 @@ class ActionModule(ActionBase):
                     if diff:
                         before.append(have_conf)
                         if self._task.args["state"] == "merged":
-
                             want_conf = utils.remove_empties(
                                 utils.dict_merge(have_conf, want_conf)
                             )
@@ -257,7 +256,6 @@ class ActionModule(ActionBase):
         return res_config, changed
 
     def run(self, tmp=None, task_vars=None):
-
         self._supports_check_mode = True
         self._result = super(ActionModule, self).run(tmp, task_vars)
 

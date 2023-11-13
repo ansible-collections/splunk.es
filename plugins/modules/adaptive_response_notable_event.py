@@ -199,7 +199,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 
 
 def main():
-
     argspec = dict(
         name=dict(required=True, type="str"),
         correlation_search_name=dict(required=True, type="str"),

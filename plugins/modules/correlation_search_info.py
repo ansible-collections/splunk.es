@@ -48,7 +48,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
 
 
 def main():
-
     argspec = dict(name=dict(required=False, type="str"))
 
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
