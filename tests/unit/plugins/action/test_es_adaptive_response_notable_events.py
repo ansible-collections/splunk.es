@@ -186,6 +186,37 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
         }
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
+    def test_es_adaptive_response_notable_events_merged_idempotent(
+        self,
+        conn,
+        monkeypatch,
+    ):
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
+        self._plugin._connection._shell = MagicMock()
+
+        def create_update(self, rest_path, data=None):
+            return RESPONSE_PAYLOAD[0]
+
+        def get_by_path(self, path):
+            return RESPONSE_PAYLOAD[0]
+
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+
+        self._plugin._task.args = {
+            "state": "merged",
+            "config": [REQUEST_PAYLOAD[0]],
+        }
+        result = self._plugin.run(task_vars=self._task_vars)
+        # recheck with module
+        assert (
+            result["adaptive_response_notable_events"]["before"][0][
+                "correlation_search_name"
+            ]
+            == "Ansible Test"
+        )
+
+    @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_merged_01(
         self,
         connection,
@@ -242,31 +273,6 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
         }
         result = self._plugin.run(task_vars=self._task_vars)
 
-        assert result["changed"] is True
-
-    @patch("ansible.module_utils.connection.Connection.__rpc__")
-    def test_es_adaptive_response_notable_events_merged_idempotent(
-        self,
-        conn,
-        monkeypatch,
-    ):
-        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
-        self._plugin._connection._shell = MagicMock()
-
-        def create_update(self, rest_path, data=None):
-            return RESPONSE_PAYLOAD[0]
-
-        def get_by_path(self, path):
-            return RESPONSE_PAYLOAD[0]
-
-        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
-        monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
-
-        self._plugin._task.args = {
-            "state": "merged",
-            "config": [REQUEST_PAYLOAD[0]],
-        }
-        result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
@@ -360,7 +366,12 @@ class TestSplunkEsAdaptiveResponseNotableEvents:
             "config": [REQUEST_PAYLOAD[0]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
-        assert result["changed"] is True
+        assert (
+            result["adaptive_response_notable_events"]["before"][0][
+                "correlation_search_name"
+            ]
+            == "Ansible Test"
+        )
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_adaptive_response_notable_events_deleted(
