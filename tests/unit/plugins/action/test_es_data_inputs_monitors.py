@@ -34,7 +34,9 @@ from ansible.playbook.task import Task
 from ansible.template import Templar
 from ansible_collections.ansible.utils.tests.unit.compat.mock import MagicMock, patch
 
-from ansible_collections.splunk.es.plugins.action.splunk_data_inputs_monitor import ActionModule
+from ansible_collections.splunk.es.plugins.action.splunk_data_inputs_monitor import (
+    ActionModule,
+)
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
 
@@ -188,6 +190,7 @@ class TestSplunkEsDataInputsMonitorRules:
             ],
         }
         result = self._plugin.run(task_vars=self._task_vars)
+        print(result)
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
