@@ -23,15 +23,17 @@ The module file for data_inputs_monitor
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
-from ansible.plugins.action import ActionBase
-from ansible.module_utils.six.moves.urllib.parse import quote_plus
 from ansible.module_utils.connection import Connection
-
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
-    utils,
+from ansible.module_utils.six.moves.urllib.parse import quote_plus
+from ansible.plugins.action import ActionBase
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
+from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
+    AnsibleArgSpecValidator,
 )
+
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
     map_obj_to_params,
@@ -39,12 +41,7 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     remove_get_keys_from_payload_dict,
     set_defaults,
 )
-from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
-    AnsibleArgSpecValidator,
-)
-from ansible_collections.splunk.es.plugins.modules.splunk_data_inputs_monitor import (
-    DOCUMENTATION,
-)
+from ansible_collections.splunk.es.plugins.modules.splunk_data_inputs_monitor import DOCUMENTATION
 
 
 class ActionModule(ActionBase):
@@ -102,7 +99,7 @@ class ActionModule(ActionBase):
 
     def search_for_resource_name(self, conn_request, directory_name):
         query_dict = conn_request.get_by_path(
-            "{0}/{1}".format(self.api_object, quote_plus(directory_name))
+            "{0}/{1}".format(self.api_object, quote_plus(directory_name)),
         )
 
         search_result = {}
@@ -118,14 +115,16 @@ class ActionModule(ActionBase):
         changed = False
         for want_conf in config:
             search_by_name = self.search_for_resource_name(
-                conn_request, want_conf["name"]
+                conn_request,
+                want_conf["name"],
             )
             if search_by_name:
                 before.append(search_by_name)
                 conn_request.delete_by_path(
                     "{0}/{1}".format(
-                        self.api_object, quote_plus(want_conf["name"])
-                    )
+                        self.api_object,
+                        quote_plus(want_conf["name"]),
+                    ),
                 )
                 changed = True
                 after = []
@@ -157,7 +156,8 @@ class ActionModule(ActionBase):
         ]
         for want_conf in config:
             have_conf = self.search_for_resource_name(
-                conn_request, want_conf["name"]
+                conn_request,
+                want_conf["name"],
             )
 
             if have_conf:
@@ -173,22 +173,24 @@ class ActionModule(ActionBase):
 
                 if diff:
                     diff = remove_get_keys_from_payload_dict(
-                        diff, remove_from_diff_compare
+                        diff,
+                        remove_from_diff_compare,
                     )
                     if diff:
                         before.append(have_conf)
                         if self._task.args["state"] == "merged":
-
                             want_conf = utils.remove_empties(
-                                utils.dict_merge(have_conf, want_conf)
+                                utils.dict_merge(have_conf, want_conf),
                             )
                             want_conf = remove_get_keys_from_payload_dict(
-                                want_conf, remove_from_diff_compare
+                                want_conf,
+                                remove_from_diff_compare,
                             )
                             changed = True
 
                             payload = map_obj_to_params(
-                                want_conf, self.key_transform
+                                want_conf,
+                                self.key_transform,
                             )
                             url = "{0}/{1}".format(
                                 self.api_object,
@@ -199,7 +201,7 @@ class ActionModule(ActionBase):
                                 data=payload,
                             )
                             response_json = self.map_params_to_object(
-                                api_response["entry"][0]
+                                api_response["entry"][0],
                             )
 
                             after.append(response_json)
@@ -208,12 +210,13 @@ class ActionModule(ActionBase):
                                 "{0}/{1}".format(
                                     self.api_object,
                                     quote_plus(want_conf["name"]),
-                                )
+                                ),
                             )
                             changed = True
 
                             payload = map_obj_to_params(
-                                want_conf, self.key_transform
+                                want_conf,
+                                self.key_transform,
                             )
                             url = "{0}".format(self.api_object)
                             api_response = conn_request.create_update(
@@ -221,7 +224,7 @@ class ActionModule(ActionBase):
                                 data=payload,
                             )
                             response_json = self.map_params_to_object(
-                                api_response["entry"][0]
+                                api_response["entry"][0],
                             )
 
                             after.append(response_json)
@@ -242,7 +245,7 @@ class ActionModule(ActionBase):
                     data=payload,
                 )
                 response_json = self.map_params_to_object(
-                    api_response["entry"][0]
+                    api_response["entry"][0],
                 )
 
                 after.extend(before)
@@ -257,7 +260,6 @@ class ActionModule(ActionBase):
         return res_config, changed
 
     def run(self, tmp=None, task_vars=None):
-
         self._supports_check_mode = True
         self._result = super(ActionModule, self).run(tmp, task_vars)
 
@@ -283,18 +285,16 @@ class ActionModule(ActionBase):
                 self._result["changed"] = False
                 for item in config:
                     result = self.search_for_resource_name(
-                        conn_request, item["name"]
+                        conn_request,
+                        item["name"],
                     )
                     if result:
                         self._result["gathered"].append(result)
             else:
                 self._result["gathered"] = conn_request.get_by_path(
-                    self.api_object
+                    self.api_object,
                 )["entry"]
-        elif (
-            self._task.args["state"] == "merged"
-            or self._task.args["state"] == "replaced"
-        ):
+        elif self._task.args["state"] == "merged" or self._task.args["state"] == "replaced":
             (
                 self._result[self.module_name],
                 self._result["changed"],

@@ -42,7 +42,7 @@
             throttle_window_duration: 5s
             throttle_fields_to_group_by:
               - test_field1
-            suppress_alerts: False
+            suppress_alerts: false
             search: '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authentication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Failed_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authentication.src" as "src" | where "count">=6'
 
     - name: Gather correlation searches configuration facts
@@ -93,7 +93,7 @@
             throttle_fields_to_group_by:
               - test_field1
               - test_field2
-            suppress_alerts: True
+            suppress_alerts: true
             search: '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authentication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Failed_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authentication.src" as "src" | where "count">=6'
         state: replaced
 

@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 DOCUMENTATION = """
@@ -18,13 +19,12 @@ version_added: "1.0.0"
 
 import json
 
-from ansible.module_utils.basic import to_text
 from ansible.errors import AnsibleConnectionFailure
-from ansible.module_utils.six.moves.urllib.error import HTTPError
-from ansible_collections.ansible.netcommon.plugins.plugin_utils.httpapi_base import (
-    HttpApiBase,
-)
+from ansible.module_utils.basic import to_text
 from ansible.module_utils.connection import ConnectionError
+from ansible.module_utils.six.moves.urllib.error import HTTPError
+from ansible_collections.ansible.netcommon.plugins.plugin_utils.httpapi_base import HttpApiBase
+
 
 BASE_HEADERS = {"Content-Type": "application/json"}
 
@@ -47,7 +47,8 @@ class HttpApi(HttpApiBase):
             return response.getcode(), self._response_to_json(value)
         except AnsibleConnectionFailure as e:
             self.connection.queue_message(
-                "vvv", "AnsibleConnectionFailure: %s" % e
+                "vvv",
+                "AnsibleConnectionFailure: %s" % e,
             )
             if to_text("Could not connect to") in to_text(e):
                 raise
@@ -62,8 +63,7 @@ class HttpApi(HttpApiBase):
     def _display_request(self, request_method, path):
         self.connection.queue_message(
             "vvvv",
-            "Web Services: %s %s/%s"
-            % (request_method, self.connection._url, path),
+            "Web Services: %s %s/%s" % (request_method, self.connection._url, path),
         )
 
     def _get_response_value(self, response_data):

@@ -6,6 +6,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 DOCUMENTATION = """
@@ -25,12 +26,12 @@ options:
       name:
         description:
           - The input port which receives raw data.
-        required: True
+        required: true
         type: str
       protocol:
         description:
           - Choose whether to manage TCP or UDP inputs
-        required: True
+        required: true
         choices:
           - 'tcp'
           - 'udp'
@@ -58,7 +59,7 @@ options:
           - "raw"
           - "splunktcptoken"
           - "ssl"
-        required: False
+        required: false
         type: str
       disabled:
         description:
@@ -124,7 +125,7 @@ options:
         description:
           - Set the source type for events from this input.
           - '"sourcetype=" is automatically prepended to <string>.'
-          - Defaults to audittrail (if signedaudit=True) or fschange (if signedaudit=False).
+          - Defaults to audittrail (if signedaudit=true) or fschange (if signedaudit=false).
         type: str
       token:
         description:
@@ -358,7 +359,7 @@ EXAMPLES = """
         datatype: raw
         name: 8100
         connection_host: ip
-        disabled: True
+        disabled: true
         raw_tcp_done_timeout: 9
         restrict_to_host: default
         queue: parsingQueue
@@ -409,7 +410,7 @@ EXAMPLES = """
         datatype: cooked
         name: 8101
         connection_host: ip
-        disabled: False
+        disabled: false
         restrict_to_host: default
     state: merged
 
@@ -460,7 +461,7 @@ EXAMPLES = """
 # ],
 # "before": [],
 
-- name:  To add the Splunk SSL
+- name: To add the Splunk SSL
   splunk.es.splunk_data_inputs_network:
     config:
       - protocol: tcp
@@ -531,7 +532,7 @@ EXAMPLES = """
         datatype: raw
         name: 8100
         connection_host: ip
-        disabled: True
+        disabled: true
         host: "$decideOnStartup"
         index: default
         queue: parsingQueue
@@ -575,7 +576,6 @@ EXAMPLES = """
 #         "sourcetype": "test_source_type"
 #     }
 # ],
-
 """
 
 RETURN = """

@@ -2,18 +2,18 @@
 - name: Cleanup previous data_input_network
   data_input_network:
     name: "8099"
-    protocol: "tcp"
-    state: "absent"
+    protocol: tcp
+    state: absent
 
 - name: Test data_input_network - CREATE
   data_input_network:
     name: "8099"
-    protocol: "tcp"
-    state: "present"
+    protocol: tcp
+    state: present
   register: data_input_network_output
 
 - name: Assert Create splunk.es.data_input_network CHANGED
-  assert:
+  ansible.builtin.assert:
     that:
       - data_input_network_output is changed
       - data_input_network_output is not failed
@@ -21,12 +21,12 @@
 - name: Test data_input_network - CREATE IDEMPOTENT
   data_input_network:
     name: "8099"
-    protocol: "tcp"
-    state: "present"
+    protocol: tcp
+    state: present
   register: data_input_network_output2
 
 - name: Assert Create splunk.es.data_input_network CREATE IDEMPOTENT
-  assert:
+  ansible.builtin.assert:
     that:
       - data_input_network_output2 is not changed
       - data_input_network_output2 is not failed
@@ -34,12 +34,12 @@
 - name: Test data_input_network - DELETE
   data_input_network:
     name: "8099"
-    protocol: "tcp"
-    state: "absent"
+    protocol: tcp
+    state: absent
   register: data_input_network_absent_output
 
 - name: Assert Create splunk.es.data_input_network CHANGED
-  assert:
+  ansible.builtin.assert:
     that:
       - data_input_network_absent_output is changed
       - data_input_network_absent_output is not failed
@@ -47,12 +47,12 @@
 - name: Test data_input_network - DELETE IDEMPOTENT
   data_input_network:
     name: "8099"
-    protocol: "tcp"
-    state: "absent"
+    protocol: tcp
+    state: absent
   register: data_input_network_absent_output2
 
 - name: Assert Create splunk.es.data_input_network DELETE IDEMPOTENT
-  assert:
+  ansible.builtin.assert:
     that:
       - data_input_network_absent_output2 is not changed
       - data_input_network_absent_output2 is not failed

@@ -694,7 +694,7 @@ Examples
             throttle_window_duration: 5s
             throttle_fields_to_group_by:
               - test_field1
-            suppress_alerts: False
+            suppress_alerts: false
             search: >
                     '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authent'
                     'ication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Fai'
@@ -801,7 +801,7 @@ Examples
             throttle_fields_to_group_by:
               - test_field1
               - test_field2
-            suppress_alerts: True
+            suppress_alerts: true
             search: >
                     '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authent'
                     'ication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Fai'

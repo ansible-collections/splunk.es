@@ -23,28 +23,25 @@ The module file for data_inputs_network
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
-from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleActionFail
-from ansible.module_utils.six.moves.urllib.parse import quote_plus
 from ansible.module_utils.connection import Connection
-
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
-    utils,
+from ansible.module_utils.six.moves.urllib.parse import quote_plus
+from ansible.plugins.action import ActionBase
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
+from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
+    AnsibleArgSpecValidator,
 )
+
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
     map_obj_to_params,
     map_params_to_obj,
     remove_get_keys_from_payload_dict,
 )
-from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
-    AnsibleArgSpecValidator,
-)
-from ansible_collections.splunk.es.plugins.modules.splunk_data_inputs_network import (
-    DOCUMENTATION,
-)
+from ansible_collections.splunk.es.plugins.modules.splunk_data_inputs_network import DOCUMENTATION
 
 
 class ActionModule(ActionBase):
@@ -172,7 +169,7 @@ class ActionModule(ActionBase):
                 url = url[:-1]
         else:
             raise AnsibleActionFail(
-                "Incompatible protocol specified. Please specify 'tcp' or 'udp'"
+                "Incompatible protocol specified. Please specify 'tcp' or 'udp'",
             )
 
         if req_type == "get":
@@ -199,7 +196,8 @@ class ActionModule(ActionBase):
 
         if query_dict:
             search_result = self.map_params_to_object(
-                query_dict["entry"][0], datatype
+                query_dict["entry"][0],
+                datatype,
             )
 
             # Adding back protocol and datatype fields for better clarity
@@ -240,7 +238,8 @@ class ActionModule(ActionBase):
                 and want_conf["restrict_to_host"] not in want_conf["name"]
             ):
                 want_conf["name"] = "{0}:{1}".format(
-                    want_conf["restrict_to_host"], want_conf["name"]
+                    want_conf["restrict_to_host"],
+                    want_conf["name"],
                 )
 
             # If datatype is "splunktcptoken", the value "splunktcptoken://" is appended
@@ -251,7 +250,8 @@ class ActionModule(ActionBase):
                 and "splunktcptoken://" not in want_conf["name"]
             ):
                 want_conf["name"] = "{0}{1}".format(
-                    "splunktcptoken://", want_conf["name"]
+                    "splunktcptoken://",
+                    want_conf["name"],
                 )
 
         name = want_conf["name"]
@@ -296,7 +296,8 @@ class ActionModule(ActionBase):
                 raise AnsibleActionFail("No name specified")
 
             have_conf, protocol, datatype, name, _old_name = self.parse_config(
-                conn_request, want_conf
+                conn_request,
+                want_conf,
             )
 
             if protocol == "tcp" and datatype == "ssl":
@@ -336,14 +337,11 @@ class ActionModule(ActionBase):
             ]
 
             have_conf, protocol, datatype, name, old_name = self.parse_config(
-                conn_request, want_conf
+                conn_request,
+                want_conf,
             )
 
-            if (
-                protocol == "tcp"
-                and datatype == "ssl"
-                and self._task.args["state"] == "replaced"
-            ):
+            if protocol == "tcp" and datatype == "ssl" and self._task.args["state"] == "replaced":
                 raise AnsibleActionFail("Replaced state not supported for SSL")
 
             if have_conf:
@@ -358,22 +356,24 @@ class ActionModule(ActionBase):
 
                 if diff:
                     diff = remove_get_keys_from_payload_dict(
-                        diff, remove_from_diff_compare
+                        diff,
+                        remove_from_diff_compare,
                     )
                     if diff:
                         before.append(have_conf)
                         if self._task.args["state"] == "merged":
-
                             want_conf = utils.remove_empties(
-                                utils.dict_merge(have_conf, want_conf)
+                                utils.dict_merge(have_conf, want_conf),
                             )
                             want_conf = remove_get_keys_from_payload_dict(
-                                want_conf, remove_from_diff_compare
+                                want_conf,
+                                remove_from_diff_compare,
                             )
                             changed = True
 
                             payload = map_obj_to_params(
-                                want_conf, self.key_transform
+                                want_conf,
+                                self.key_transform,
                             )
                             api_response = self.request_by_path(
                                 conn_request,
@@ -384,7 +384,8 @@ class ActionModule(ActionBase):
                                 payload=payload,
                             )
                             response_json = self.map_params_to_object(
-                                api_response["entry"][0], datatype
+                                api_response["entry"][0],
+                                datatype,
                             )
 
                             # Adding back protocol and datatype fields for better clarity
@@ -404,7 +405,8 @@ class ActionModule(ActionBase):
 
                             changed = True
                             payload = map_obj_to_params(
-                                want_conf, self.key_transform
+                                want_conf,
+                                self.key_transform,
                             )
                             # while creating new conf, we need to only use numerical values
                             # splunk will later append param value to it.
@@ -419,7 +421,8 @@ class ActionModule(ActionBase):
                                 payload=payload,
                             )
                             response_json = self.map_params_to_object(
-                                api_response["entry"][0], datatype
+                                api_response["entry"][0],
+                                datatype,
                             )
 
                             # Adding back protocol and datatype fields for better clarity
@@ -449,7 +452,8 @@ class ActionModule(ActionBase):
                     payload=payload,
                 )
                 response_json = self.map_params_to_object(
-                    api_response["entry"][0], datatype
+                    api_response["entry"][0],
+                    datatype,
                 )
 
                 # Adding back protocol and datatype fields for better clarity
@@ -490,7 +494,6 @@ class ActionModule(ActionBase):
                 self._result["changed"] = False
                 for item in config:
                     if item.get("name"):
-
                         result = self.search_for_resource_name(
                             conn_request,
                             item["protocol"],
@@ -514,10 +517,7 @@ class ActionModule(ActionBase):
             else:
                 raise AnsibleActionFail("No protocol specified")
 
-        elif (
-            self._task.args["state"] == "merged"
-            or self._task.args["state"] == "replaced"
-        ):
+        elif self._task.args["state"] == "merged" or self._task.args["state"] == "replaced":
             if config:
                 (
                     self._result[self.module_return],

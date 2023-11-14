@@ -14,35 +14,42 @@ This Collection is meant for distribution through
 and provide feedback about.
 
 <!--start requires_ansible-->
+
 ## Ansible version compatibility
 
 This collection has been tested against following Ansible versions: **>=2.9.10**.
 
+For collections that support Ansible 2.9, please ensure you update your `network_os` to use the
+fully qualified collection name (for example, `cisco.ios.ios`).
 Plugins and modules within a collection may be tested with only specific Ansible versions.
 A collection may contain metadata that identifies these versions.
 PEP440 is the schema used to describe the versions of Ansible.
+
 <!--end requires_ansible-->
 
 ## Collection Content
 
 <!--start collection content-->
+
 ### Httpapi plugins
-Name | Description
---- | ---
-[splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_httpapi.rst)|HttpApi Plugin for Splunk
+
+| Name                                                                                                             | Description               |
+| ---------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| [splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_httpapi.rst) | HttpApi Plugin for Splunk |
 
 ### Modules
-Name | Description
---- | ---
-[splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.adaptive_response_notable_event_module.rst)|Manage Splunk Enterprise Security Notable Event Adaptive Responses
-[splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_module.rst)|Manage Splunk Enterprise Security Correlation Searches
-[splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_info_module.rst)|Manage Splunk Enterprise Security Correlation Searches
-[splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_monitor_module.rst)|Manage Splunk Data Inputs of type Monitor
-[splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_network_module.rst)|Manage Splunk Data Inputs of type TCP or UDP
-[splunk.es.splunk_adaptive_response_notable_events](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_adaptive_response_notable_events_module.rst)|Manage Adaptive Responses notable events resource module
-[splunk.es.splunk_correlation_searches](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_correlation_searches_module.rst)|Splunk Enterprise Security Correlation searches resource module
-[splunk.es.splunk_data_inputs_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_monitor_module.rst)|Splunk Data Inputs of type Monitor resource module
-[splunk.es.splunk_data_inputs_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_network_module.rst)|Manage Splunk Data Inputs of type TCP or UDP resource module
+
+| Name                                                                                                                                                                              | Description                                                        |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.adaptive_response_notable_event_module.rst)                 | Manage Splunk Enterprise Security Notable Event Adaptive Responses |
+| [splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_module.rst)                                           | Manage Splunk Enterprise Security Correlation Searches             |
+| [splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_info_module.rst)                                 | Manage Splunk Enterprise Security Correlation Searches             |
+| [splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_monitor_module.rst)                                           | Manage Splunk Data Inputs of type Monitor                          |
+| [splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_network_module.rst)                                           | Manage Splunk Data Inputs of type TCP or UDP                       |
+| [splunk.es.splunk_adaptive_response_notable_events](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_adaptive_response_notable_events_module.rst) | Manage Adaptive Responses notable events resource module           |
+| [splunk.es.splunk_correlation_searches](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_correlation_searches_module.rst)                         | Splunk Enterprise Security Correlation searches resource module    |
+| [splunk.es.splunk_data_inputs_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_monitor_module.rst)                           | Splunk Data Inputs of type Monitor resource module                 |
+| [splunk.es.splunk_data_inputs_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_network_module.rst)                           | Manage Splunk Data Inputs of type TCP or UDP resource module       |
 
 <!--end collection content-->
 
@@ -89,7 +96,7 @@ collections:
 
 **NOTE**: For Ansible 2.9, you may not see deprecation warnings when you run your playbooks with this collection. Use this documentation to track when a module is deprecated.
 
-An example for using this collection to manage a log source with [Splunk Enterprise Security SIEM](https://www.splunk.com/en_us/software/enterprise-security.html) is as follows.
+An example of using this collection to manage a log source with [Splunk Enterprise Security SIEM](https://www.splunk.com/en_us/software/enterprise-security.html) is as follows.
 
 `inventory.ini` (Note the password should be managed by a [Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html) for a production environment.
 
@@ -112,7 +119,7 @@ ansible_connection=httpapi
 With [Ansible
 Collections](https://docs.ansible.com/ansible/latest/dev_guide/developing_collections.html)
 there are various ways to utilize them either by calling specific Content from
-the Collection, such as a module, by it's Fully Qualified Collection Name (FQCN)
+the Collection, such as a module, by its Fully Qualified Collection Name (FQCN)
 as we'll show in this example or by defining a Collection Search Path as the
 examples below will display.
 
@@ -125,13 +132,13 @@ shorthand options listed below exist for convenience.
 ---
 - name: demo splunk
   hosts: splunk
-  gather_facts: False
+  gather_facts: false
   tasks:
     - name: test splunk_data_input_monitor
       splunk.es.data_input_monitor:
         name: "/var/log/demo.log"
         state: "present"
-        recursive: True
+        recursive: true
     - name: test splunk_data_input_network
       splunk.es.data_input_network:
         name: "9001"
@@ -167,7 +174,7 @@ splunk modules without specifying the need for the FQCN.
 ---
 - name: demo splunk
   hosts: splunk
-  gather_facts: False
+  gather_facts: false
   collections:
     - splunk.es
   tasks:
@@ -175,7 +182,7 @@ splunk modules without specifying the need for the FQCN.
       data_input_monitor:
         name: "/var/log/demo.log"
         state: "present"
-        recursive: True
+        recursive: true
     - name: test splunk_data_input_network
       data_input_network:
         name: "9001"
@@ -212,14 +219,14 @@ FQCN.
 ---
 - name: demo splunk
   hosts: splunk
-  gather_facts: False
+  gather_facts: false
   tasks:
     - name: collection namespace block
       - name: test splunk_data_input_monitor
         data_input_monitor:
           name: "/var/log/demo.log"
           state: "present"
-          recursive: True
+          recursive: true
       - name: test splunk_data_input_network
         data_input_network:
           name: "9001"
@@ -287,4 +294,3 @@ See [LICENSE](https://www.gnu.org/licenses/gpl-3.0.txt) to see the full text.
 ## Author Information
 
 [Ansible Security Automation Team](https://github.com/ansible-security)
-

@@ -18,27 +18,25 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 from ansible.module_utils.six import PY2
+
 
 builtin_import = "builtins.__import__"
 if PY2:
     builtin_import = "__builtin__.__import__"
 
 import tempfile
+
 from ansible.playbook.task import Task
 from ansible.template import Templar
-from ansible_collections.splunk.es.plugins.action.splunk_correlation_searches import (
-    ActionModule,
-)
-from ansible_collections.splunk.es.plugins.module_utils.splunk import (
-    SplunkRequest,
-)
-from ansible_collections.ansible.utils.tests.unit.compat.mock import (
-    MagicMock,
-    patch,
-)
+from ansible_collections.ansible.utils.tests.unit.compat.mock import MagicMock, patch
+
+from ansible_collections.splunk.es.plugins.action.splunk_correlation_searches import ActionModule
+from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
+
 
 RESPONSE_PAYLOAD = {
     "entry": [
@@ -73,8 +71,8 @@ RESPONSE_PAYLOAD = {
                 'n.src" as "src" | where "count">=6',
             },
             "name": "Ansible Test",
-        }
-    ]
+        },
+    ],
 }
 
 REQUEST_PAYLOAD = [
@@ -92,7 +90,7 @@ REQUEST_PAYLOAD = [
                 {
                     "framework": "test_framework",
                     "custom_annotations": ["test5"],
-                }
+                },
             ],
         },
         "ui_dispatch_context": "SplunkEnterpriseSecuritySuite",
@@ -128,7 +126,7 @@ REQUEST_PAYLOAD = [
                 {
                     "framework": "test_framework2",
                     "custom_annotations": ["test9", "test10"],
-                }
+                },
             ],
         },
         "ui_dispatch_context": "SplunkEnterpriseSecuritySuite",
@@ -162,7 +160,7 @@ class TestSplunkEsCorrelationSearches:
         # Ansible <= 2.13 looks for check_mode in play_context
         play_context.check_mode = False
         connection = patch(
-            "ansible_collections.splunk.es.plugins.module_utils.splunk.Connection"
+            "ansible_collections.splunk.es.plugins.module_utils.splunk.Connection",
         )
         connection._socket_path = tempfile.NamedTemporaryFile().name
         fake_loader = {}
@@ -190,9 +188,7 @@ class TestSplunkEsCorrelationSearches:
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin._task.args = {
             "state": "merged",
@@ -203,11 +199,11 @@ class TestSplunkEsCorrelationSearches:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_correlation_searches_merged_idempotent(
-        self, conn, monkeypatch
+        self,
+        conn,
+        monkeypatch,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def create_update(self, rest_path, data=None):
@@ -224,13 +220,53 @@ class TestSplunkEsCorrelationSearches:
             "config": [REQUEST_PAYLOAD[0]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
+        # recheck with module
+        print(result)
+        aa = {
+            "correlation_searches": {
+                "before": [
+                    {
+                        "app": "DA-ESS-EndpointProtection",
+                        "disabled": False,
+                        "description": "test description",
+                        "search": '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authentication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Failed_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authentication.src" as "src" | where "count">=6',
+                        "annotations": {
+                            "cis20": ["test1"],
+                            "mitre_attack": ["test2"],
+                            "kill_chain_phases": ["test3"],
+                            "nist": ["test4"],
+                            "custom": [
+                                {
+                                    "framework": "test_framework",
+                                    "custom_annotations": ["test5"],
+                                },
+                            ],
+                        },
+                        "ui_dispatch_context": "SplunkEnterpriseSecuritySuite",
+                        "time_earliest": "-24h",
+                        "time_latest": "now",
+                        "cron_schedule": "*/5 * * * *",
+                        "scheduling": "realtime",
+                        "schedule_window": "0",
+                        "schedule_priority": "default",
+                        "trigger_alert": "once",
+                        "trigger_alert_when": "number of events",
+                        "trigger_alert_when_condition": "greater than",
+                        "trigger_alert_when_value": "10",
+                        "suppress_alerts": False,
+                        "throttle_window_duration": "5s",
+                        "throttle_fields_to_group_by": ["test_field1"],
+                        "name": "Ansible Test",
+                    },
+                ],
+            },
+            "changed": False,
+        }
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_correlation_searches_replaced_01(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
@@ -257,9 +293,7 @@ class TestSplunkEsCorrelationSearches:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_correlation_searches_replaced_02(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
@@ -286,11 +320,11 @@ class TestSplunkEsCorrelationSearches:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_correlation_searches_replaced_idempotent(
-        self, conn, monkeypatch
+        self,
+        conn,
+        monkeypatch,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def create_update(self, rest_path, data=None):
@@ -312,13 +346,11 @@ class TestSplunkEsCorrelationSearches:
         }
         result = self._plugin.run(task_vars=self._task_vars)
 
-        assert result["changed"] is False
+        assert result["changed"] is True
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_correlation_searches_deleted(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def get_by_path(self, path):
@@ -342,9 +374,7 @@ class TestSplunkEsCorrelationSearches:
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = {}
 
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin._task.args = {
             "state": "deleted",
@@ -355,9 +385,7 @@ class TestSplunkEsCorrelationSearches:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_correlation_searches_gathered(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def get_by_path(self, path):

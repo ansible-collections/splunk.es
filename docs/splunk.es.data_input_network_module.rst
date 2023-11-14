@@ -232,7 +232,7 @@ Parameters
                 <td>
                         <div>Set the source type for events from this input.</div>
                         <div>&quot;sourcetype=&quot; is automatically prepended to &lt;string&gt;.</div>
-                        <div>Defaults to audittrail (if signedaudit=True) or fschange (if signedaudit=False).</div>
+                        <div>Defaults to audittrail (if signedaudit=True) or fschange (if signedaudit=false).</div>
                 </td>
             </tr>
             <tr>

@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 DOCUMENTATION = """
@@ -40,15 +41,13 @@ EXAMPLES = """
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.six.moves.urllib.parse import quote_plus
 from ansible.module_utils.six.moves.urllib.error import HTTPError
-from ansible_collections.splunk.es.plugins.module_utils.splunk import (
-    SplunkRequest,
-)
+from ansible.module_utils.six.moves.urllib.parse import quote_plus
+
+from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
 
 def main():
-
     argspec = dict(name=dict(required=False, type="str"))
 
     module = AnsibleModule(argument_spec=argspec, supports_check_mode=True)
@@ -62,15 +61,15 @@ def main():
         try:
             query_dict = splunk_request.get_by_path(
                 "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches/{0}".format(
-                    quote_plus(module.params["name"])
-                )
+                    quote_plus(module.params["name"]),
+                ),
             )
         except HTTPError as e:
             # the data monitor doesn't exist
             query_dict = {}
     else:
         query_dict = splunk_request.get_by_path(
-            "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches"
+            "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches",
         )
 
     module.exit_json(changed=False, splunk_correlation_search_info=query_dict)

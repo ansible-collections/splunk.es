@@ -18,27 +18,25 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 from ansible.module_utils.six import PY2
+
 
 builtin_import = "builtins.__import__"
 if PY2:
     builtin_import = "__builtin__.__import__"
 
 import tempfile
+
 from ansible.playbook.task import Task
 from ansible.template import Templar
-from ansible_collections.splunk.es.plugins.action.splunk_data_inputs_network import (
-    ActionModule,
-)
-from ansible_collections.splunk.es.plugins.module_utils.splunk import (
-    SplunkRequest,
-)
-from ansible_collections.ansible.utils.tests.unit.compat.mock import (
-    MagicMock,
-    patch,
-)
+from ansible_collections.ansible.utils.tests.unit.compat.mock import MagicMock, patch
+
+from ansible_collections.splunk.es.plugins.action.splunk_data_inputs_network import ActionModule
+from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
+
 
 RESPONSE_PAYLOAD = {
     "tcp_cooked": {
@@ -51,7 +49,7 @@ RESPONSE_PAYLOAD = {
                     "host": "$decideOnStartup",
                     "restrictToHost": "default",
                 },
-            }
+            },
         ],
     },
     "tcp_raw": {
@@ -69,7 +67,7 @@ RESPONSE_PAYLOAD = {
                     "source": "test_source",
                     "sourcetype": "test_source_type",
                 },
-            }
+            },
         ],
     },
     "udp": {
@@ -88,7 +86,7 @@ RESPONSE_PAYLOAD = {
                     "source": "test_source",
                     "sourcetype": "test_source_type",
                 },
-            }
+            },
         ],
     },
     "splunktcptoken": {
@@ -98,7 +96,7 @@ RESPONSE_PAYLOAD = {
                 "content": {
                     "token": "01234567-0123-0123-0123-012345678901",
                 },
-            }
+            },
         ],
     },
     "ssl": {
@@ -106,7 +104,7 @@ RESPONSE_PAYLOAD = {
             {
                 "name": "test_host",
                 "content": {},
-            }
+            },
         ],
     },
 }
@@ -173,7 +171,7 @@ REPLACED_RESPONSE_PAYLOAD = {
                     "host": "$decideOnStartup",
                     "restrictToHost": "default",
                 },
-            }
+            },
         ],
     },
     "tcp_raw": {
@@ -191,7 +189,7 @@ REPLACED_RESPONSE_PAYLOAD = {
                     "source": "test_source",
                     "sourcetype": "test_source_type",
                 },
-            }
+            },
         ],
     },
     "udp": {
@@ -210,7 +208,7 @@ REPLACED_RESPONSE_PAYLOAD = {
                     "source": "test_source",
                     "sourcetype": "test_source_type",
                 },
-            }
+            },
         ],
     },
     "splunktcptoken": {
@@ -220,7 +218,7 @@ REPLACED_RESPONSE_PAYLOAD = {
                 "content": {
                     "token": "01234567-0123-0123-0123-012345678900",
                 },
-            }
+            },
         ],
     },
 }
@@ -281,7 +279,7 @@ class TestSplunkEsDataInputsNetworksRules:
         # Ansible <= 2.13 looks for check_mode in play_context
         play_context.check_mode = False
         connection = patch(
-            "ansible_collections.splunk.es.plugins.module_utils.splunk.Connection"
+            "ansible_collections.splunk.es.plugins.module_utils.splunk.Connection",
         )
         connection._socket_path = tempfile.NamedTemporaryFile().name
         fake_loader = {}
@@ -300,9 +298,7 @@ class TestSplunkEsDataInputsNetworksRules:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_network_merged(self, connection, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         # patch update operation
@@ -312,7 +308,11 @@ class TestSplunkEsDataInputsNetworksRules:
             return {}
 
         def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
         ):
             return update_response
 
@@ -366,9 +366,7 @@ class TestSplunkEsDataInputsNetworksRules:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_network_merged_idempotent(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         # patch get operation
@@ -386,6 +384,8 @@ class TestSplunkEsDataInputsNetworksRules:
             "config": [REQUEST_PAYLOAD["tcp_cooked"]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
+        print("1")
+        print(result)
         assert result["changed"] is False
 
         # tcp_raw
@@ -395,6 +395,8 @@ class TestSplunkEsDataInputsNetworksRules:
             "config": [REQUEST_PAYLOAD["tcp_raw"]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
+        print("2")
+        print(result)
         assert result["changed"] is False
 
         # udp
@@ -404,6 +406,8 @@ class TestSplunkEsDataInputsNetworksRules:
             "config": [REQUEST_PAYLOAD["udp"]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
+        print("3")
+        print(result)
         assert result["changed"] is False
 
         # splunktcptoken
@@ -413,6 +417,8 @@ class TestSplunkEsDataInputsNetworksRules:
             "config": [REQUEST_PAYLOAD["splunktcptoken"]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
+        print("4")
+        print(result)
         assert result["changed"] is False
 
         # ssl
@@ -422,13 +428,13 @@ class TestSplunkEsDataInputsNetworksRules:
             "config": [REQUEST_PAYLOAD["ssl"]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
+        print("5")
+        print(result)
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_network_replaced(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         # patch get operation
@@ -439,12 +445,20 @@ class TestSplunkEsDataInputsNetworksRules:
         get_response = RESPONSE_PAYLOAD["tcp_cooked"]
 
         def delete_by_path(
-            self, rest_path, data=None, mock=None, mock_data=None
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
         ):
             return {}
 
         def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
         ):
             return update_response
 
@@ -497,11 +511,11 @@ class TestSplunkEsDataInputsNetworksRules:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_network_replaced_idempotent(
-        self, conn, monkeypatch
+        self,
+        conn,
+        monkeypatch,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         # patch get operation
@@ -550,13 +564,15 @@ class TestSplunkEsDataInputsNetworksRules:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_network_deleted(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def delete_by_path(
-            self, rest_path, data=None, mock=None, mock_data=None
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
         ):
             return {}
 
@@ -606,11 +622,11 @@ class TestSplunkEsDataInputsNetworksRules:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_network_deleted_idempotent(
-        self, conn, monkeypatch
+        self,
+        conn,
+        monkeypatch,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def get_by_path(self, path):
@@ -652,9 +668,7 @@ class TestSplunkEsDataInputsNetworksRules:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_network_gathered(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         # patch get operation

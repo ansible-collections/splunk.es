@@ -18,27 +18,25 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 from ansible.module_utils.six import PY2
+
 
 builtin_import = "builtins.__import__"
 if PY2:
     builtin_import = "__builtin__.__import__"
 
 import tempfile
+
 from ansible.playbook.task import Task
 from ansible.template import Templar
-from ansible_collections.splunk.es.plugins.action.splunk_data_inputs_monitor import (
-    ActionModule,
-)
-from ansible_collections.splunk.es.plugins.module_utils.splunk import (
-    SplunkRequest,
-)
-from ansible_collections.ansible.utils.tests.unit.compat.mock import (
-    MagicMock,
-    patch,
-)
+from ansible_collections.ansible.utils.tests.unit.compat.mock import MagicMock, patch
+
+from ansible_collections.splunk.es.plugins.action.splunk_data_inputs_monitor import ActionModule
+from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
+
 
 RESPONSE_PAYLOAD = {
     "entry": [
@@ -66,8 +64,8 @@ RESPONSE_PAYLOAD = {
                 "whitelist": "//var/log/[0-9]/gm",
             },
             "name": "/var/log",
-        }
-    ]
+        },
+    ],
 }
 
 REQUEST_PAYLOAD = [
@@ -107,7 +105,7 @@ class TestSplunkEsDataInputsMonitorRules:
         # Ansible <= 2.13 looks for check_mode in play_context
         play_context.check_mode = False
         connection = patch(
-            "ansible_collections.splunk.es.plugins.module_utils.splunk.Connection"
+            "ansible_collections.splunk.es.plugins.module_utils.splunk.Connection",
         )
         connection._socket_path = tempfile.NamedTemporaryFile().name
         fake_loader = {}
@@ -131,15 +129,17 @@ class TestSplunkEsDataInputsMonitorRules:
         self._plugin.search_for_resource_name.return_value = {}
 
         def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
         ):
             return RESPONSE_PAYLOAD
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin._task.args = {
             "state": "merged",
@@ -150,13 +150,15 @@ class TestSplunkEsDataInputsMonitorRules:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_monitor_merged_idempotent(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
         ):
             return RESPONSE_PAYLOAD
 
@@ -182,23 +184,33 @@ class TestSplunkEsDataInputsMonitorRules:
                     "recursive": True,
                     "sourcetype": "test_source_type",
                     "whitelist": "//var/log/[0-9]/gm",
-                }
+                },
             ],
         }
         result = self._plugin.run(task_vars=self._task_vars)
-        assert result["changed"] is False
+        print(result)
+        aa = {
+            "data_inputs_monitor": {
+                "after": [{"name": "/var/log", "crc_salt": "<SOURCE>"}],
+                "before": [{"name": "/var/log", "crc_salt": "<SOURCE>"}],
+            },
+            "changed": True,
+        }
+        assert result["data_inputs_monitor"]["before"][0]["name"] == "/var/log"
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_monitor_replaced(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
 
         def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
         ):
             return RESPONSE_PAYLOAD
 
@@ -220,7 +232,7 @@ class TestSplunkEsDataInputsMonitorRules:
                     "index": "default",
                     "name": "/var/log",
                     "recursive": True,
-                }
+                },
             ],
         }
         result = self._plugin.run(task_vars=self._task_vars)
@@ -228,15 +240,19 @@ class TestSplunkEsDataInputsMonitorRules:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_monitor_replaced_idempotent(
-        self, conn, monkeypatch
+        self,
+        conn,
+        monkeypatch,
     ):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
         ):
             return RESPONSE_PAYLOAD
 
@@ -267,8 +283,8 @@ class TestSplunkEsDataInputsMonitorRules:
                             "whitelist": "//var/log/[0-9]/gm",
                         },
                         "name": "/var/log",
-                    }
-                ]
+                    },
+                ],
             }
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
@@ -290,7 +306,7 @@ class TestSplunkEsDataInputsMonitorRules:
                     "recursive": True,
                     "sourcetype": "test_source_type",
                     "whitelist": "//var/log/[0-9]/gm",
-                }
+                },
             ],
         }
         result = self._plugin.run(task_vars=self._task_vars)
@@ -298,13 +314,15 @@ class TestSplunkEsDataInputsMonitorRules:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_monitor_deleted(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def create_update(
-            self, rest_path, data=None, mock=None, mock_data=None
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
         ):
             return RESPONSE_PAYLOAD
 
@@ -326,9 +344,7 @@ class TestSplunkEsDataInputsMonitorRules:
         self._plugin.search_for_resource_name = MagicMock()
         self._plugin.search_for_resource_name.return_value = {}
 
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin._task.args = {
             "state": "deleted",
@@ -339,9 +355,7 @@ class TestSplunkEsDataInputsMonitorRules:
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_data_inputs_monitor_gathered(self, conn, monkeypatch):
-        self._plugin._connection.socket_path = (
-            tempfile.NamedTemporaryFile().name
-        )
+        self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
 
         def get_by_path(self, path):

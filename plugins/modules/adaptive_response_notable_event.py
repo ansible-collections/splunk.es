@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 __metaclass__ = type
 
 DOCUMENTATION = """
@@ -49,7 +50,7 @@ options:
     description:
       - Splunk Security Domain
     type: str
-    required: False
+    required: false
     choices:
       - "access"
       - "endpoint"
@@ -62,7 +63,7 @@ options:
     description:
       - Severity rating
     type: str
-    required: False
+    required: false
     choices:
       - "informational"
       - "low"
@@ -75,12 +76,12 @@ options:
     description:
       - Default owner of the notable event, if unset it will default to Splunk System Defaults
     type: str
-    required: False
+    required: false
   default_status:
     description:
       - Default status of the notable event, if unset it will default to Splunk System Defaults
     type: str
-    required: False
+    required: false
     choices:
       - "unassigned"
       - "new"
@@ -92,19 +93,19 @@ options:
     description:
       - Name for drill down search, Supports variable substitution with fields from the matching event.
     type: str
-    required: False
+    required: false
   drill_down_search:
     description:
       - Drill down search, Supports variable substitution with fields from the matching event.
     type: str
-    required: False
+    required: false
   drill_down_earliest_offset:
     description:
       - Set the amount of time before the triggering event to search for related
         events. For example, 2h. Use \"$info_min_time$\" to set the drill-down time
         to match the earliest time of the search
     type: str
-    required: False
+    required: false
     default: \"$info_min_time$\"
   drill_down_latest_offset:
     description:
@@ -112,20 +113,21 @@ options:
         events. For example, 1m. Use \"$info_max_time$\" to set the drill-down
         time to match the latest time of the search
     type: str
-    required: False
+    required: false
     default: \"$info_max_time$\"
   investigation_profiles:
     description:
       - Investigation profile to assiciate the notable event with.
     type: str
-    required: False
+    required: false
   next_steps:
     description:
       - List of adaptive responses that should be run next
       - Describe next steps and response actions that an analyst could take to address this threat.
     type: list
     elements: str
-    required: False
+    required: false
+    default: []
   recommended_actions:
     description:
       - List of adaptive responses that are recommended to be run next
@@ -134,7 +136,8 @@ options:
         making it easier to find them among the longer list of available actions.
     type: list
     elements: str
-    required: False
+    required: false
+    default: []
   asset_extraction:
     description:
       - list of assets to extract, select any one or many of the available choices
@@ -151,7 +154,7 @@ options:
       - dest
       - dvc
       - orig_host
-    required: False
+    required: false
   identity_extraction:
     description:
       - list of identity fields to extract, select any one or many of the available choices
@@ -164,11 +167,10 @@ options:
     default:
       - user
       - src_user
-    required: False
-
+    required: false
 author: Ansible Security Automation Team (@maxamillion) <https://github.com/ansible-security>
 """
-# FIXME - adaptive response action association is probaby going to need to be a separate module we stitch together in a role
+# FIXME - adaptive response action association is probably going to need to be a separate module we stitch together in a role
 
 EXAMPLES = """
 - name: Example of using splunk.es.adaptive_response_notable_event module
@@ -187,19 +189,15 @@ EXAMPLES = """
 
 import json
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_text
-from ansible.module_utils.six.moves.urllib.parse import urlencode, quote_plus
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
-    utils,
-)
-from ansible_collections.splunk.es.plugins.module_utils.splunk import (
-    SplunkRequest,
-)
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.six.moves.urllib.parse import quote_plus, urlencode
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
+
+from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
 
 def main():
-
     argspec = dict(
         name=dict(required=True, type="str"),
         correlation_search_name=dict(required=True, type="str"),
@@ -244,17 +242,22 @@ def main():
         drill_down_name=dict(required=False, type="str"),
         drill_down_search=dict(required=False, type="str"),
         drill_down_earliest_offset=dict(
-            required=False, type="str", default="$info_min_time$"
+            required=False,
+            type="str",
+            default="$info_min_time$",
         ),
         drill_down_latest_offset=dict(
-            required=False, type="str", default="$info_max_time$"
+            required=False,
+            type="str",
+            default="$info_max_time$",
         ),
         investigation_profiles=dict(required=False, type="str"),
-        next_steps=dict(
-            required=False, type="list", elements="str", default=[]
-        ),
+        next_steps=dict(required=False, type="list", elements="str", default=[]),
         recommended_actions=dict(
-            required=False, type="list", elements="str", default=[]
+            required=False,
+            type="list",
+            elements="str",
+            default=[],
         ),
         asset_extraction=dict(
             required=False,
@@ -283,8 +286,8 @@ def main():
 
     query_dict = splunk_request.get_by_path(
         "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches/{0}".format(
-            quote_plus(module.params["correlation_search_name"])
-        )
+            quote_plus(module.params["correlation_search_name"]),
+        ),
     )
 
     # Have to custom craft the data here because they overload the saved searches
@@ -297,9 +300,7 @@ def main():
     # request_post_data['action.notable.param.extract_identities'] = [\"src_user\",\"user\"]
     if module.params["next_steps"]:
         if len(module.params["next_steps"]) == 1:
-            next_steps = "[[action|{0}]]".format(
-                module.params["next_steps"][0]
-            )
+            next_steps = "[[action|{0}]]".format(module.params["next_steps"][0])
         else:
             next_steps = ""
             for next_step in module.params["next_steps"]:
@@ -312,66 +313,48 @@ def main():
         #       but I don't know what it is/means because there's no docs on it
         next_steps_dict = {"version": 1, "data": next_steps}
         request_post_data["action.notable.param.next_steps"] = json.dumps(
-            next_steps_dict
+            next_steps_dict,
         )
 
     if module.params["recommended_actions"]:
         if len(module.params["recommended_actions"]) == 1:
-            request_post_data[
-                "action.notable.param.recommended_actions"
-            ] = module.params["recommended_actions"][0]
+            request_post_data["action.notable.param.recommended_actions"] = module.params[
+                "recommended_actions"
+            ][0]
         else:
-            request_post_data[
-                "action.notable.param.recommended_actions"
-            ] = ",".join(module.params["recommended_actions"])
+            request_post_data["action.notable.param.recommended_actions"] = ",".join(
+                module.params["recommended_actions"],
+            )
 
-    request_post_data["action.notable.param.rule_description"] = module.params[
-        "description"
+    request_post_data["action.notable.param.rule_description"] = module.params["description"]
+    request_post_data["action.notable.param.rule_title"] = module.params["name"]
+    request_post_data["action.notable.param.security_domain"] = module.params["security_domain"]
+    request_post_data["action.notable.param.severity"] = module.params["severity"]
+    request_post_data["action.notable.param.asset_extraction"] = module.params["asset_extraction"]
+    request_post_data["action.notable.param.identity_extraction"] = module.params[
+        "identity_extraction"
     ]
-    request_post_data["action.notable.param.rule_title"] = module.params[
-        "name"
-    ]
-    request_post_data["action.notable.param.security_domain"] = module.params[
-        "security_domain"
-    ]
-    request_post_data["action.notable.param.severity"] = module.params[
-        "severity"
-    ]
-    request_post_data["action.notable.param.asset_extraction"] = module.params[
-        "asset_extraction"
-    ]
-    request_post_data[
-        "action.notable.param.identity_extraction"
-    ] = module.params["identity_extraction"]
 
     # NOTE: this field appears to be hard coded when you create this via the splunk web UI
     #       but I don't know what it is/means because there's no docs on it
     request_post_data["action.notable.param.verbose"] = "0"
 
     if module.params["default_owner"]:
-        request_post_data[
-            "action.notable.param.default_owner"
-        ] = module.params["default_owner"]
+        request_post_data["action.notable.param.default_owner"] = module.params["default_owner"]
 
     if module.params["default_status"]:
-        request_post_data[
-            "action.notable.param.default_status"
-        ] = module.params["default_status"]
+        request_post_data["action.notable.param.default_status"] = module.params["default_status"]
 
     request_post_data = utils.remove_empties(request_post_data)
 
     if query_dict:
-        request_post_data["search"] = query_dict["entry"][0]["content"][
-            "search"
-        ]
+        request_post_data["search"] = query_dict["entry"][0]["content"]["search"]
         if "actions" in query_dict["entry"][0]["content"]:
             if query_dict["entry"][0]["content"]["actions"] == "notable":
                 pass
             elif (
-                len(query_dict["entry"][0]["content"]["actions"].split(","))
-                > 0
-                and "notable"
-                not in query_dict["entry"][0]["content"]["actions"]
+                len(query_dict["entry"][0]["content"]["actions"].split(",")) > 0
+                and "notable" not in query_dict["entry"][0]["content"]["actions"]
             ):
                 request_post_data["actions"] = (
                     query_dict["entry"][0]["content"]["actions"] + ", notable"
@@ -389,12 +372,14 @@ def main():
         for arg in request_post_data:
             if arg in query_dict["entry"][0]["content"]:
                 if to_text(query_dict["entry"][0]["content"][arg]) != to_text(
-                    request_post_data[arg]
+                    request_post_data[arg],
                 ):
                     needs_change = True
         if not needs_change:
             module.exit_json(
-                changed=False, msg="Nothing to do.", splunk_data=query_dict
+                changed=False,
+                msg="Nothing to do.",
+                splunk_data=query_dict,
             )
         if module.check_mode and needs_change:
             module.exit_json(
@@ -405,15 +390,13 @@ def main():
         if needs_change:
             splunk_data = splunk_request.create_update(
                 "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches/{0}".format(
-                    quote_plus(module.params["correlation_search_name"])
+                    quote_plus(module.params["correlation_search_name"]),
                 ),
                 data=urlencode(request_post_data),
             )
             module.exit_json(
                 changed=True,
-                msg="{0} updated.".format(
-                    module.params["correlation_search_name"]
-                ),
+                msg="{0} updated.".format(module.params["correlation_search_name"]),
                 splunk_data=splunk_data,
             )
 
@@ -430,7 +413,9 @@ def main():
                 del query_dict["entry"][0]["content"][arg]
         if not needs_change:
             module.exit_json(
-                changed=False, msg="Nothing to do.", splunk_data=query_dict
+                changed=False,
+                msg="Nothing to do.",
+                splunk_data=query_dict,
             )
         if module.check_mode and needs_change:
             module.exit_json(
@@ -441,21 +426,17 @@ def main():
         if needs_change:
             splunk_data = splunk_request.create_update(
                 "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches/{0}".format(
-                    quote_plus(module.params["correlation_search_name"])
+                    quote_plus(module.params["correlation_search_name"]),
                 ),
                 data=urlencode(request_post_data),
             )
             module.exit_json(
                 changed=True,
-                msg="{0} updated.".format(
-                    module.params["correlation_search_name"]
-                ),
+                msg="{0} updated.".format(module.params["correlation_search_name"]),
                 splunk_data=splunk_data,
             )
 
-    module.exit_json(
-        changed=False, msg="Nothing to do.", splunk_data=query_dict
-    )
+    module.exit_json(changed=False, msg="Nothing to do.", splunk_data=query_dict)
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ merged:
       datatype: raw
       name: default:8100
       connection_host: ip
-      disabled: True
+      disabled: true
       host: $decideOnStartup
       index: default
       queue: parsingQueue
@@ -27,13 +27,13 @@ merged:
       datatype: cooked
       name: default:8101
       connection_host: ip
-      disabled: False
+      disabled: false
       host: $decideOnStartup
       restrict_to_host: default
     - protocol: tcp
       datatype: splunktcptoken
       name: splunktcptoken://test_token
-      token: 01234567-0123-0123-0123-012345678901
+      token: "01234567-0123-0123-0123-012345678901"
     - protocol: tcp
       datatype: ssl
       name: test_host
@@ -44,11 +44,11 @@ merged:
     - protocol: udp
       name: default:7890
       connection_host: ip
-      disabled: True
+      disabled: true
       host: $decideOnStartup
       index: default
-      no_appending_timestamp: True
-      no_priority_stripping: True
+      no_appending_timestamp: true
+      no_priority_stripping: true
       queue: parsingQueue
       restrict_to_host: default
       source: test_source
@@ -60,7 +60,7 @@ replaced:
       datatype: raw
       name: default:8100
       connection_host: ip
-      disabled: True
+      disabled: true
       host: $decideOnStartup
       index: default
       queue: parsingQueue
@@ -72,21 +72,21 @@ replaced:
       datatype: cooked
       name: default:8101
       connection_host: ip
-      disabled: False
+      disabled: false
       host: $decideOnStartup
       restrict_to_host: default
     - protocol: tcp
       datatype: splunktcptoken
       name: splunktcptoken://test_token
-      token: 01234567-0123-0123-0123-012345678901
+      token: "01234567-0123-0123-0123-012345678901"
     - protocol: udp
       name: default:7890
       connection_host: ip
-      disabled: True
+      disabled: true
       host: $decideOnStartup
       index: default
-      no_appending_timestamp: True
-      no_priority_stripping: True
+      no_appending_timestamp: true
+      no_priority_stripping: true
       queue: parsingQueue
       restrict_to_host: default
       source: test_source
@@ -96,7 +96,7 @@ replaced:
       datatype: raw
       name: default:8100
       connection_host: ip
-      disabled: True
+      disabled: true
       host: $decideOnStartup
       index: default
       queue: parsingQueue
@@ -108,21 +108,21 @@ replaced:
       datatype: cooked
       name: default:8101
       connection_host: ip
-      disabled: True
+      disabled: true
       host: $decideOnStartup
       restrict_to_host: default
     - protocol: tcp
       datatype: splunktcptoken
       name: splunktcptoken://test_token
-      token: 01234567-0123-0123-0123-012345678900
+      token: "01234567-0123-0123-0123-012345678900"
     - protocol: udp
       name: default:7890
       connection_host: ip
-      disabled: True
+      disabled: true
       host: $decideOnStartup
       index: default
-      no_appending_timestamp: False
-      no_priority_stripping: False
+      no_appending_timestamp: false
+      no_priority_stripping: false
       queue: parsingQueue
       restrict_to_host: default
       source: test_source

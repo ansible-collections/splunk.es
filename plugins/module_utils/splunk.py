@@ -5,16 +5,17 @@
 
 from __future__ import absolute_import, division, print_function
 
-__metaclass__ = type
 
-from ansible.module_utils.urls import CertificateError
-from ansible.module_utils.six.moves.urllib.parse import urlencode
-from ansible.module_utils.connection import (
-    ConnectionError,
-    Connection,
-)
+__metaclass__ = type
+try:
+    from ssl import CertificateError
+except ImportError:
+    from backports.ssl_match_hostname import CertificateError
+
 from ansible.module_utils._text import to_text
+from ansible.module_utils.connection import Connection, ConnectionError
 from ansible.module_utils.six import iteritems
+from ansible.module_utils.six.moves.urllib.parse import urlencode
 
 
 def parse_splunk_args(module):
@@ -39,8 +40,8 @@ def parse_splunk_args(module):
     except TypeError as e:
         module.fail_json(
             msg="Invalid data type provided for splunk module_util.parse_splunk_args: {0}".format(
-                e
-            )
+                e,
+            ),
         )
 
 
@@ -62,9 +63,7 @@ def map_params_to_obj(module_params, key_transform):
     obj = {}
     for k, v in iteritems(key_transform):
         if k in module_params and (
-            module_params.get(k)
-            or module_params.get(k) == 0
-            or module_params.get(k) is False
+            module_params.get(k) or module_params.get(k) == 0 or module_params.get(k) is False
         ):
             obj[v] = module_params.pop(k)
     return obj
@@ -152,19 +151,22 @@ class SplunkRequest(object):
     def _httpapi_error_handle(self, method, uri, payload=None):
         try:
             code, response = self.connection.send_request(
-                method, uri, payload=payload
+                method,
+                uri,
+                payload=payload,
             )
 
             if code == 404:
                 if to_text("Object not found") in to_text(response) or to_text(
-                    "Could not find object"
+                    "Could not find object",
                 ) in to_text(response):
                     return {}
 
             if not (code >= 200 and code < 300):
                 self.module.fail_json(
                     msg="Splunk httpapi returned error {0} with message {1}".format(
-                        code, response
+                        code,
+                        response,
                     ),
                 )
 
@@ -181,7 +183,7 @@ class SplunkRequest(object):
         except ValueError as e:
             try:
                 self.module.fail_json(
-                    msg="certificate not found: {0}".format(e)
+                    msg="certificate not found: {0}".format(e),
                 )
             except AttributeError:
                 pass
@@ -211,9 +213,7 @@ class SplunkRequest(object):
             if self.legacy and not config:
                 config = self.module.params
             for param in config:
-                if (config[param]) is not None and (
-                    param not in self.not_rest_data_keys
-                ):
+                if (config[param]) is not None and (param not in self.not_rest_data_keys):
                     if param in self.keymap:
                         splunk_data[self.keymap[param]] = config[param]
                     else:
@@ -223,7 +223,7 @@ class SplunkRequest(object):
 
         except TypeError as e:
             self.module.fail_json(
-                msg="invalid data type provided: {0}".format(e)
+                msg="invalid data type provided: {0}".format(e),
             )
 
     def get_urlencoded_data(self, config):
@@ -252,5 +252,6 @@ class SplunkRequest(object):
         if data is not None and self.override:
             data = self.get_urlencoded_data(data)
         return self.post(
-            "/{0}?output_mode=json".format(rest_path), payload=data
+            "/{0}?output_mode=json".format(rest_path),
+            payload=data,
         )
