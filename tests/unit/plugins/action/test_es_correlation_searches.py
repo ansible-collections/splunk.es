@@ -34,9 +34,7 @@ from ansible.playbook.task import Task
 from ansible.template import Templar
 from ansible_collections.ansible.utils.tests.unit.compat.mock import MagicMock, patch
 
-from ansible_collections.splunk.es.plugins.action.splunk_correlation_searches import (
-    ActionModule,
-)
+from ansible_collections.splunk.es.plugins.action.splunk_correlation_searches import ActionModule
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
 
@@ -241,7 +239,7 @@ class TestSplunkEsCorrelationSearches:
                                 {
                                     "framework": "test_framework",
                                     "custom_annotations": ["test5"],
-                                }
+                                },
                             ],
                         },
                         "ui_dispatch_context": "SplunkEnterpriseSecuritySuite",
@@ -259,8 +257,8 @@ class TestSplunkEsCorrelationSearches:
                         "throttle_window_duration": "5s",
                         "throttle_fields_to_group_by": ["test_field1"],
                         "name": "Ansible Test",
-                    }
-                ]
+                    },
+                ],
             },
             "changed": False,
         }
