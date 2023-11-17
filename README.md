@@ -17,7 +17,7 @@ and provide feedback about.
 
 ## Ansible version compatibility
 
-This collection has been tested against following Ansible versions: **>=2.9.10**.
+This collection has been tested against following Ansible versions: **>=2.14.0**.
 
 For collections that support Ansible 2.9, please ensure you update your `network_os` to use the
 fully qualified collection name (for example, `cisco.ios.ios`).
