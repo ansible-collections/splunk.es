@@ -46,4 +46,4 @@ plugin_routing:
       redirect: splunk.es.splunk_adaptive_response_notable_event
     adaptive_response_notable_events:
       redirect: splunk.es.splunk_adaptive_response_notable_events
-requires_ansible: ">=2.14.0"
+requires_ansible: ">=2.9.10"

@@ -5,13 +5,13 @@ Splunk Enterprise Security Collection Release Notes
 .. contents:: Topics
 
 
-v2.2.0
+v2.1.1
 ======
 
 Release Summary
 ---------------
 
-Releasing 2.2.0 with some maintainance updates.
+Releasing version 2.2.0, featuring various maintenance updates.
 
 v2.1.0
 ======
