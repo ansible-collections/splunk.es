@@ -11,7 +11,7 @@ v2.1.1
 Release Summary
 ---------------
 
-Releasing version 2.2.0, featuring various maintenance updates.
+Releasing version 2.1.1, featuring various maintenance updates.
 
 v2.1.0
 ======

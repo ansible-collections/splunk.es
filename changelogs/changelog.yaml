@@ -66,5 +66,5 @@ releases:
     release_date: "2022-09-07"
   2.1.1:
     changes:
-      release_summary: Releasing version 2.2.0, featuring various maintenance updates.
+      release_summary: Releasing version 2.1.1, featuring various maintenance updates.
     release_date: "2023-11-17"
