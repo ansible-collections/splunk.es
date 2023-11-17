@@ -18,47 +18,47 @@ plugins:
     adaptive_response_notable_event:
       description: Manage Splunk Enterprise Security Notable Event Adaptive Responses
       name: adaptive_response_notable_event
-      namespace: ''
+      namespace: ""
       version_added: 1.0.0
     correlation_search:
       description: Manage Splunk Enterprise Security Correlation Searches
       name: correlation_search
-      namespace: ''
+      namespace: ""
       version_added: 1.0.0
     correlation_search_info:
       description: Manage Splunk Enterprise Security Correlation Searches
       name: correlation_search_info
-      namespace: ''
+      namespace: ""
       version_added: 1.0.0
     data_input_monitor:
       description: Manage Splunk Data Inputs of type Monitor
       name: data_input_monitor
-      namespace: ''
+      namespace: ""
       version_added: 1.0.0
     data_input_network:
       description: Manage Splunk Data Inputs of type TCP or UDP
       name: data_input_network
-      namespace: ''
+      namespace: ""
       version_added: 1.0.0
     splunk_adaptive_response_notable_events:
       description: Manage Adaptive Responses notable events resource module
       name: splunk_adaptive_response_notable_events
-      namespace: ''
+      namespace: ""
       version_added: 2.1.0
     splunk_correlation_searches:
       description: Splunk Enterprise Security Correlation searches resource module
       name: splunk_correlation_searches
-      namespace: ''
+      namespace: ""
       version_added: 2.1.0
     splunk_data_inputs_monitor:
       description: Splunk Data Inputs of type Monitor resource module
       name: splunk_data_inputs_monitor
-      namespace: ''
+      namespace: ""
       version_added: 2.1.0
     splunk_data_inputs_network:
       description: Manage Splunk Data Inputs of type TCP or UDP resource module
       name: splunk_data_inputs_network
-      namespace: ''
+      namespace: ""
       version_added: 2.1.0
   netconf: {}
   shell: {}
