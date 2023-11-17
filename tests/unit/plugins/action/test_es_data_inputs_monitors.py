@@ -188,14 +188,6 @@ class TestSplunkEsDataInputsMonitorRules:
             ],
         }
         result = self._plugin.run(task_vars=self._task_vars)
-        print(result)
-        aa = {
-            "data_inputs_monitor": {
-                "after": [{"name": "/var/log", "crc_salt": "<SOURCE>"}],
-                "before": [{"name": "/var/log", "crc_salt": "<SOURCE>"}],
-            },
-            "changed": True,
-        }
         assert result["data_inputs_monitor"]["before"][0]["name"] == "/var/log"
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")

@@ -384,8 +384,6 @@ class TestSplunkEsDataInputsNetworksRules:
             "config": [REQUEST_PAYLOAD["tcp_cooked"]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
-        print("1")
-        print(result)
         assert result["changed"] is False
 
         # tcp_raw
@@ -395,8 +393,6 @@ class TestSplunkEsDataInputsNetworksRules:
             "config": [REQUEST_PAYLOAD["tcp_raw"]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
-        print("2")
-        print(result)
         assert result["changed"] is False
 
         # udp
@@ -405,9 +401,6 @@ class TestSplunkEsDataInputsNetworksRules:
             "state": "merged",
             "config": [REQUEST_PAYLOAD["udp"]],
         }
-        result = self._plugin.run(task_vars=self._task_vars)
-        print("3")
-        print(result)
         assert result["changed"] is False
 
         # splunktcptoken
@@ -417,8 +410,6 @@ class TestSplunkEsDataInputsNetworksRules:
             "config": [REQUEST_PAYLOAD["splunktcptoken"]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
-        print("4")
-        print(result)
         assert result["changed"] is False
 
         # ssl
@@ -428,8 +419,6 @@ class TestSplunkEsDataInputsNetworksRules:
             "config": [REQUEST_PAYLOAD["ssl"]],
         }
         result = self._plugin.run(task_vars=self._task_vars)
-        print("5")
-        print(result)
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
