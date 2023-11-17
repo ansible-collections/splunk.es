@@ -19,8 +19,14 @@ releases:
         namespace: ""
     release_date: "2020-06-22"
   1.0.1:
+    changes:
+      known_issues:
+        - Releasing 1.0.1 with updated changelog.
     release_date: "2020-08-28"
-  1.0.2: {}
+  1.0.2:
+    changes:
+      known_issues:
+        - Re-releasing 1.0.1 with updated galaxy file.
   2.0.0:
     changes:
       bugfixes:
