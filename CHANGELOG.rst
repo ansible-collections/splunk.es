@@ -8,6 +8,11 @@ Splunk Enterprise Security Collection Release Notes
 v2.2.0
 ======
 
+Release Summary
+---------------
+
+Releasing 2.2.0 with some maintainance updates.
+
 v2.1.0
 ======
 
@@ -50,18 +55,18 @@ Bugfixes
 v1.0.2
 ======
 
-Known Issues
-------------
+Release Summary
+---------------
 
-- Re-releasing 1.0.1 with updated galaxy file.
+Re-releasing 1.0.1 with updated galaxy file.
 
 v1.0.1
 ======
 
-Known Issues
-------------
+Release Summary
+---------------
 
-- Releasing 1.0.1 with updated changelog.
+Releasing 1.0.1 with updated changelog.
 
 v1.0.0
 ======

@@ -20,13 +20,11 @@ releases:
     release_date: "2020-06-22"
   1.0.1:
     changes:
-      known_issues:
-        - Releasing 1.0.1 with updated changelog.
+      release_summary: Releasing 1.0.1 with updated changelog.
     release_date: "2020-08-28"
   1.0.2:
     changes:
-      known_issues:
-        - Re-releasing 1.0.1 with updated galaxy file.
+      release_summary: Re-releasing 1.0.1 with updated galaxy file.
   2.0.0:
     changes:
       bugfixes:
@@ -67,4 +65,6 @@ releases:
         namespace: ansible_collections.splunk.es.plugins.modules
     release_date: "2022-09-07"
   2.2.0:
+    changes:
+      release_summary: Releasing 2.2.0 with some maintainance updates.
     release_date: "2023-11-17"
