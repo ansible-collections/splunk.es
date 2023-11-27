@@ -1,0 +1,4 @@
+---
+bugfixes:
+  - Fixed argspec validation for plugins with empty attributes.
+  - Fixed tests for all plugins.
