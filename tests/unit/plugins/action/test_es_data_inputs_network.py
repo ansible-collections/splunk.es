@@ -375,7 +375,17 @@ class TestSplunkEsDataInputsNetworksRules:
         def get_by_path(self, path):
             return get_response
 
+        def create_update(
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
+        ):
+            return get_response
+
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
         # tcp_cooked
         get_response = RESPONSE_PAYLOAD["tcp_cooked"]
