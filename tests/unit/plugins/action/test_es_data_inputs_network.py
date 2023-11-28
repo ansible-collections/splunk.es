@@ -572,10 +572,43 @@ class TestSplunkEsDataInputsNetworksRules:
         def get_by_path(self, path):
             return get_response
 
+        def delete_by_path(
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
+        ):
+            return {}
+        
+        def create_update(
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
+        ):
+            return get_response
+
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
+        
 
         # tcp_cooked
-        get_response = REPLACED_RESPONSE_PAYLOAD["tcp_cooked"]
+        get_response = {
+            "entry": [
+                {
+                    "name": "default:8100",
+                    "content": {
+                        "connection_host": "ip",
+                        "disabled": True,
+                        "host": "$decideOnStartup",
+                        "restrictToHost": "default",
+                    },
+                },
+            ],
+        }
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["tcp_cooked"]],
@@ -584,7 +617,24 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # tcp_raw
-        get_response = REPLACED_RESPONSE_PAYLOAD["tcp_raw"]
+        get_response = {
+            "entry": [
+                {
+                    "name": "default:8101",
+                    "content": {
+                        "connection_host": "ip",
+                        "disabled": True,
+                        "host": "$decideOnStartup",
+                        "index": "default",
+                        "queue": "parsingQueue",
+                        "rawTcpDoneTimeout": 10,
+                        "restrictToHost": "default",
+                        "source": "test_source",
+                        "sourcetype": "test_source_type",
+                    },
+                },
+            ],
+        }
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["tcp_raw"]],
@@ -593,7 +643,25 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # udp
-        get_response = REPLACED_RESPONSE_PAYLOAD["udp"]
+        get_response = {
+            "entry": [
+                {
+                    "name": "default:7890",
+                    "content": {
+                        "connection_host": "ip",
+                        "disabled": True,
+                        "host": "$decideOnStartup",
+                        "index": "default",
+                        "no_appending_timestamp": False,
+                        "no_priority_stripping": False,
+                        "queue": "parsingQueue",
+                        "restrictToHost": "default",
+                        "source": "test_source",
+                        "sourcetype": "test_source_type",
+                    },
+                },
+            ],
+        }
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["udp"]],
@@ -602,7 +670,16 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # splunktcptoken
-        get_response = REPLACED_RESPONSE_PAYLOAD["splunktcptoken"]
+        get_response = {
+            "entry": [
+                {
+                    "name": "splunktcptoken://test_token",
+                    "content": {
+                        "token": "01234567-0123-0123-0123-012345678900",
+                    },
+                },
+            ],
+        }
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["splunktcptoken"]],
