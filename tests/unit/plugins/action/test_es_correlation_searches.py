@@ -152,7 +152,7 @@ REQUEST_PAYLOAD = [
 
 
 class TestSplunkEsCorrelationSearches:
-    def setup(self):
+    def setup_method(self):
         task = MagicMock(Task)
         # Ansible > 2.13 looks for check_mode in task
         task.check_mode = False
@@ -162,7 +162,7 @@ class TestSplunkEsCorrelationSearches:
         connection = patch(
             "ansible_collections.splunk.es.plugins.module_utils.splunk.Connection",
         )
-        connection._socket_path = tempfile.NamedTemporaryFile().name
+        # connection._socket_path = tempfile.NamedTemporaryFile().name
         fake_loader = {}
         templar = Templar(loader=fake_loader)
         self._plugin = ActionModule(

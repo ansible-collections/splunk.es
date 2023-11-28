@@ -28,6 +28,7 @@ builtin_import = "builtins.__import__"
 if PY2:
     builtin_import = "__builtin__.__import__"
 
+import copy
 import tempfile
 
 from ansible.playbook.task import Task
@@ -271,7 +272,7 @@ REPLACED_REQUEST_PAYLOAD = {
 
 
 class TestSplunkEsDataInputsNetworksRules:
-    def setup(self):
+    def setup_method(self):
         task = MagicMock(Task)
         # Ansible > 2.13 looks for check_mode in task
         task.check_mode = False
@@ -300,9 +301,7 @@ class TestSplunkEsDataInputsNetworksRules:
     def test_es_data_inputs_network_merged(self, connection, monkeypatch):
         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
-
         # patch update operation
-        update_response = RESPONSE_PAYLOAD["tcp_cooked"]
 
         def get_by_path(self, path):
             return {}
@@ -320,7 +319,7 @@ class TestSplunkEsDataInputsNetworksRules:
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
         # tcp_cooked
-        update_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        update_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_cooked"])
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["tcp_cooked"]],
@@ -329,7 +328,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is True
 
         # tcp_raw
-        update_response = RESPONSE_PAYLOAD["tcp_raw"]
+        update_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_raw"])
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["tcp_raw"]],
@@ -338,7 +337,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is True
 
         # udp
-        update_response = RESPONSE_PAYLOAD["udp"]
+        update_response = copy.deepcopy(RESPONSE_PAYLOAD["udp"])
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["udp"]],
@@ -347,7 +346,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is True
 
         # splunktcptoken
-        update_response = RESPONSE_PAYLOAD["splunktcptoken"]
+        update_response = copy.deepcopy(RESPONSE_PAYLOAD["splunktcptoken"])
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["splunktcptoken"]],
@@ -356,7 +355,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is True
 
         # ssl
-        update_response = RESPONSE_PAYLOAD["ssl"]
+        update_response = copy.deepcopy(RESPONSE_PAYLOAD["ssl"])
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["ssl"]],
@@ -370,15 +369,23 @@ class TestSplunkEsDataInputsNetworksRules:
         self._plugin._connection._shell = MagicMock()
 
         # patch get operation
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
-
         def get_by_path(self, path):
             return get_response
 
+        def create_update(
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
+        ):
+            return get_response
+
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
         # tcp_cooked
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_cooked"])
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["tcp_cooked"]],
@@ -387,7 +394,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # tcp_raw
-        get_response = RESPONSE_PAYLOAD["tcp_raw"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_raw"])
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["tcp_raw"]],
@@ -396,7 +403,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # udp
-        get_response = RESPONSE_PAYLOAD["udp"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["udp"])
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["udp"]],
@@ -404,7 +411,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # splunktcptoken
-        get_response = RESPONSE_PAYLOAD["splunktcptoken"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["splunktcptoken"])
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["splunktcptoken"]],
@@ -413,7 +420,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # ssl
-        get_response = RESPONSE_PAYLOAD["ssl"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["ssl"])
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["ssl"]],
@@ -427,11 +434,7 @@ class TestSplunkEsDataInputsNetworksRules:
         self._plugin._connection._shell = MagicMock()
 
         # patch get operation
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
-        # patch update operation
         update_response = REPLACED_RESPONSE_PAYLOAD["tcp_cooked"]
-
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
 
         def delete_by_path(
             self,
@@ -459,8 +462,8 @@ class TestSplunkEsDataInputsNetworksRules:
         monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
 
         # tcp_cooked
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
-        update_response = REPLACED_RESPONSE_PAYLOAD["tcp_cooked"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_cooked"])
+        update_response = copy.deepcopy(REPLACED_RESPONSE_PAYLOAD["tcp_cooked"])
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["tcp_cooked"]],
@@ -469,8 +472,8 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is True
 
         # tcp_raw
-        get_response = RESPONSE_PAYLOAD["tcp_raw"]
-        update_response = REPLACED_RESPONSE_PAYLOAD["tcp_raw"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_raw"])
+        update_response = copy.deepcopy(REPLACED_RESPONSE_PAYLOAD["tcp_raw"])
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["tcp_raw"]],
@@ -479,8 +482,8 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is True
 
         # udp
-        get_response = RESPONSE_PAYLOAD["udp"]
-        update_response = REPLACED_RESPONSE_PAYLOAD["udp"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["udp"])
+        update_response = copy.deepcopy(REPLACED_RESPONSE_PAYLOAD["udp"])
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["udp"]],
@@ -489,8 +492,8 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is True
 
         # splunktcptoken
-        get_response = RESPONSE_PAYLOAD["splunktcptoken"]
-        update_response = REPLACED_RESPONSE_PAYLOAD["splunktcptoken"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["splunktcptoken"])
+        update_response = copy.deepcopy(REPLACED_RESPONSE_PAYLOAD["splunktcptoken"])
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["splunktcptoken"]],
@@ -506,17 +509,35 @@ class TestSplunkEsDataInputsNetworksRules:
     ):
         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
-
         # patch get operation
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
 
         def get_by_path(self, path):
             return get_response
 
+        def delete_by_path(
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
+        ):
+            return {}
+
+        def create_update(
+            self,
+            rest_path,
+            data=None,
+            mock=None,
+            mock_data=None,
+        ):
+            return get_response
+
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
+        monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
+        monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
         # tcp_cooked
-        get_response = REPLACED_RESPONSE_PAYLOAD["tcp_cooked"]
+        get_response = copy.deepcopy(REPLACED_RESPONSE_PAYLOAD["tcp_cooked"])
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["tcp_cooked"]],
@@ -525,7 +546,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # tcp_raw
-        get_response = REPLACED_RESPONSE_PAYLOAD["tcp_raw"]
+        get_response = copy.deepcopy(REPLACED_RESPONSE_PAYLOAD["tcp_raw"])
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["tcp_raw"]],
@@ -534,7 +555,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # udp
-        get_response = REPLACED_RESPONSE_PAYLOAD["udp"]
+        get_response = copy.deepcopy(REPLACED_RESPONSE_PAYLOAD["udp"])
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["udp"]],
@@ -543,7 +564,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # splunktcptoken
-        get_response = REPLACED_RESPONSE_PAYLOAD["splunktcptoken"]
+        get_response = copy.deepcopy(REPLACED_RESPONSE_PAYLOAD["splunktcptoken"])
         self._plugin._task.args = {
             "state": "replaced",
             "config": [REPLACED_REQUEST_PAYLOAD["splunktcptoken"]],
@@ -565,7 +586,7 @@ class TestSplunkEsDataInputsNetworksRules:
         ):
             return {}
 
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_cooked"])
 
         def get_by_path(self, path):
             return get_response
@@ -574,7 +595,7 @@ class TestSplunkEsDataInputsNetworksRules:
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
         # tcp_cooked
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_cooked"])
         self._plugin._task.args = {
             "state": "deleted",
             "config": [REQUEST_PAYLOAD["tcp_cooked"]],
@@ -583,7 +604,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is True
 
         # tcp_raw
-        get_response = RESPONSE_PAYLOAD["tcp_raw"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_raw"])
         self._plugin._task.args = {
             "state": "deleted",
             "config": [REQUEST_PAYLOAD["tcp_raw"]],
@@ -661,7 +682,7 @@ class TestSplunkEsDataInputsNetworksRules:
         self._plugin._connection._shell = MagicMock()
 
         # patch get operation
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_cooked"])
 
         def get_by_path(self, path):
             return get_response
@@ -669,7 +690,7 @@ class TestSplunkEsDataInputsNetworksRules:
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
         # tcp_cooked
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_cooked"])
         self._plugin._task.args = {
             "state": "gathered",
             "config": [REQUEST_PAYLOAD["tcp_cooked"]],
@@ -678,7 +699,7 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # tcp_raw
-        get_response = RESPONSE_PAYLOAD["tcp_raw"]
+        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_raw"])
         self._plugin._task.args = {
             "state": "gathered",
             "config": [REQUEST_PAYLOAD["tcp_raw"]],
