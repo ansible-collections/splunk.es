@@ -14,7 +14,6 @@ This Collection is meant for distribution through
 and provide feedback about.
 
 <!--start requires_ansible-->
-
 ## Ansible version compatibility
 
 This collection has been tested against following Ansible versions: **>=2.9.10**.
@@ -24,32 +23,28 @@ fully qualified collection name (for example, `cisco.ios.ios`).
 Plugins and modules within a collection may be tested with only specific Ansible versions.
 A collection may contain metadata that identifies these versions.
 PEP440 is the schema used to describe the versions of Ansible.
-
 <!--end requires_ansible-->
 
 ## Collection Content
 
 <!--start collection content-->
-
 ### Httpapi plugins
-
-| Name                                                                                                             | Description               |
-| ---------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| [splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_httpapi.rst) | HttpApi Plugin for Splunk |
+Name | Description
+--- | ---
+[splunk.es.splunk](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_httpapi.rst)|HttpApi Plugin for Splunk
 
 ### Modules
-
-| Name                                                                                                                                                                              | Description                                                        |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| [splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.adaptive_response_notable_event_module.rst)                 | Manage Splunk Enterprise Security Notable Event Adaptive Responses |
-| [splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_module.rst)                                           | Manage Splunk Enterprise Security Correlation Searches             |
-| [splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_info_module.rst)                                 | Manage Splunk Enterprise Security Correlation Searches             |
-| [splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_monitor_module.rst)                                           | Manage Splunk Data Inputs of type Monitor                          |
-| [splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_network_module.rst)                                           | Manage Splunk Data Inputs of type TCP or UDP                       |
-| [splunk.es.splunk_adaptive_response_notable_events](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_adaptive_response_notable_events_module.rst) | Manage Adaptive Responses notable events resource module           |
-| [splunk.es.splunk_correlation_searches](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_correlation_searches_module.rst)                         | Splunk Enterprise Security Correlation searches resource module    |
-| [splunk.es.splunk_data_inputs_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_monitor_module.rst)                           | Splunk Data Inputs of type Monitor resource module                 |
-| [splunk.es.splunk_data_inputs_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_network_module.rst)                           | Manage Splunk Data Inputs of type TCP or UDP resource module       |
+Name | Description
+--- | ---
+[splunk.es.adaptive_response_notable_event](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.adaptive_response_notable_event_module.rst)|Manage Splunk Enterprise Security Notable Event Adaptive Responses
+[splunk.es.correlation_search](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_module.rst)|Manage Splunk Enterprise Security Correlation Searches
+[splunk.es.correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.correlation_search_info_module.rst)|Manage Splunk Enterprise Security Correlation Searches
+[splunk.es.data_input_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_monitor_module.rst)|Manage Splunk Data Inputs of type Monitor
+[splunk.es.data_input_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.data_input_network_module.rst)|Manage Splunk Data Inputs of type TCP or UDP
+[splunk.es.splunk_adaptive_response_notable_events](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_adaptive_response_notable_events_module.rst)|Manage Adaptive Responses notable events resource module
+[splunk.es.splunk_correlation_searches](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_correlation_searches_module.rst)|Splunk Enterprise Security Correlation searches resource module
+[splunk.es.splunk_data_inputs_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_monitor_module.rst)|Splunk Data Inputs of type Monitor resource module
+[splunk.es.splunk_data_inputs_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_network_module.rst)|Manage Splunk Data Inputs of type TCP or UDP resource module
 
 <!--end collection content-->
 

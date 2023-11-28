@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - Fixed argspec validation for plugins with empty task attributes when run with Ansible 2.9.
