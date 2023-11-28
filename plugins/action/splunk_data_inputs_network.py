@@ -76,7 +76,7 @@ class ActionModule(ActionBase):
 
     def _check_argspec(self):
         aav = AnsibleArgSpecValidator(
-            data=self._task.args,
+            data=utils.remove_empties(self._task.args),
             schema=DOCUMENTATION,
             schema_format="doc",
             name=self._task.action,

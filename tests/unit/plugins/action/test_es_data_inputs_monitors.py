@@ -97,7 +97,7 @@ REQUEST_PAYLOAD = [
 
 
 class TestSplunkEsDataInputsMonitorRules:
-    def setup(self):
+    def setup_method(self):
         task = MagicMock(Task)
         # Ansible > 2.13 looks for check_mode in task
         task.check_mode = False
