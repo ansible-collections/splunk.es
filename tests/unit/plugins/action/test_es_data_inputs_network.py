@@ -28,8 +28,8 @@ builtin_import = "builtins.__import__"
 if PY2:
     builtin_import = "__builtin__.__import__"
 
-import tempfile
 import copy
+import tempfile
 
 from ansible.playbook.task import Task
 from ansible.template import Templar
