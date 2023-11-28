@@ -19,5 +19,4 @@ collections/
 # Tracked but manually formatted
 
 # WIP
-tests/integration/targets/ios_config/templates/config.js
 README.md
