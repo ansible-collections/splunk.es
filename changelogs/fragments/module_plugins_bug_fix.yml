@@ -1,4 +1,3 @@
 ---
 bugfixes:
-  - Fixed argspec validation for plugins with empty attributes.
-  - Fixed tests for all plugins.
+  - Fixed argspec validation for plugins with empty task attributes when run with Ansible 2.9.
