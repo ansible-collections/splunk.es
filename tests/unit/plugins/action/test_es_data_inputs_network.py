@@ -300,7 +300,6 @@ class TestSplunkEsDataInputsNetworksRules:
     def test_es_data_inputs_network_merged(self, connection, monkeypatch):
         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
-
         # patch update operation
         update_response = RESPONSE_PAYLOAD["tcp_cooked"]
 
@@ -370,7 +369,19 @@ class TestSplunkEsDataInputsNetworksRules:
         self._plugin._connection._shell = MagicMock()
 
         # patch get operation
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        get_response = {
+            "entry": [
+                {
+                    "name": "default:8100",
+                    "content": {
+                        "connection_host": "ip",
+                        "disabled": False,
+                        "host": "$decideOnStartup",
+                        "restrictToHost": "default",
+                    },
+                },
+            ],
+        }
 
         def get_by_path(self, path):
             return get_response
@@ -388,7 +399,19 @@ class TestSplunkEsDataInputsNetworksRules:
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
         # tcp_cooked
-        get_response = RESPONSE_PAYLOAD["tcp_cooked"]
+        get_response = {
+            "entry": [
+                {
+                    "name": "default:8100",
+                    "content": {
+                        "connection_host": "ip",
+                        "disabled": False,
+                        "host": "$decideOnStartup",
+                        "restrictToHost": "default",
+                    },
+                },
+            ],
+        }
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["tcp_cooked"]],
@@ -397,7 +420,24 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # tcp_raw
-        get_response = RESPONSE_PAYLOAD["tcp_raw"]
+        get_response = {
+            "entry": [
+                {
+                    "name": "default:8101",
+                    "content": {
+                        "connection_host": "ip",
+                        "disabled": True,
+                        "host": "$decideOnStartup",
+                        "index": "default",
+                        "queue": "parsingQueue",
+                        "rawTcpDoneTimeout": 9,
+                        "restrictToHost": "default",
+                        "source": "test_source",
+                        "sourcetype": "test_source_type",
+                    },
+                },
+            ],
+        }
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["tcp_raw"]],
@@ -414,7 +454,16 @@ class TestSplunkEsDataInputsNetworksRules:
         assert result["changed"] is False
 
         # splunktcptoken
-        get_response = RESPONSE_PAYLOAD["splunktcptoken"]
+        get_response = {
+            "entry": [
+                {
+                    "name": "splunktcptoken://test_token",
+                    "content": {
+                        "token": "01234567-0123-0123-0123-012345678901",
+                    },
+                },
+            ],
+        }
         self._plugin._task.args = {
             "state": "merged",
             "config": [REQUEST_PAYLOAD["splunktcptoken"]],
