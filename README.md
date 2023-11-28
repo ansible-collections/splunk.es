@@ -1,6 +1,7 @@
 # Splunk Enterprise Security Ansible Collection
 
 [![CI](https://zuul-ci.org/gated.svg)](https://dashboard.zuul.ansible.com/t/ansible/project/github.com/ansible-collections/splunk.es) <!--[![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/splunk.es)](https://codecov.io/gh/ansible-collections/splunk.es)-->
+[![CI](https://github.com/ansible-collections/splunk.es/actions/workflows/tests.yml/badge.svg?branch=main&event=schedule)](https://github.com/ansible-collections/splunk.es/actions/workflows/tests.yml)
 
 This is the [Ansible
 Collection](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html)
