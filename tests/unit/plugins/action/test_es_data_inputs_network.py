@@ -434,11 +434,7 @@ class TestSplunkEsDataInputsNetworksRules:
         self._plugin._connection._shell = MagicMock()
 
         # patch get operation
-        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_cooked"])
-        # patch update operation
         update_response = REPLACED_RESPONSE_PAYLOAD["tcp_cooked"]
-
-        get_response = copy.deepcopy(RESPONSE_PAYLOAD["tcp_cooked"])
 
         def delete_by_path(
             self,
