@@ -580,7 +580,7 @@ class TestSplunkEsDataInputsNetworksRules:
             mock_data=None,
         ):
             return {}
-        
+
         def create_update(
             self,
             rest_path,
@@ -593,7 +593,6 @@ class TestSplunkEsDataInputsNetworksRules:
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
         monkeypatch.setattr(SplunkRequest, "delete_by_path", delete_by_path)
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
-        
 
         # tcp_cooked
         get_response = {
