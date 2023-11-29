@@ -68,3 +68,11 @@ releases:
     changes:
       release_summary: Releasing version 2.1.1, featuring various maintenance updates.
     release_date: "2023-11-17"
+  2.1.2:
+    changes:
+      bugfixes:
+        - Fixed argspec validation for plugins with empty task attributes when run with
+          Ansible 2.9.
+    fragments:
+      - module_plugins_bug_fix.yml
+    release_date: "2023-11-29"

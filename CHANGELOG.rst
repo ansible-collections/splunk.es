@@ -5,6 +5,14 @@ Splunk Enterprise Security Collection Release Notes
 .. contents:: Topics
 
 
+v2.1.2
+======
+
+Bugfixes
+--------
+
+- Fixed argspec validation for plugins with empty task attributes when run with Ansible 2.9.
+
 v2.1.1
 ======
 
