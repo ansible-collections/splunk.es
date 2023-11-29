@@ -5,7 +5,7 @@ Splunk Enterprise Security Collection Release Notes
 .. contents:: Topics
 
 
-v2.2.1
+v2.1.2
 ======
 
 Bugfixes

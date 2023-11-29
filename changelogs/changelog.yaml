@@ -68,7 +68,7 @@ releases:
     changes:
       release_summary: Releasing version 2.1.1, featuring various maintenance updates.
     release_date: "2023-11-17"
-  2.2.1:
+  2.1.2:
     changes:
       bugfixes:
         - Fixed argspec validation for plugins with empty task attributes when run with
