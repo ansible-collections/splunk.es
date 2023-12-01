@@ -1,12 +1,10 @@
-### requried
-# this can be a company/brand or product namespace under which all content lives
 ---
 namespace: splunk
 name: es
 authors:
   - Ansible Seurity Team (https://github.com/ansible-security)
 dependencies:
-  ansible.netcommon: ">=2.5.1"
+  ansible.netcommon: ">=6.0.0"
 description: Ansible Security Collection for Splunk Enterprise Security SIEM
 license:
   - GPL-3.0-or-later
@@ -18,4 +16,4 @@ documentation: https://github.com/ansible-collections/splunk.es
 homepage: https://github.com/ansible-collections/splunk.es
 issues: https://github.com/ansible-collections/splunk.es/issues
 readme: README.md
-version: "2.1.2"
+version: "3.0.0"
