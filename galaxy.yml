@@ -6,11 +6,8 @@ authors:
 dependencies:
   ansible.netcommon: ">=6.0.0"
 description: Ansible Security Collection for Splunk Enterprise Security SIEM
-license:
-  - GPL-3.0-or-later
-tags:
-  - security
-  - splunk
+license_file: LICENSE
+tags: ["security", "splunk"]
 repository: https://github.com/ansible-collections/splunk.es
 documentation: https://github.com/ansible-collections/splunk.es
 homepage: https://github.com/ansible-collections/splunk.es
