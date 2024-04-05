@@ -32,11 +32,9 @@ import tempfile
 
 from ansible.playbook.task import Task
 from ansible.template import Templar
-from ansible_collections.ansible.utils.tests.unit.compat.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
-from ansible_collections.splunk.es.plugins.action.splunk_adaptive_response_notable_events import (
-    ActionModule,
-)
+from ansible_collections.splunk.es.plugins.action.splunk_adaptive_response_notable_events import ActionModule
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
 
