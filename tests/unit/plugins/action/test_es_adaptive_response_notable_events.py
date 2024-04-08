@@ -30,9 +30,10 @@ if PY2:
 
 import tempfile
 
+from unittest.mock import MagicMock, patch
+
 from ansible.playbook.task import Task
 from ansible.template import Templar
-from ansible_collections.ansible.utils.tests.unit.compat.mock import MagicMock, patch
 
 from ansible_collections.splunk.es.plugins.action.splunk_adaptive_response_notable_events import (
     ActionModule,
