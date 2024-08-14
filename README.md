@@ -19,7 +19,7 @@ and provide feedback about.
 
 * Join the Ansible forum:
   * [Get Help](https://forum.ansible.com/c/help/6): get help or help others.
-  * [Posts tagged with 'splunk-es'](https://forum.ansible.com/tag/splunk-es): subscribe to participate in collection-related conversations.
+  * [Posts tagged with 'security'](https://forum.ansible.com/tag/security): subscribe to participate in collection-related conversations.
   * [Social Spaces](https://forum.ansible.com/c/chat/4): gather and interact with fellow enthusiasts.
   * [News & Announcements](https://forum.ansible.com/c/news/5): track project-wide announcements including social events.
 
