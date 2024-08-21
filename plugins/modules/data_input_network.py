@@ -187,6 +187,9 @@ def main():
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         not_rest_data_keys=["state", "datatype", "protocol"],
     )
+
+    splunk_data = {}
+
     # This is where the splunk_* args are processed
     request_data = splunk_request.get_data()
 
