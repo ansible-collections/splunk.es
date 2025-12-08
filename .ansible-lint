@@ -1,3 +1,10 @@
 ---
 
 profile: production
+
+exclude_paths:
+  - plugins/modules/adaptive_response_notable_event.py
+  - plugins/modules/correlation_search.py
+  - plugins/modules/correlation_search_info.py
+  - plugins/modules/data_input_monitor.py
+  - plugins/modules/data_input_network.py

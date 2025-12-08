@@ -19,7 +19,7 @@ description:
   - This module allows for addition or deletion of File and Directory Monitor Data Inputs in Splunk.
 version_added: "1.0.0"
 deprecated:
-  alternative: splunk_data_inputs_monitor
+  alternative: splunk.es.splunk_data_inputs_monitor
   why: Newer and updated modules released with more functionality.
   removed_at_date: '2024-09-01'
 options:
@@ -140,7 +140,7 @@ EXAMPLES = """
     recursive: true
 """
 
-from ansible.module_utils._text import to_text
+from ansible.module_utils.common.text.converters import to_text
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves.urllib.parse import quote_plus
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils

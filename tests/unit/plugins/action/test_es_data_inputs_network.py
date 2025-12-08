@@ -21,12 +21,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible.module_utils.six import PY2
-
-
 builtin_import = "builtins.__import__"
-if PY2:
-    builtin_import = "__builtin__.__import__"
 
 import copy
 import tempfile

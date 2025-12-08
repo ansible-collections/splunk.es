@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Splunk module utilities for Ansible."""
 
 # (c) 2018, Adam Miller (admiller@redhat.com)
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
@@ -6,16 +7,16 @@
 from __future__ import absolute_import, division, print_function
 
 
-__metaclass__ = type
+__metaclass__ = type  # pylint: disable=invalid-name
 try:
     from ssl import CertificateError
 except ImportError:
     from backports.ssl_match_hostname import CertificateError
+from urllib.parse import urlencode
 
-from ansible.module_utils._text import to_text
-from ansible.module_utils.connection import Connection, ConnectionError
-from ansible.module_utils.six import iteritems
-from ansible.module_utils.six.moves.urllib.parse import urlencode
+from ansible.module_utils.common.text.converters import to_text
+from ansible.module_utils.connection import Connection
+from ansible.module_utils.connection import ConnectionError as AnsibleConnectionError
 
 
 def parse_splunk_args(module):
@@ -39,13 +40,13 @@ def parse_splunk_args(module):
         return splunk_data
     except TypeError as e:
         module.fail_json(
-            msg="Invalid data type provided for splunk module_util.parse_splunk_args: {0}".format(
-                e,
-            ),
+            msg=f"Invalid data type provided for splunk module_util.parse_splunk_args: {e}",
         )
+        return None
 
 
 def remove_get_keys_from_payload_dict(payload_dict, remove_key_list):
+    """Remove specified keys from a payload dictionary."""
     for each_key in remove_key_list:
         if each_key in payload_dict:
             payload_dict.pop(each_key)
@@ -61,7 +62,7 @@ def map_params_to_obj(module_params, key_transform):
     """
 
     obj = {}
-    for k, v in iteritems(key_transform):
+    for k, v in key_transform.items():
         if k in module_params and (
             module_params.get(k) or module_params.get(k) == 0 or module_params.get(k) is False
         ):
@@ -77,7 +78,7 @@ def map_obj_to_params(module_return_params, key_transform):
     :returns: dict with api returned value to module param value
     """
     temp = {}
-    for k, v in iteritems(key_transform):
+    for k, v in key_transform.items():
         if v in module_return_params and (
             module_return_params.get(v)
             or module_return_params.get(v) == 0
@@ -88,16 +89,21 @@ def map_obj_to_params(module_return_params, key_transform):
 
 
 def set_defaults(config, defaults):
+    """Set default values in config dictionary if keys are not present."""
     for k, v in defaults.items():
         config.setdefault(k, v)
     return config
 
 
-class SplunkRequest(object):
+class SplunkRequest:
+    """Handle HTTP requests to the Splunk REST API."""
+
+    # pylint: disable=fixme
     # TODO: There is a ton of code only present to make sure the legacy modules
     # work as intended. Once the modules are deprecated and no longer receive
     # support, this object needs to be rewritten.
-    def __init__(
+    # pylint: enable=fixme
+    def __init__(  # pylint: disable=too-many-arguments,unused-argument
         self,
         module=None,
         headers=None,
@@ -121,13 +127,9 @@ class SplunkRequest(object):
             self.legacy = True
         elif connection:
             self.connection = connection
-            try:
-                self.connection.load_platform_plugins("splunk.es.splunk")
-                self.module = action_module
-                self.legacy = False
-
-            except ConnectionError:
-                raise
+            self.connection.load_platform_plugins("splunk.es.splunk")
+            self.module = action_module
+            self.legacy = False
 
         # The Splunk REST API endpoints often use keys that aren't pythonic so
         # we need to handle that with a mapping to allow keys to be proper
@@ -162,42 +164,47 @@ class SplunkRequest(object):
                 ) in to_text(response):
                     return {}
 
-            if not (code >= 200 and code < 300):
+            if not 200 <= code < 300:
                 self.module.fail_json(
-                    msg="Splunk httpapi returned error {0} with message {1}".format(
-                        code,
-                        response,
-                    ),
+                    msg=f"Splunk httpapi returned error {code} with message {response}",
                 )
+                return None
 
             return response
 
-        except ConnectionError as e:
+        except AnsibleConnectionError as e:
             self.module.fail_json(
-                msg="connection error occurred: {0}".format(e),
+                msg=f"connection error occurred: {e}",
             )
+            return None
         except CertificateError as e:
             self.module.fail_json(
-                msg="certificate error occurred: {0}".format(e),
+                msg=f"certificate error occurred: {e}",
             )
+            return None
         except ValueError as e:
             try:
                 self.module.fail_json(
-                    msg="certificate not found: {0}".format(e),
+                    msg=f"certificate not found: {e}",
                 )
             except AttributeError:
                 pass
+            return None
 
     def get(self, url, **kwargs):
+        """Perform a GET request to the Splunk API."""
         return self._httpapi_error_handle("GET", url, **kwargs)
 
     def put(self, url, **kwargs):
+        """Perform a PUT request to the Splunk API."""
         return self._httpapi_error_handle("PUT", url, **kwargs)
 
     def post(self, url, **kwargs):
+        """Perform a POST request to the Splunk API."""
         return self._httpapi_error_handle("POST", url, **kwargs)
 
     def delete(self, url, **kwargs):
+        """Perform a DELETE request to the Splunk API."""
         return self._httpapi_error_handle("DELETE", url, **kwargs)
 
     def get_data(self, config=None):
@@ -223,10 +230,12 @@ class SplunkRequest(object):
 
         except TypeError as e:
             self.module.fail_json(
-                msg="invalid data type provided: {0}".format(e),
+                msg=f"invalid data type provided: {e}",
             )
+            return None
 
     def get_urlencoded_data(self, config):
+        """Get data as URL-encoded string for REST API requests."""
         return urlencode(self.get_data(config))
 
     def get_by_path(self, rest_path):
@@ -234,14 +243,14 @@ class SplunkRequest(object):
         GET attributes of a monitor by rest path
         """
 
-        return self.get("/{0}?output_mode=json".format(rest_path))
+        return self.get(f"/{rest_path}?output_mode=json")
 
     def delete_by_path(self, rest_path):
         """
         DELETE attributes of a monitor by rest path
         """
 
-        return self.delete("/{0}?output_mode=json".format(rest_path))
+        return self.delete(f"/{rest_path}?output_mode=json")
 
     def create_update(self, rest_path, data):
         """
@@ -252,6 +261,6 @@ class SplunkRequest(object):
         if data is not None and self.override:
             data = self.get_urlencoded_data(data)
         return self.post(
-            "/{0}?output_mode=json".format(rest_path),
+            f"/{rest_path}?output_mode=json",
             payload=data,
         )

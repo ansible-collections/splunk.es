@@ -1,2 +1,4 @@
 ---
 testcase: "*"
+ansible_user: admin
+ansible_httpapi_pass: Splunk10vin!
