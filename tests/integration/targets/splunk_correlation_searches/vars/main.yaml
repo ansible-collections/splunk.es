@@ -1,0 +1,113 @@
+---
+merged:
+  before: []
+  after:
+    - annotations:
+        cis20:
+          - test1
+        custom:
+          - custom_annotations:
+              - test5
+            framework: test_framework
+        kill_chain_phases:
+          - test3
+        mitre_attack:
+          - test2
+        nist:
+          - test4
+      app: DA-ESS-EndpointProtection
+      cron_schedule: "*/5 * * * *"
+      description: test description
+      disabled: false
+      name: Ansible Test
+      schedule_priority: default
+      schedule_window: "0"
+      scheduling: realtime
+      search: '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authentication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Failed_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authentication.src" as "src" | where "count">=6'
+      suppress_alerts: false
+      throttle_fields_to_group_by:
+        - test_field1
+      throttle_window_duration: 5s
+      time_earliest: "-24h"
+      time_latest: "now"
+      trigger_alert: once
+      trigger_alert_when: number of events
+      trigger_alert_when_condition: greater than
+      trigger_alert_when_value: "10"
+      ui_dispatch_context: SplunkEnterpriseSecuritySuite
+
+replaced:
+  before:
+    - annotations:
+        cis20:
+          - test1
+        custom:
+          - custom_annotations:
+              - test5
+            framework: test_framework
+        kill_chain_phases:
+          - test3
+        mitre_attack:
+          - test2
+        nist:
+          - test4
+      app: DA-ESS-EndpointProtection
+      cron_schedule: "*/5 * * * *"
+      description: test description
+      disabled: false
+      name: Ansible Test
+      schedule_priority: default
+      schedule_window: "0"
+      scheduling: realtime
+      search: '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authentication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Failed_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authentication.src" as "src" | where "count">=6'
+      suppress_alerts: false
+      throttle_fields_to_group_by:
+        - test_field1
+      throttle_window_duration: 5s
+      time_earliest: "-24h"
+      time_latest: "now"
+      trigger_alert: once
+      trigger_alert_when: number of events
+      trigger_alert_when_condition: greater than
+      trigger_alert_when_value: "10"
+      ui_dispatch_context: SplunkEnterpriseSecuritySuite
+  after:
+    - annotations:
+        cis20:
+          - test1
+          - test2
+        custom:
+          - custom_annotations:
+              - test9
+              - test10
+            framework: test_framework2
+        kill_chain_phases:
+          - test5
+          - test6
+        mitre_attack:
+          - test3
+          - test4
+        nist:
+          - test7
+          - test8
+      app: SplunkEnterpriseSecuritySuite
+      cron_schedule: "*/5 * * * *"
+      description: test description
+      disabled: false
+      name: Ansible Test
+      schedule_priority: default
+      schedule_window: auto
+      scheduling: continuous
+      search: '| tstats summariesonly=true values("Authentication.tag") as "tag",dc("Authentication.user") as "user_count",dc("Authentication.dest") as "dest_count",count from datamodel="Authentication"."Authentication" where nodename="Authentication.Failed_Authentication" by "Authentication.app","Authentication.src" | rename "Authentication.app" as "app","Authentication.src" as "src" | where "count">=6'
+      suppress_alerts: true
+      throttle_fields_to_group_by:
+        - test_field1
+        - test_field2
+      throttle_window_duration: 5s
+      time_earliest: "-24h"
+      time_latest: "now"
+      trigger_alert: once
+      trigger_alert_when: number of events
+      trigger_alert_when_condition: greater than
+      trigger_alert_when_value: "10"
+      ui_dispatch_context: SplunkEnterpriseSecuritySuite
