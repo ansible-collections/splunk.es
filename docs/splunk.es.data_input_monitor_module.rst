@@ -18,7 +18,7 @@ DEPRECATED
 ----------
 :Removed in collection release after 2024-09-01
 :Why: Newer and updated modules released with more functionality.
-:Alternative: splunk_data_inputs_monitor
+:Alternative: splunk.es.splunk_data_inputs_monitor
 
 
 

@@ -21,7 +21,7 @@ description:
     with a correlation search
 version_added: "1.0.0"
 deprecated:
-  alternative: splunk_adaptive_response_notable_events
+  alternative: splunk.es.splunk_adaptive_response_notable_events
   why: Newer and updated modules released with more functionality.
   removed_at_date: '2024-09-01'
 options:
@@ -189,8 +189,8 @@ EXAMPLES = """
 
 import json
 
-from ansible.module_utils._text import to_text
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.common.text.converters import to_text
 from ansible.module_utils.six.moves.urllib.parse import quote_plus, urlencode
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
 

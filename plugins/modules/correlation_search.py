@@ -19,7 +19,7 @@ description:
   - This module allows for creation, deletion, and modification of Splunk Enterprise Security Correlation Searches
 version_added: "1.0.0"
 deprecated:
-  alternative: splunk_correlation_searches
+  alternative: splunk.es.splunk_correlation_searches
   why: Newer and updated modules released with more functionality.
   removed_at_date: '2024-09-01'
 options:
@@ -175,8 +175,8 @@ EXAMPLES = """
     state: "present"
 """
 
-from ansible.module_utils._text import to_text
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.common.text.converters import to_text
 from ansible.module_utils.six.moves.urllib.error import HTTPError
 from ansible.module_utils.six.moves.urllib.parse import quote_plus, urlencode
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
