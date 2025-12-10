@@ -12,4 +12,3 @@ removed_features:
   - "adaptive_response_notable_event module has been removed. Use splunk.es.splunk_adaptive_response_notable_events resource module instead."
 deprecated_features:
   - "correlation_search_info module is deprecated. Use splunk.es.splunk_correlation_search_info instead."
-
