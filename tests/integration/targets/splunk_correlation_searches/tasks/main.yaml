@@ -1,5 +1,5 @@
 ---
-- name: Include CLI tasks
+- name: Include CLI tasks for correlation searches
   ansible.builtin.include_tasks: cli.yaml
   tags:
     - cli
