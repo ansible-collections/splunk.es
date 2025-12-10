@@ -1,0 +1,14 @@
+---
+- name: Create test correlation search for info module testing
+  splunk.es.splunk_correlation_searches:
+    config:
+      - name: Ansible Test Info
+        description: Test correlation search for info module testing
+        search: source="/var/log/test.log"
+        ui_dispatch_context: SplunkEnterpriseSecuritySuite
+        time_earliest: -24h
+        time_latest: now
+        cron_schedule: "*/5 * * * *"
+        scheduling: continuous
+    state: merged
+  register: populate

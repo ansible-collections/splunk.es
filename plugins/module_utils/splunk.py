@@ -12,11 +12,11 @@ try:
     from ssl import CertificateError
 except ImportError:
     from backports.ssl_match_hostname import CertificateError
-from urllib.parse import urlencode
 
 from ansible.module_utils.common.text.converters import to_text
 from ansible.module_utils.connection import Connection
 from ansible.module_utils.connection import ConnectionError as AnsibleConnectionError
+from ansible.module_utils.six.moves.urllib.parse import urlencode
 
 
 def parse_splunk_args(module):

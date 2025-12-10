@@ -1,6 +1,0 @@
----
-- name: Collect all test cases
-  ansible.builtin.find:
-    paths: "{{ role_path }}/tests/redirection"
-    patterns: "{{ testcase }}.yaml"
-  register: test_cases

@@ -1,0 +1,6 @@
+---
+- name: Delete test correlation search
+  splunk.es.splunk_correlation_searches:
+    config:
+      - name: Ansible Test Info
+    state: deleted
