@@ -1,0 +1,14 @@
+---
+breaking_changes:
+  - "Removed deprecated modules that were scheduled for removal on 2024-09-01"
+  - "correlation_search - Use splunk.es.splunk_correlation_searches instead"
+  - "data_input_monitor - Use splunk.es.splunk_data_inputs_monitor instead"
+  - "data_input_network - Use splunk.es.splunk_data_inputs_network instead"
+  - "adaptive_response_notable_event - Use splunk.es.splunk_adaptive_response_notable_events instead"
+removed_features:
+  - "correlation_search module has been removed. Use splunk.es.splunk_correlation_searches resource module instead."
+  - "data_input_monitor module has been removed. Use splunk.es.splunk_data_inputs_monitor resource module instead."
+  - "data_input_network module has been removed. Use splunk.es.splunk_data_inputs_network resource module instead."
+  - "adaptive_response_notable_event module has been removed. Use splunk.es.splunk_adaptive_response_notable_events resource module instead."
+deprecated_features:
+  - "correlation_search_info module is deprecated. Use splunk.es.splunk_correlation_search_info instead."

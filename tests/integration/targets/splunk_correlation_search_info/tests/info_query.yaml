@@ -1,0 +1,45 @@
+---
+- debug:
+    msg: START splunk_correlation_search_info integration tests on connection={{ ansible_connection }}
+
+- include_tasks: _populate_config.yaml
+
+- block:
+    - name: Test splunk_correlation_search_info - Query specific search by name
+      splunk.es.splunk_correlation_search_info:
+        name: Ansible Test Info
+      register: result_specific
+
+    - name: Assert specific correlation search info query succeeded
+      ansible.builtin.assert:
+        that:
+          - result_specific['changed'] == false
+          - result_specific['failed'] == false
+          - result_specific['correlation_searches'] is defined
+          - result_specific['correlation_searches'] | length > 0
+
+    - name: Test splunk_correlation_search_info - Query all correlation searches
+      splunk.es.splunk_correlation_search_info:
+      register: result_all
+
+    - name: Assert all correlation searches query succeeded
+      ansible.builtin.assert:
+        that:
+          - result_all['changed'] == false
+          - result_all['failed'] == false
+          - result_all['correlation_searches'] is defined
+          - result_all['correlation_searches']['entry'] is defined
+
+    - name: Test splunk_correlation_search_info - Query non-existent search
+      splunk.es.splunk_correlation_search_info:
+        name: NonExistentCorrelationSearch12345
+      register: result_nonexistent
+
+    - name: Assert non-existent search query handled gracefully
+      ansible.builtin.assert:
+        that:
+          - result_nonexistent['changed'] == false
+          - result_nonexistent['failed'] == false
+
+  always:
+    - include_tasks: _remove_config.yaml
