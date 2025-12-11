@@ -1,4 +1,2 @@
 ---
 testcase: "*"
-ansible_user: admin
-ansible_httpapi_pass: "{{ lookup('env', 'SPLUNK_PASSWORD') }}"
