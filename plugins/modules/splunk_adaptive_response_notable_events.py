@@ -497,7 +497,7 @@ before:
   description: The configuration as structured data prior to module invocation.
   returned: always
   type: list
-  sample: The configuration returned will always be in the same format of the parameters above.
+  sample: The configuration returned will always be in the same format of the parameters above (banana3).
 after:
   description: The configuration as structured data after module completion.
   returned: when changed
