@@ -7,24 +7,31 @@ concurrency:
 
 on:
   pull_request_target:
-    branches:
-      - main
-      - 'stable-*'
+    branches: [main]
+    types:
+      - labeled
+      - opened
+      - reopened
+      - synchronize
+    paths:
+      - "plugins/**"
+      - "tests/integration/**"
   workflow_dispatch:
 
 jobs:
+  safe-to-test:
+    if: >-
+      github.event.label.name == 'safe to test' ||
+      github.event.action != 'labeled'
+    uses: ansible-network/github_actions/.github/workflows/safe-to-test.yml@main
+
   network-integration:
     name: Network Integration Tests
     runs-on: [self-hosted]
+    needs:
+      - safe-to-test
     strategy:
       fail-fast: false
-      max-parallel: 1
-      matrix:
-        target:
-          - splunk_adaptive_response_notable_events
-          - splunk_correlation_searches
-          - splunk_data_inputs_monitor
-          - splunk_data_inputs_network
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -53,4 +60,4 @@ jobs:
         working-directory: ansible_collections/splunk/es
         run: |
           source ~/venv-runner/bin/activate
-          ansible-test network-integration ${{ matrix.target }} -v --color yes
+          ansible-test network-integration -v --color yes
