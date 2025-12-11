@@ -14,35 +14,8 @@ except ImportError:
     from backports.ssl_match_hostname import CertificateError
 
 from ansible.module_utils.common.text.converters import to_text
-from ansible.module_utils.connection import Connection
 from ansible.module_utils.connection import ConnectionError as AnsibleConnectionError
 from ansible.module_utils.six.moves.urllib.parse import urlencode
-
-
-def parse_splunk_args(module):
-    """
-    Get the valid fields that should be passed to the REST API as urlencoded
-    data so long as the argument specification to the module follows the
-    convention:
-        1) name field is Required to be passed as data to REST API
-        2) all module argspec items that should be passed to data are not
-            Required by the module and are set to default=None
-    """
-    try:
-        splunk_data = {}
-        for argspec in module.argument_spec:
-            if (
-                "default" in module.argument_spec[argspec]
-                and module.argument_spec[argspec]["default"] is None
-                and module.params[argspec] is not None
-            ):
-                splunk_data[argspec] = module.params[argspec]
-        return splunk_data
-    except TypeError as e:
-        module.fail_json(
-            msg=f"Invalid data type provided for splunk module_util.parse_splunk_args: {e}",
-        )
-        return None
 
 
 def remove_get_keys_from_payload_dict(payload_dict, remove_key_list):
@@ -98,38 +71,23 @@ def set_defaults(config, defaults):
 class SplunkRequest:
     """Handle HTTP requests to the Splunk REST API."""
 
-    # pylint: disable=fixme
-    # TODO: There is a ton of code only present to make sure the legacy modules
-    # work as intended. Once the modules are deprecated and no longer receive
-    # support, this object needs to be rewritten.
-    # pylint: enable=fixme
-    def __init__(  # pylint: disable=too-many-arguments,unused-argument
+    def __init__(
         self,
-        module=None,
-        headers=None,
-        action_module=None,  # needs to be dealt with after end of support
-        connection=None,
+        action_module,
+        connection,
         keymap=None,
         not_rest_data_keys=None,
-        # The legacy modules had a partial implementation of keymap, where the data
-        # passed to 'create_update' would completely be overwritten, and replaced
-        # by the 'get_data' function. This flag ensures that the modules that hadn't
-        # yet been updated to use the keymap, can continue to work as originally intended
-        override=True,
     ):
-        # check if call being made by legacy module (passes 'module' param)
-        self.module = module
-        if module:
-            # This will be removed, once all of the available modules
-            # are moved to use action plugin design, as otherwise test
-            # would start to complain without the implementation.
-            self.connection = Connection(self.module._socket_path)
-            self.legacy = True
-        elif connection:
-            self.connection = connection
-            self.connection.load_platform_plugins("splunk.es.splunk")
-            self.module = action_module
-            self.legacy = False
+        """Initialize SplunkRequest for action plugin usage.
+
+        :param action_module: The action plugin module instance
+        :param connection: The connection object to use for API requests
+        :param keymap: Optional mapping of module params to API params
+        :param not_rest_data_keys: List of keys to exclude from REST data
+        """
+        self.connection = connection
+        self.connection.load_platform_plugins("splunk.es.splunk")
+        self.module = action_module
 
         # The Splunk REST API endpoints often use keys that aren't pythonic so
         # we need to handle that with a mapping to allow keys to be proper
@@ -138,9 +96,6 @@ class SplunkRequest:
             self.keymap = {}
         else:
             self.keymap = keymap
-
-        # Select whether payload passed to create update is overriden or not
-        self.override = override
 
         # This allows us to exclude specific argspec keys from being included by
         # the rest data that don't follow the splunk_* naming convention
@@ -207,18 +162,19 @@ class SplunkRequest:
         """Perform a DELETE request to the Splunk API."""
         return self._httpapi_error_handle("DELETE", url, **kwargs)
 
-    def get_data(self, config=None):
+    def get_data(self, config):
         """
         Get the valid fields that should be passed to the REST API as urlencoded
         data so long as the argument specification to the module follows the
         convention:
             - the key to the argspec item does not start with splunk_
             - the key does not exist in the not_data_keys list
+
+        :param config: Configuration dictionary to transform
+        :return: Dictionary with transformed data for REST API
         """
         try:
             splunk_data = {}
-            if self.legacy and not config:
-                config = self.module.params
             for param in config:
                 if (config[param]) is not None and (param not in self.not_rest_data_keys):
                     if param in self.keymap:
@@ -255,10 +211,13 @@ class SplunkRequest:
     def create_update(self, rest_path, data):
         """
         Create or Update a file/directory monitor data input in Splunk
+
+        :param rest_path: The REST API path
+        :param data: Data dictionary or URL-encoded string to send
+        :return: API response
         """
-        # when 'self.override' is True, the 'get_data' function replaces 'data'
-        # in order to make use of keymap
-        if data is not None and self.override:
+        # Apply keymap transformation if data is a dictionary
+        if data is not None and isinstance(data, dict):
             data = self.get_urlencoded_data(data)
         return self.post(
             f"/{rest_path}?output_mode=json",
