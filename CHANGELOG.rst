@@ -4,6 +4,53 @@ Splunk Enterprise Security Collection Release Notes
 
 .. contents:: Topics
 
+v5.0.0
+======
+
+Release Summary
+---------------
+
+Starting from this release, the minimum `ansible-core` version this collection requires is `2.17.0`. The last version known to be compatible with `ansible-core` versions below `2.17` is v4.0.0.Bumped the minimum supported Python version to ``>=3.10`` (Python 3.9 is EoL).
+
+Major Changes
+-------------
+
+- Bumped the minimum supported Ansible version to ``>=2.17.0`` (Ansible 2.15/2.16 are EoL).
+
+Minor Changes
+-------------
+
+- Removed legacy module support code from module_utils/splunk.py as all modules now use the modern action plugin architecture.
+- Removed parse_splunk_args function that was only used by deprecated legacy modules.
+- Simplified SplunkRequest class initialization by removing unused parameters (module, headers, override).
+- Updated SplunkRequest to require action_module and connection parameters, improving code clarity and maintainability.
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- Removed deprecated modules that were scheduled for removal on 2024-09-01
+- adaptive_response_notable_event - Use splunk.es.splunk_adaptive_response_notable_events instead
+- correlation_search - Use splunk.es.splunk_correlation_searches instead
+- data_input_monitor - Use splunk.es.splunk_data_inputs_monitor instead
+- data_input_network - Use splunk.es.splunk_data_inputs_network instead
+- correlation_search_info module is deprecated. Use splunk.es.splunk_correlation_search_info instead.
+
+Removed Features (previously deprecated)
+----------------------------------------
+
+- adaptive_response_notable_event module has been removed. Use splunk.es.splunk_adaptive_response_notable_events resource module instead.
+- correlation_search module has been removed. Use splunk.es.splunk_correlation_searches resource module instead.
+- data_input_monitor module has been removed. Use splunk.es.splunk_data_inputs_monitor resource module instead.
+- data_input_network module has been removed. Use splunk.es.splunk_data_inputs_network resource module instead.
+
+Bugfixes
+--------
+
+- Added sanity test ignore file for Ansible 2.20 to handle pylint errors in deprecated modules.
+- Fixed ansible-lint errors by adding missing task names in integration tests.
+- Fixed deprecated module alternatives to use fully qualified collection names (FQCN).
+- splunk_correlation_searches - Fixed duplicate entries in gathered state caused by redundant loop in action plugin.
+
 v4.0.0
 ======
 

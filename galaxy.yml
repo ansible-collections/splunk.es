@@ -2,7 +2,7 @@
 namespace: splunk
 name: es
 authors:
-  - Ansible Seurity Team (https://github.com/ansible-security)
+  - Ansible Content Team
 dependencies:
   ansible.netcommon: ">=6.0.0"
 description: Ansible Security Collection for Splunk Enterprise Security SIEM
@@ -13,4 +13,4 @@ documentation: https://github.com/ansible-collections/splunk.es
 homepage: https://github.com/ansible-collections/splunk.es
 issues: https://github.com/ansible-collections/splunk.es/issues
 readme: README.md
-version: "4.0.0"
+version: "5.0.0"
