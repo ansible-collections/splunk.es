@@ -1,6 +1,0 @@
----
-minor_changes:
-  - Removed legacy module support code from module_utils/splunk.py as all modules now use the modern action plugin architecture.
-  - Simplified SplunkRequest class initialization by removing unused parameters (module, headers, override).
-  - Removed parse_splunk_args function that was only used by deprecated legacy modules.
-  - Updated SplunkRequest to require action_module and connection parameters, improving code clarity and maintainability.

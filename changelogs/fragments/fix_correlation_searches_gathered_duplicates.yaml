@@ -1,3 +1,0 @@
----
-bugfixes:
-  - splunk_correlation_searches - Fixed duplicate entries in gathered state caused by redundant loop in action plugin.
