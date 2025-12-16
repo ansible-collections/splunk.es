@@ -1,4 +1,3 @@
 ---
 major_changes:
   - Bumped the minimum supported Ansible version to ``>=2.17.0`` (Ansible 2.15/2.16 are EoL).
-
