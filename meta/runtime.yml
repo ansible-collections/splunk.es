@@ -38,4 +38,4 @@ plugin_routing:
         warning_text: Use splunk.es.splunk_adaptive_response_notable_events instead.
     adaptive_response_notable_events:
       redirect: splunk.es.splunk_adaptive_response_notable_events
-requires_ansible: ">=2.15.0"
+requires_ansible: ">=2.17.0"
