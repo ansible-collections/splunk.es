@@ -13,4 +13,4 @@ documentation: https://github.com/ansible-collections/splunk.es
 homepage: https://github.com/ansible-collections/splunk.es
 issues: https://github.com/ansible-collections/splunk.es/issues
 readme: README.md
-version: "4.0.0"
+version: "5.0.0"

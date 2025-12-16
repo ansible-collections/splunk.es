@@ -1,5 +1,0 @@
----
-bugfixes:
-  - Fixed ansible-lint errors by adding missing task names in integration tests.
-  - Fixed deprecated module alternatives to use fully qualified collection names (FQCN).
-  - Added sanity test ignore file for Ansible 2.20 to handle pylint errors in deprecated modules.

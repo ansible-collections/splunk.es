@@ -4,6 +4,53 @@ Splunk Enterprise Security Collection Release Notes
 
 .. contents:: Topics
 
+v5.0.0
+======
+
+Release Summary
+---------------
+
+Starting from this release, the minimum required version of `ansible-core` this collection requires is `2.17.0`. Previously deprecated legacy modules have been removed; use the corresponding resource modules instead.
+
+Major Changes
+-------------
+
+- Bumped the minimum supported Ansible version to ``>=2.17.0`` (Ansible 2.15/2.16 are EoL).
+- Bumped the minimum supported Python version to ``>=3.10`` (Python 3.9 is EoL).
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- Removed deprecated modules that were scheduled for removal on 2024-09-01
+- correlation_search - Use splunk_correlation_searches instead
+- data_input_monitor - Use splunk_data_inputs_monitor instead
+- data_input_network - Use splunk_data_inputs_network instead
+- adaptive_response_notable_event - Use splunk_adaptive_response_notable_events instead
+
+Removed Features (previously deprecated)
+----------------------------------------
+
+- correlation_search module has been removed. Use splunk_correlation_searches resource module instead.
+- data_input_monitor module has been removed. Use splunk_data_inputs_monitor resource module instead.
+- data_input_network module has been removed. Use splunk_data_inputs_network resource module instead.
+- adaptive_response_notable_event module has been removed. Use splunk_adaptive_response_notable_events resource module instead.
+- correlation_search_info module has been removed. Use splunk_correlation_search_info resource module instead.
+
+Minor Changes
+-------------
+
+- Removed legacy module support code from module_utils/splunk.py as all modules now use the modern action plugin architecture.
+- Simplified SplunkRequest class initialization by removing unused parameters (module, headers, override).
+- Removed parse_splunk_args function that was only used by deprecated legacy modules.
+- Updated SplunkRequest to require action_module and connection parameters, improving code clarity and maintainability.
+
+Bugfixes
+--------
+
+- splunk_correlation_searches - Fixed duplicate entries in gathered state caused by redundant loop in action plugin.
+- Fixed ansible-lint errors by adding missing task names in integration tests.
+- Fixed deprecated module alternatives to use fully qualified collection names (FQCN).
+
 v4.0.0
 ======
 
