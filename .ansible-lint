@@ -8,3 +8,11 @@ exclude_paths:
   - plugins/modules/correlation_search_info.py
   - plugins/modules/data_input_monitor.py
   - plugins/modules/data_input_network.py
+  - .ansible/collections/ansible_collections/ansible.netcommon-*
+  - .ansible/collections/ansible_collections/splunk/es/.ansible/collections/ansible_collections/ansible.netcommon-*
+  - .ansible/collections/ansible_collections/ansible/utils
+  - .ansible/collections/ansible_collections/ansible/utils-*
+  - .ansible/collections/ansible_collections/ansible.utils-*
+  - .ansible/collections/ansible_collections/splunk/es/.ansible/collections/ansible_collections/ansible/utils
+  - .ansible/collections/ansible_collections/splunk/es/.ansible/collections/ansible_collections/ansible/utils-*
+  - .ansible/collections/ansible_collections/splunk/es/.ansible/collections/ansible_collections/ansible.utils-*
