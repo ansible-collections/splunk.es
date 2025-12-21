@@ -2,11 +2,13 @@
 name: "CI"
 
 concurrency:
-  group: ${{ github.head_ref || github.run_id }}
+  group: ${{ github.head_ref || github.run_id }}-${{ github.event_name }}
   cancel-in-progress: true
 
 on:  # yamllint disable-line rule:truthy
-  pull_request:
+  push:
+    branches: [main]
+  pull_request_target:
     branches: [main]
   workflow_dispatch:
   schedule:
@@ -14,9 +16,20 @@ on:  # yamllint disable-line rule:truthy
 
 
 jobs:
+  sonar:
+    name: SonarCloud
+    uses: ansible/ansible-content-actions/.github/workflows/sonarcloud.yaml@main
+    with:
+      python_version: "3.12"
+      sonar_scanner_java_opts: "-Xss2m"
+      galaxy_dependencies: |
+        git+https://github.com/ansible-collections/ansible.utils.git
+        git+https://github.com/ansible-collections/ansible.netcommon.git
+    secrets:
+      SONAR_TOKEN: ${{ secrets.ANSIBLE_COLLECTIONS_ORG_SONAR_TOKEN_CICD_BOT }}
   changelog:
     uses: ansible/ansible-content-actions/.github/workflows/changelog.yaml@main
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request_target'
   build-import:
     uses: ansible/ansible-content-actions/.github/workflows/build_import.yaml@main
   ansible-lint:
@@ -40,6 +53,7 @@ jobs:
       - unit-galaxy
       - ansible-lint
       - unit-source
+      - sonar
     runs-on: ubuntu-latest
     steps:
       - run: >-
@@ -48,7 +62,8 @@ jobs:
           '${{ needs.changelog.result }}',
           '${{ needs.build-import.result }}',
           '${{ needs.sanity.result }}',
-          '${{ needs.unit-galaxy.result }}'
-          '${{ needs.ansible-lint.result }}'
-          '${{ needs.unit-source.result }}'
+          '${{ needs.unit-galaxy.result }}',
+          '${{ needs.ansible-lint.result }}',
+          '${{ needs.unit-source.result }}',
+          '${{ needs.sonar.result }}',
           ])"
