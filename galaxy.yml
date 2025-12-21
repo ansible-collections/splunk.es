@@ -2,7 +2,9 @@
 namespace: splunk
 name: es
 authors:
-  - Ansible Content Team
+  - Ansible Ecosystem Engineering team
+  - Ron Gershburg <rgershbu@redhat.com>
+  - Shahar Golshani <sgolshan@redhat.com>
 dependencies:
   ansible.netcommon: ">=6.0.0"
 description: Ansible Security Collection for Splunk Enterprise Security SIEM
