@@ -34,9 +34,10 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: ansible_collections/splunk/es
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Install ansible-core
         run: |
