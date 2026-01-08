@@ -126,7 +126,7 @@ class ActionModule(ActionBase):
             res["annotations"] = json.loads(res["annotations"])
 
             custom = []
-
+            # Dummy test
             # need to check for custom annotation frameworks
             for k, v in res["annotations"].items():
                 if k in {"cis20", "nist", "mitre_attack", "kill_chain_phases"}:
