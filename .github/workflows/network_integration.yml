@@ -17,27 +17,34 @@ on:
       - "plugins/**"
       - "tests/integration/**"
   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   safe-to-test:
     if: >-
-      github.event.label.name == 'safe to test' ||
-      github.event.action != 'labeled'
+      github.event_name == 'pull_request_target' &&
+      (github.event.label.name == 'safe to test' ||
+      github.event.action != 'labeled')
     uses: ansible-network/github_actions/.github/workflows/safe-to-test.yml@main
 
   network-integration:
     name: Network Integration Tests
     runs-on: [self-hosted]
+    # Protect the workflow from running on PRs without approval
+    environment:
+      name: ${{ github.event_name == 'schedule' && 'eco-splunk-daily' || 'eco-splunk-protected' }}
     needs:
       - safe-to-test
-    strategy:
-      fail-fast: false
+    if: >-
+      always() &&
+      (needs.safe-to-test.result == 'success' || needs.safe-to-test.result == 'skipped')
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           path: ansible_collections/splunk/es
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}
 
       - name: Install ansible-core
         run: |
