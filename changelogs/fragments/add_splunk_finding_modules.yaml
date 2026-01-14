@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - Added splunk_finding module to manage (create/update) Splunk Enterprise Security findings.
+  - Added splunk_finding_info module to query information about Splunk Enterprise Security findings.

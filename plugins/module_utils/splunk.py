@@ -8,6 +8,10 @@ from __future__ import absolute_import, division, print_function
 
 
 __metaclass__ = type  # pylint: disable=invalid-name
+
+import json
+
+
 try:
     from ssl import CertificateError
 except ImportError:
@@ -16,56 +20,37 @@ except ImportError:
 from ansible.module_utils.common.text.converters import to_text
 from ansible.module_utils.connection import ConnectionError as AnsibleConnectionError
 from ansible.module_utils.six.moves.urllib.parse import urlencode
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
+from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
+    AnsibleArgSpecValidator,
+)
 
 
-def remove_get_keys_from_payload_dict(payload_dict, remove_key_list):
-    """Remove specified keys from a payload dictionary."""
-    for each_key in remove_key_list:
-        if each_key in payload_dict:
-            payload_dict.pop(each_key)
-    return payload_dict
+def check_argspec(action_module, result, documentation):
+    """Validate module arguments against the argspec.
 
+    Common helper function for action plugins to validate arguments.
 
-def map_params_to_obj(module_params, key_transform):
-    """The fn to convert the api returned params to module params
-    :param module_params: Module params
-    :param key_transform: Dict with module equivalent API params
-    :rtype: A dict
-    :returns: dict with module prams transformed having API expected params
+    Args:
+        action_module: The action plugin instance (self in ActionModule).
+        result: The result dictionary to update on validation failure.
+        documentation: The DOCUMENTATION string from the module.
+
+    Returns:
+        True if validation passed, False if validation failed.
     """
-
-    obj = {}
-    for k, v in key_transform.items():
-        if k in module_params and (
-            module_params.get(k) or module_params.get(k) == 0 or module_params.get(k) is False
-        ):
-            obj[v] = module_params.pop(k)
-    return obj
-
-
-def map_obj_to_params(module_return_params, key_transform):
-    """The fn to convert the module params to api return params
-    :param module_return_params: API returned response params
-    :param key_transform: Module params
-    :rtype: A dict
-    :returns: dict with api returned value to module param value
-    """
-    temp = {}
-    for k, v in key_transform.items():
-        if v in module_return_params and (
-            module_return_params.get(v)
-            or module_return_params.get(v) == 0
-            or module_return_params.get(v) is False
-        ):
-            temp[k] = module_return_params.pop(v)
-    return temp
-
-
-def set_defaults(config, defaults):
-    """Set default values in config dictionary if keys are not present."""
-    for k, v in defaults.items():
-        config.setdefault(k, v)
-    return config
+    aav = AnsibleArgSpecValidator(
+        data=utils.remove_empties(action_module._task.args),
+        schema=documentation,
+        schema_format="doc",
+        name=action_module._task.action,
+    )
+    valid, errors, action_module._task.args = aav.validate()
+    if not valid:
+        result["failed"] = True
+        result["msg"] = errors
+        return False
+    return True
 
 
 class SplunkRequest:
@@ -194,12 +179,25 @@ class SplunkRequest:
         """Get data as URL-encoded string for REST API requests."""
         return urlencode(self.get_data(config))
 
-    def get_by_path(self, rest_path):
+    def get_by_path(self, rest_path, query_params=None):
         """
-        GET attributes of a monitor by rest path
-        """
+        Perform a GET request to a Splunk REST API path.
 
-        return self.get(f"/{rest_path}?output_mode=json")
+        Args:
+            rest_path: REST API path without a leading slash.
+            query_params: Optional dictionary of query parameters to append.
+                Values of None are omitted.
+
+        Returns:
+            Parsed response from the httpapi connection plugin.
+        """
+        params = {"output_mode": "json"}
+        if query_params and isinstance(query_params, dict):
+            for k, v in query_params.items():
+                if v is not None:
+                    params[k] = v
+
+        return self.get(f"/{rest_path}?{urlencode(params, doseq=True)}")
 
     def delete_by_path(self, rest_path):
         """
@@ -208,18 +206,30 @@ class SplunkRequest:
 
         return self.delete(f"/{rest_path}?output_mode=json")
 
-    def create_update(self, rest_path, data):
+    def create_update(self, rest_path, data, query_params=None, json_payload=False):
         """
-        Create or Update a file/directory monitor data input in Splunk
+        Create or Update a resource in Splunk.
 
         :param rest_path: The REST API path
-        :param data: Data dictionary or URL-encoded string to send
+        :param data: Data dictionary to send
+        :param query_params: Optional dictionary of query parameters to append.
+        :param json_payload: If True, send as JSON. If False, send as URL-encoded (default).
         :return: API response
         """
         # Apply keymap transformation if data is a dictionary
         if data is not None and isinstance(data, dict):
-            data = self.get_urlencoded_data(data)
+            if json_payload:
+                data = json.dumps(data)
+            else:
+                data = self.get_urlencoded_data(data)
+
+        params = {"output_mode": "json"}
+        if query_params and isinstance(query_params, dict):
+            for k, v in query_params.items():
+                if v is not None:
+                    params[k] = v
+
         return self.post(
-            f"/{rest_path}?output_mode=json",
+            f"/{rest_path}?{urlencode(params, doseq=True)}",
             payload=data,
         )

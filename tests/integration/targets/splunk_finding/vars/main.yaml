@@ -1,0 +1,42 @@
+---
+# Expected results for splunk_finding integration tests
+
+create_finding:
+  before: null
+  after:
+    title: "Ansible Test Finding"
+    description: "Test finding created by Ansible integration test"
+    security_domain: "access"
+    entity: "test_entity"
+    entity_type: "user"
+    finding_score: 25
+    urgency: "medium"
+    status: "new"
+
+update_finding:
+  before:
+    status: "new"
+    urgency: "medium"
+  after:
+    status: "in_progress"
+    urgency: "high"
+    disposition: "undetermined"
+    owner: "admin"
+
+create_finding_custom:
+  before: null
+  after:
+    title: "Ansible Test Finding with Custom Fields"
+    description: "Test finding with custom fields"
+    security_domain: "endpoint"
+    entity: "server01"
+    entity_type: "system"
+    finding_score: 50
+    urgency: "critical"
+    status: "new"
+
+resolve_finding:
+  after:
+    status: "resolved"
+    disposition: "true_positive"
+    urgency: "low"

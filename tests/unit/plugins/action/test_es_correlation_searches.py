@@ -23,6 +23,7 @@ __metaclass__ = type
 
 builtin_import = "builtins.__import__"
 
+import copy
 import tempfile
 
 from unittest.mock import MagicMock, patch
@@ -180,7 +181,7 @@ class TestSplunkEsCorrelationSearches:
         self._plugin.search_for_resource_name.return_value = {}
 
         def create_update(self, rest_path, data=None):
-            return RESPONSE_PAYLOAD
+            return copy.deepcopy(RESPONSE_PAYLOAD)
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
 
@@ -188,7 +189,7 @@ class TestSplunkEsCorrelationSearches:
         self._plugin._connection._shell = MagicMock()
         self._plugin._task.args = {
             "state": "merged",
-            "config": [REQUEST_PAYLOAD[0]],
+            "config": [copy.deepcopy(REQUEST_PAYLOAD[0])],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is True
@@ -203,17 +204,17 @@ class TestSplunkEsCorrelationSearches:
         self._plugin._connection._shell = MagicMock()
 
         def create_update(self, rest_path, data=None):
-            return RESPONSE_PAYLOAD
+            return copy.deepcopy(RESPONSE_PAYLOAD)
 
         def get_by_path(self, path):
-            return RESPONSE_PAYLOAD
+            return copy.deepcopy(RESPONSE_PAYLOAD)
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
         self._plugin._task.args = {
             "state": "merged",
-            "config": [REQUEST_PAYLOAD[0]],
+            "config": [copy.deepcopy(REQUEST_PAYLOAD[0])],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         # recheck with module
@@ -224,13 +225,13 @@ class TestSplunkEsCorrelationSearches:
         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
-        self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
+        self._plugin.search_for_resource_name.return_value = copy.deepcopy(RESPONSE_PAYLOAD)
 
         def create_update(self, rest_path, data=None):
-            return RESPONSE_PAYLOAD
+            return copy.deepcopy(RESPONSE_PAYLOAD)
 
         def get_by_path(self, path):
-            return RESPONSE_PAYLOAD
+            return copy.deepcopy(RESPONSE_PAYLOAD)
 
         def delete_by_path(self, path):
             return {}
@@ -241,7 +242,7 @@ class TestSplunkEsCorrelationSearches:
 
         self._plugin._task.args = {
             "state": "replaced",
-            "config": [REQUEST_PAYLOAD[1]],
+            "config": [copy.deepcopy(REQUEST_PAYLOAD[1])],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is True
@@ -251,13 +252,13 @@ class TestSplunkEsCorrelationSearches:
         self._plugin._connection.socket_path = tempfile.NamedTemporaryFile().name
         self._plugin._connection._shell = MagicMock()
         self._plugin.search_for_resource_name = MagicMock()
-        self._plugin.search_for_resource_name.return_value = RESPONSE_PAYLOAD
+        self._plugin.search_for_resource_name.return_value = copy.deepcopy(RESPONSE_PAYLOAD)
 
         def create_update(self, rest_path, data=None):
-            return RESPONSE_PAYLOAD
+            return copy.deepcopy(RESPONSE_PAYLOAD)
 
         def get_by_path(self, path):
-            return RESPONSE_PAYLOAD
+            return copy.deepcopy(RESPONSE_PAYLOAD)
 
         def delete_by_path(self, path):
             return {}
@@ -268,7 +269,7 @@ class TestSplunkEsCorrelationSearches:
 
         self._plugin._task.args = {
             "state": "replaced",
-            "config": [REQUEST_PAYLOAD[1]],
+            "config": [copy.deepcopy(REQUEST_PAYLOAD[1])],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is True
@@ -283,10 +284,10 @@ class TestSplunkEsCorrelationSearches:
         self._plugin._connection._shell = MagicMock()
 
         def create_update(self, rest_path, data=None):
-            return RESPONSE_PAYLOAD
+            return copy.deepcopy(RESPONSE_PAYLOAD)
 
         def get_by_path(self, path):
-            return RESPONSE_PAYLOAD
+            return copy.deepcopy(RESPONSE_PAYLOAD)
 
         def delete_by_path(self, path):
             return {}
@@ -297,11 +298,11 @@ class TestSplunkEsCorrelationSearches:
 
         self._plugin._task.args = {
             "state": "replaced",
-            "config": [REQUEST_PAYLOAD[0]],
+            "config": [copy.deepcopy(REQUEST_PAYLOAD[0])],
         }
         result = self._plugin.run(task_vars=self._task_vars)
 
-        assert result["changed"] is True
+        assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
     def test_es_correlation_searches_deleted(self, conn, monkeypatch):
@@ -309,7 +310,7 @@ class TestSplunkEsCorrelationSearches:
         self._plugin._connection._shell = MagicMock()
 
         def get_by_path(self, path):
-            return RESPONSE_PAYLOAD
+            return copy.deepcopy(RESPONSE_PAYLOAD)
 
         def delete_by_path(self, path):
             return {}
@@ -344,7 +345,7 @@ class TestSplunkEsCorrelationSearches:
         self._plugin._connection._shell = MagicMock()
 
         def get_by_path(self, path):
-            return RESPONSE_PAYLOAD
+            return copy.deepcopy(RESPONSE_PAYLOAD)
 
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 

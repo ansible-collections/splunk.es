@@ -58,6 +58,8 @@ Name | Description
 [splunk.es.splunk_correlation_searches](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_correlation_searches_module.rst)|Splunk Enterprise Security Correlation searches resource module
 [splunk.es.splunk_data_inputs_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_monitor_module.rst)|Splunk Data Inputs of type Monitor resource module
 [splunk.es.splunk_data_inputs_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_network_module.rst)|Manage Splunk Data Inputs of type TCP or UDP resource module
+[splunk.es.splunk_finding](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_finding_module.rst)|Manage Splunk Enterprise Security findings
+[splunk.es.splunk_finding_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_finding_info_module.rst)|Gather information about Splunk Enterprise Security Findings
 
 <!--end collection content-->
 

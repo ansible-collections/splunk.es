@@ -1,0 +1,234 @@
+---
+- debug:
+    msg: START splunk_finding integration tests on connection={{ ansible_connection }}
+
+- block:
+    - name: Create a new finding (CHECK MODE)
+      check_mode: true
+      register: result
+      splunk.es.splunk_finding:
+        title: "Ansible Test Finding"
+        description: "Test finding created by Ansible integration test"
+        security_domain: access
+        entity: "test_entity"
+        entity_type: user
+        finding_score: 25
+        urgency: medium
+        status: new
+
+    - name: Assert check mode reports changed but no actual creation
+      assert:
+        that:
+          - result['changed'] == true
+          - result['finding']['before'] is none
+          - result['finding']['after']['title'] == create_finding['after']['title']
+
+    - name: Create a new finding
+      register: create_result
+      splunk.es.splunk_finding:
+        title: "Ansible Test Finding"
+        description: "Test finding created by Ansible integration test"
+        security_domain: access
+        entity: "test_entity"
+        entity_type: user
+        finding_score: 25
+        urgency: medium
+        status: new
+
+    - name: Assert finding was created successfully
+      assert:
+        that:
+          - create_result['changed'] == true
+          - create_result['finding']['before'] is none
+          - create_result['finding']['after']['title'] == create_finding['after']['title']
+          - create_result['finding']['after']['ref_id'] is defined
+
+    - name: Wait for Splunk to index the finding
+      ansible.builtin.pause:
+        seconds: 10
+
+    # Query by ref_id
+    - name: Query finding by ref_id (time extracted from ref_id automatically)
+      register: info_by_ref_result
+      splunk.es.splunk_finding_info:
+        ref_id: "{{ create_result['finding']['after']['ref_id'] }}"
+
+    - name: Assert finding info by ref_id returns the correct finding
+      assert:
+        that:
+          - info_by_ref_result['changed'] == false
+          - info_by_ref_result['findings'] | length == 1
+          - info_by_ref_result['findings'][0]['ref_id'] == create_result['finding']['after']['ref_id']
+          - info_by_ref_result['findings'][0]['title'] == "Ansible Test Finding"
+          - info_by_ref_result['findings'][0]['status'] == "new"
+
+    - name: Update finding status (CHECK MODE)
+      check_mode: true
+      register: update_check_result
+      splunk.es.splunk_finding:
+        ref_id: "{{ create_result['finding']['after']['ref_id'] }}"
+        status: in_progress
+        urgency: high
+        disposition: undetermined
+        owner: admin
+
+    - name: Assert check mode update reports changed
+      assert:
+        that:
+          - update_check_result['changed'] == true
+          - update_check_result['finding']['before']['status'] == update_finding['before']['status']
+          - update_check_result['finding']['after']['status'] == update_finding['after']['status']
+          - update_check_result['finding']['after']['urgency'] == update_finding['after']['urgency']
+
+    - name: Update finding status
+      register: update_result
+      splunk.es.splunk_finding: &update_task
+        ref_id: "{{ create_result['finding']['after']['ref_id'] }}"
+        status: in_progress
+        urgency: high
+        disposition: undetermined
+        owner: admin
+
+    - name: Assert finding was updated successfully
+      assert:
+        that:
+          - update_result['changed'] == true
+          - update_result['finding']['before']['status'] == update_finding['before']['status']
+          - update_result['finding']['after']['status'] == update_finding['after']['status']
+          - update_result['finding']['after']['urgency'] == update_finding['after']['urgency']
+          - update_result['finding']['after']['disposition'] == update_finding['after']['disposition']
+
+    - name: Update finding status (IDEMPOTENT)
+      register: idempotent_result
+      splunk.es.splunk_finding: *update_task
+
+    - name: Assert update is idempotent (no changes)
+      assert:
+        that:
+          - idempotent_result['changed'] == false
+          - idempotent_result['finding']['before']['status'] == update_finding['after']['status']
+          - idempotent_result['finding']['after']['status'] == update_finding['after']['status']
+
+    # splunk_finding_info tests - Verify update via info query
+    - name: Query finding by ref_id to verify update
+      register: info_after_update_result
+      splunk.es.splunk_finding_info:
+        ref_id: "{{ create_result['finding']['after']['ref_id'] }}"
+
+    - name: Assert finding info reflects the updated status
+      assert:
+        that:
+          - info_after_update_result['changed'] == false
+          - info_after_update_result['findings'] | length == 1
+          - info_after_update_result['findings'][0]['status'] == "in_progress"
+          - info_after_update_result['findings'][0]['urgency'] == "high"
+          - info_after_update_result['findings'][0]['disposition'] == "undetermined"
+
+    - name: Create a finding with custom fields
+      register: custom_result
+      splunk.es.splunk_finding:
+        title: "Ansible Test Finding with Custom Fields"
+        description: "Test finding with custom fields"
+        security_domain: endpoint
+        entity: "server01"
+        entity_type: system
+        finding_score: 50
+        urgency: critical
+        status: new
+        fields:
+          - name: custom_field_a
+            value: "value_a"
+          - name: custom_field_b
+            value: "value_b"
+
+    - name: Assert finding with custom fields was created
+      assert:
+        that:
+          - custom_result['changed'] == true
+          - custom_result['finding']['after']['title'] == create_finding_custom['after']['title']
+          - custom_result['finding']['after']['security_domain'] == create_finding_custom['after']['security_domain']
+          - custom_result['finding']['after']['entity_type'] == create_finding_custom['after']['entity_type']
+
+    - name: Wait for Splunk to index the custom finding
+      ansible.builtin.pause:
+        seconds: 10
+
+    - name: Update finding to resolved status
+      register: resolve_result
+      splunk.es.splunk_finding: &resolve_task
+        ref_id: "{{ custom_result['finding']['after']['ref_id'] }}"
+        status: resolved
+        disposition: true_positive
+        urgency: low
+
+    - name: Assert finding was resolved
+      assert:
+        that:
+          - resolve_result['changed'] == true
+          - resolve_result['finding']['after']['status'] == resolve_finding['after']['status']
+          - resolve_result['finding']['after']['disposition'] == resolve_finding['after']['disposition']
+
+    - name: Update finding to resolved status (IDEMPOTENT)
+      register: resolve_idempotent_result
+      splunk.es.splunk_finding: *resolve_task
+
+    - name: Assert resolve is idempotent
+      assert:
+        that:
+          - resolve_idempotent_result['changed'] == false
+
+    # splunk_finding_info tests - Query by title
+    - name: Query findings by title
+      register: info_by_title_result
+      splunk.es.splunk_finding_info:
+        title: "Ansible Test Finding"
+        earliest: "-1h"
+
+    - name: Assert finding info by title returns matching findings
+      assert:
+        that:
+          - info_by_title_result['changed'] == false
+          - info_by_title_result['findings'] | length >= 1
+          - info_by_title_result['findings'] | selectattr('title', 'equalto', 'Ansible Test Finding') | list | length >= 1
+
+    # splunk_finding_info tests - Query with time range (earliest/latest)
+    - name: Query all findings from the last hour
+      register: info_time_range_result
+      splunk.es.splunk_finding_info:
+        earliest: "-1h"
+        latest: "now"
+
+    - name: Assert findings from time range query include our test findings
+      assert:
+        that:
+          - info_time_range_result['changed'] == false
+          - info_time_range_result['findings'] | length >= 2
+          - info_time_range_result['findings'] | selectattr('title', 'equalto', 'Ansible Test Finding') | list | length >= 1
+          - info_time_range_result['findings'] | selectattr('title', 'equalto', 'Ansible Test Finding with Custom Fields') | list | length >= 1
+
+    # splunk_finding_info tests - Query non-existent ref_id
+    - name: Query non-existent finding by ref_id
+      register: info_not_found_result
+      splunk.es.splunk_finding_info:
+        ref_id: "non-existent-uuid@@notable@@time1234567890"
+
+    - name: Assert non-existent finding returns empty list without error
+      assert:
+        that:
+          - info_not_found_result['changed'] == false
+          - info_not_found_result['failed'] is not defined or info_not_found_result['failed'] == false
+          - info_not_found_result['findings'] | length == 0
+
+    # splunk_finding_info tests - Verify resolved finding status
+    - name: Query custom finding by ref_id to verify resolved status
+      register: info_resolved_result
+      splunk.es.splunk_finding_info:
+        ref_id: "{{ custom_result['finding']['after']['ref_id'] }}"
+
+    - name: Assert finding info reflects resolved status
+      assert:
+        that:
+          - info_resolved_result['changed'] == false
+          - info_resolved_result['findings'] | length == 1
+          - info_resolved_result['findings'][0]['status'] == "resolved"
+          - info_resolved_result['findings'][0]['disposition'] == "true_positive"

@@ -47,9 +47,12 @@ jobs:
           ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}
 
       - name: Install ansible-core
+        working-directory: ansible_collections/splunk/es
         run: |
+          rm -rf ~/venv-runner
+          python -m venv ~/venv-runner
           source ~/venv-runner/bin/activate
-          pip install ansible-core
+          pip install -r requirements.txt
 
       - name: Install collection dependencies
         run: |

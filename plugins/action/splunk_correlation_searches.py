@@ -37,8 +37,8 @@ from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_valid
     AnsibleArgSpecValidator,
 )
 
-from ansible_collections.splunk.es.plugins.module_utils.splunk import (
-    SplunkRequest,
+from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
+from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     map_obj_to_params,
     map_params_to_obj,
     remove_get_keys_from_payload_dict,
