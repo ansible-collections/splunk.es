@@ -77,7 +77,9 @@ STATUS_FROM_API = {v: k for k, v in STATUS_TO_API.items()}
 
 
 def build_finding_api_path(
-    namespace: str = DEFAULT_API_NAMESPACE, user: str = DEFAULT_API_USER, app: str = DEFAULT_API_APP
+    namespace: str = DEFAULT_API_NAMESPACE,
+    user: str = DEFAULT_API_USER,
+    app: str = DEFAULT_API_APP,
 ) -> str:
     """Build the findings API path from components.
 
@@ -93,7 +95,9 @@ def build_finding_api_path(
 
 
 def build_update_api_path(
-    ref_id: str, namespace: str = DEFAULT_API_NAMESPACE, user: str = DEFAULT_API_USER
+    ref_id: str,
+    namespace: str = DEFAULT_API_NAMESPACE,
+    user: str = DEFAULT_API_USER,
 ) -> str:
     """Build the investigations update API path.
 
@@ -134,7 +138,8 @@ def extract_notable_time(ref_id: str) -> Optional[str]:
 
 
 def map_finding_from_api(
-    config: dict[str, Any], key_transform: dict[str, str] = None
+    config: dict[str, Any],
+    key_transform: dict[str, str] = None,
 ) -> dict[str, Any]:
     """Convert finding API response to module params format.
 
@@ -178,7 +183,8 @@ def map_finding_from_api(
 
 
 def map_finding_to_api(
-    finding: dict[str, Any], key_transform: dict[str, str] = None
+    finding: dict[str, Any],
+    key_transform: dict[str, str] = None,
 ) -> dict[str, Any]:
     """Convert module params to API payload format.
 

@@ -267,7 +267,10 @@ class ActionModule(ActionBase):
         display.vvv(f"splunk_finding: update payload: {payload}")
 
         api_response = conn_request.create_update(
-            update_url, data=payload, query_params=query_params, json_payload=True
+            update_url,
+            data=payload,
+            query_params=query_params,
+            json_payload=True,
         )
 
         display.vvv(f"splunk_finding: update API response: {api_response}")
@@ -378,7 +381,10 @@ class ActionModule(ActionBase):
             return {"before": have_conf, "after": have_conf}, False
 
     def _handle_update(
-        self, conn_request: SplunkRequest, ref_id: str, finding: dict[str, Any]
+        self,
+        conn_request: SplunkRequest,
+        ref_id: str,
+        finding: dict[str, Any],
     ) -> bool:
         """Handle update operation for an existing finding.
 

@@ -8,7 +8,7 @@ splunk.es.splunk_finding_info
 **Gather information about Splunk Enterprise Security Findings**
 
 
-Version added: 3.0.0
+Version added: 5.1.0
 
 .. contents::
    :local:
@@ -19,11 +19,11 @@ Synopsis
 --------
 - This module allows for querying information about Splunk Enterprise Security Findings.
 - Use this module to retrieve finding configurations without making changes.
-- Query by ``ref_id`` to fetch a specific finding.
+- Query by ``ref_id`` to fetch a specific finding. Without ``earliest`` and ``latest``.
 - Query by ``title`` to filter findings by exact title match.
 - Use ``earliest`` and ``latest`` to control the time range of returned findings.
 - By default, if ``earliest`` and ``latest`` are not specified, findings from the last 24 hours are returned.
-- This default time range applies to all query modes (by ref_id, by title, or all findings).
+- This default time (24 hours) range applies when querying by ``title`` or all findings (not by ``ref_id``).
 - This module uses the httpapi connection plugin and does not require local Splunk SDK.
 
 
@@ -107,7 +107,8 @@ Parameters
                         <div>All findings returned have a _time greater than or equal to this value.</div>
                         <div>Accepts relative time (e.g. <code>-30m</code>, <code>-7d</code>, <code>-1w</code>), epoch time, or ISO 8601 time.</div>
                         <div>If not provided, defaults to the last 24 hours (<code>-24h</code>).</div>
-                        <div>This applies to all query modes including by <code>ref_id</code>, by <code>title</code>, or all findings.</div>
+                        <div>Ignored when querying by <code>ref_id</code> (time is extracted from ref_id automatically).</div>
+                        <div>Applies when querying by <code>title</code> or all findings.</div>
                 </td>
             </tr>
             <tr>
@@ -126,7 +127,8 @@ Parameters
                         <div>All findings returned have a _time less than or equal to this value.</div>
                         <div>Accepts relative time (e.g. <code>-30m</code>, <code>now</code>), epoch time, or ISO 8601 time.</div>
                         <div>If not provided, defaults to the current time (<code>now</code>).</div>
-                        <div>This applies to all query modes including by <code>ref_id</code>, by <code>title</code>, or all findings.</div>
+                        <div>Ignored when querying by <code>ref_id</code> (time is extracted from ref_id automatically).</div>
+                        <div>Applies when querying by <code>title</code> or all findings.</div>
                 </td>
             </tr>
             <tr>
@@ -144,7 +146,8 @@ Parameters
                         <div>Reference ID (finding ID) to query a specific finding.</div>
                         <div>If specified, returns only the finding with this ID.</div>
                         <div>Takes precedence over <code>title</code> if both are provided.</div>
-                        <div>The <code>earliest</code> and <code>latest</code> time filters still apply when querying by ref_id.</div>
+                        <div>The time is automatically extracted from the ref_id (format uuid@@notable@@time{timestamp}).</div>
+                        <div>When querying by ref_id, the <code>earliest</code> and <code>latest</code> parameters are ignored.</div>
                 </td>
             </tr>
             <tr>
@@ -176,18 +179,9 @@ Examples
 
 .. code-block:: yaml
 
-    # NOTE: By default, all queries return findings from the last 24 hours.
-    # Use 'earliest' and 'latest' to change the time range.
-
-    - name: Query specific finding by ref_id (from last 24 hours by default)
+    - name: Query specific finding by ref_id (time extracted automatically from ref_id)
       splunk.es.splunk_finding_info:
         ref_id: "abc-123-def-456@@notable@@time1234567890"
-      register: result
-
-    - name: Query specific finding by ref_id with extended time range
-      splunk.es.splunk_finding_info:
-        ref_id: "abc-123-def-456@@notable@@time1234567890"
-        earliest: "-7d"
       register: result
 
     - name: Display the finding info
@@ -238,10 +232,6 @@ Examples
       splunk.es.splunk_finding_info:
         earliest: "-7d"
       register: all_findings
-
-    - set_fact:
-        open_findings: "{{ all_findings.findings |
-                          selectattr('status', 'equalto', 'new') | list }}"
 
     # Query findings with custom API path (for non-standard environments)
     - name: Query findings with custom API path

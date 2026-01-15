@@ -155,7 +155,9 @@ class ActionModule(ActionBase):
         return findings
 
     def filter_findings_by_title(
-        self, findings: List[Dict[str, Any]], title: str
+        self,
+        findings: List[Dict[str, Any]],
+        title: str,
     ) -> List[Dict[str, Any]]:
         """Filter findings by exact title match.
 
