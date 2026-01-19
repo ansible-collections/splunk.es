@@ -1,11 +1,11 @@
-.. _splunk.es.splunk_finding_info_module:
+.. _splunk.es.splunk_investigation_info_module:
 
 
-*****************************
-splunk.es.splunk_finding_info
-*****************************
+***********************************
+splunk.es.splunk_investigation_info
+***********************************
 
-**Gather information about Splunk Enterprise Security Findings**
+**Gather information about Splunk Enterprise Security Investigations**
 
 
 Version added: 5.1.0
@@ -17,13 +17,11 @@ Version added: 5.1.0
 
 Synopsis
 --------
-- This module allows for querying information about Splunk Enterprise Security Findings.
-- Use this module to retrieve finding configurations without making changes.
-- Query by ``ref_id`` to fetch a specific finding. Without ``earliest`` and ``latest``.
-- Query by ``title`` to filter findings by exact title match.
-- Use ``earliest`` and ``latest`` to control the time range of returned findings.
-- By default, if ``earliest`` and ``latest`` are not specified, findings from the last 24 hours are returned.
-- This default time (24 hours) range applies when querying by ``title`` or all findings (not by ``ref_id``).
+- This module allows for querying information about Splunk Enterprise Security Investigations.
+- Use this module to retrieve investigation configurations without making changes.
+- Query by ``investigation_ref_id`` to fetch a specific investigation.
+- Query by ``name`` to filter investigations by exact name match.
+- Use ``create_time_min`` and ``create_time_max`` to control the time range of returned investigations.
 - This module uses the httpapi connection plugin and does not require local Splunk SDK.
 
 
@@ -50,10 +48,10 @@ Parameters
                     </div>
                 </td>
                 <td>
-                        <b>Default:</b><br/><div style="color: blue">"SplunkEnterpriseSecuritySuite"</div>
+                        <b>Default:</b><br/><div style="color: blue">"missioncontrol"</div>
                 </td>
                 <td>
-                        <div>The app portion of the Splunk API path for the findings endpoint.</div>
+                        <div>The app portion of the Splunk API path for the investigations endpoint.</div>
                         <div>Override this if your environment uses a different app name.</div>
                 </td>
             </tr>
@@ -94,7 +92,7 @@ Parameters
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>earliest</b>
+                    <b>create_time_max</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -103,38 +101,16 @@ Parameters
                 <td>
                 </td>
                 <td>
-                        <div>The earliest time for findings to return.</div>
-                        <div>All findings returned have a _time greater than or equal to this value.</div>
-                        <div>Accepts relative time (e.g. <code>-30m</code>, <code>-7d</code>, <code>-1w</code>), epoch time, or ISO 8601 time.</div>
-                        <div>If not provided, defaults to the last 24 hours (<code>-24h</code>).</div>
-                        <div>Ignored when querying by <code>ref_id</code> (time is extracted from ref_id automatically).</div>
-                        <div>Applies when querying by <code>title</code> or all findings.</div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>latest</b>
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td>
-                </td>
-                <td>
-                        <div>The latest time for findings to return.</div>
-                        <div>All findings returned have a _time less than or equal to this value.</div>
+                        <div>The maximum time during which investigations were created.</div>
+                        <div>All investigations returned have a creation time less than or equal to this value.</div>
                         <div>Accepts relative time (e.g. <code>-30m</code>, <code>now</code>), epoch time, or ISO 8601 time.</div>
-                        <div>If not provided, defaults to the current time (<code>now</code>).</div>
-                        <div>Ignored when querying by <code>ref_id</code> (time is extracted from ref_id automatically).</div>
-                        <div>Applies when querying by <code>title</code> or all findings.</div>
+                        <div>If not provided, no maximum time filter is applied.</div>
                 </td>
             </tr>
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>ref_id</b>
+                    <b>create_time_min</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -143,17 +119,16 @@ Parameters
                 <td>
                 </td>
                 <td>
-                        <div>Reference ID (finding ID) to query a specific finding.</div>
-                        <div>If specified, returns only the finding with this ID.</div>
-                        <div>Takes precedence over <code>title</code> if both are provided.</div>
-                        <div>The time is automatically extracted from the ref_id (format uuid@@notable@@time{timestamp}).</div>
-                        <div>When querying by ref_id, the <code>earliest</code> and <code>latest</code> parameters are ignored.</div>
+                        <div>The minimum time during which investigations were created.</div>
+                        <div>All investigations returned have a creation time greater than or equal to this value.</div>
+                        <div>Accepts relative time (e.g. <code>-30m</code>, <code>-7d</code>, <code>-1w</code>), epoch time, or ISO 8601 time.</div>
+                        <div>If not provided, no minimum time filter is applied.</div>
                 </td>
             </tr>
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>title</b>
+                    <b>investigation_ref_id</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -162,10 +137,28 @@ Parameters
                 <td>
                 </td>
                 <td>
-                        <div>Title name to filter findings.</div>
-                        <div>Returns all findings with an exact title match.</div>
-                        <div>Ignored if <code>ref_id</code> is provided.</div>
-                        <div>The <code>earliest</code> and <code>latest</code> time filters still apply when querying by title.</div>
+                        <div>Reference ID (investigation ID) to query a specific investigation.</div>
+                        <div>If specified, returns only the investigation with this ID.</div>
+                        <div>Takes precedence over <code>name</code> if both are provided.</div>
+                        <div>Can be a GUID or display_id from an investigation.</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>name</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                    </div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Name to filter investigations.</div>
+                        <div>Returns all investigations with an exact name match.</div>
+                        <div>Ignored if <code>investigation_ref_id</code> is provided.</div>
+                        <div>The <code>create_time_min</code> and <code>create_time_max</code> time filters still apply when querying by name.</div>
                 </td>
             </tr>
     </table>
@@ -179,68 +172,69 @@ Examples
 
 .. code-block:: yaml
 
-    - name: Query specific finding by ref_id (time extracted automatically from ref_id)
-      splunk.es.splunk_finding_info:
-        ref_id: "abc-123-def-456@@notable@@time1234567890"
+    - name: Query specific investigation by ref_id
+      splunk.es.splunk_investigation_info:
+        investigation_ref_id: "abc-123-def-456"
       register: result
 
-    - name: Display the finding info
+    - name: Display the investigation info
       debug:
-        var: result.findings
+        var: result.investigations
 
-    - name: Query findings by title (from last 24 hours by default)
-      splunk.es.splunk_finding_info:
-        title: "Suspicious Login Activity"
+    - name: Query investigations by name
+      splunk.es.splunk_investigation_info:
+        name: "Security Incident 2026-01"
       register: result
 
-    - name: Query findings by title from the last 7 days
-      splunk.es.splunk_finding_info:
-        title: "Suspicious Login Activity"
-        earliest: "-7d"
+    - name: Query investigations by name within a time range
+      splunk.es.splunk_investigation_info:
+        name: "Security Incident 2026-01"
+        create_time_min: "-7d"
+        create_time_max: "now"
       register: result
 
-    - name: Display findings with matching title
+    - name: Display investigations with matching name
       debug:
-        var: result.findings
+        var: result.investigations
 
-    - name: Query all findings (from last 24 hours by default)
-      splunk.es.splunk_finding_info:
-      register: all_findings
+    - name: Query all investigations
+      splunk.es.splunk_investigation_info:
+      register: all_investigations
 
-    - name: Display all findings
+    - name: Display all investigations
       debug:
-        var: all_findings.findings
+        var: all_investigations.investigations
 
-    - name: Query all findings from the last 7 days
-      splunk.es.splunk_finding_info:
-        earliest: "-7d"
-        latest: "now"
-      register: all_findings
+    - name: Query investigations created in the last 7 days
+      splunk.es.splunk_investigation_info:
+        create_time_min: "-7d"
+      register: recent_investigations
 
-    - name: Query all findings from the last 30 days
-      splunk.es.splunk_finding_info:
-        earliest: "-30d"
-      register: all_findings
+    - name: Query investigations created in the last 30 days
+      splunk.es.splunk_investigation_info:
+        create_time_min: "-30d"
+      register: all_investigations
 
-    - name: Query findings from a specific time range (ISO 8601)
-      splunk.es.splunk_finding_info:
-        earliest: "2026-01-01T00:00:00"
-        latest: "2026-01-07T23:59:59"
-      register: all_findings
+    - name: Query investigations from a specific time range (ISO 8601)
+      splunk.es.splunk_investigation_info:
+        create_time_min: "2026-01-01T00:00:00"
+        create_time_max: "2026-01-07T23:59:59"
+      register: all_investigations
 
-    - name: Filter findings by status using Jinja2
-      splunk.es.splunk_finding_info:
-        earliest: "-7d"
-      register: all_findings
+    - name: Query investigations from a specific time range (epoch)
+      splunk.es.splunk_investigation_info:
+        create_time_min: "1676497520"
+        create_time_max: "1676583920"
+      register: all_investigations
 
-    # Query findings with custom API path (for non-standard environments)
-    - name: Query findings with custom API path
-      splunk.es.splunk_finding_info:
-        earliest: "-7d"
+    # Query investigations with custom API path (for non-standard environments)
+    - name: Query investigations with custom API path
+      splunk.es.splunk_investigation_info:
+        create_time_min: "-7d"
         api_namespace: "{{ es_namespace | default('servicesNS') }}"
         api_user: "{{ es_user | default('nobody') }}"
-        api_app: "{{ es_app | default('SplunkEnterpriseSecuritySuite') }}"
-      register: custom_findings
+        api_app: "{{ es_app | default('missioncontrol') }}"
+      register: custom_investigations
 
 
 
@@ -259,7 +253,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
             <tr>
                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>findings</b>
+                    <b>investigations</b>
                     <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
                     <div style="font-size: small">
                       <span style="color: purple">list</span>
@@ -268,10 +262,10 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                 </td>
                 <td>always</td>
                 <td>
-                            <div>List of findings matching the query</div>
+                            <div>List of investigations matching the query</div>
                     <br/>
                         <div style="font-size: smaller"><b>Sample:</b></div>
-                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;ref_id&#x27;: &#x27;abc-123-def-456&#x27;, &#x27;title&#x27;: &#x27;Suspicious Login Activity&#x27;, &#x27;description&#x27;: &#x27;Multiple failed login attempts detected&#x27;, &#x27;security_domain&#x27;: &#x27;access&#x27;, &#x27;entity&#x27;: &#x27;testuser&#x27;, &#x27;entity_type&#x27;: &#x27;user&#x27;, &#x27;finding_score&#x27;: 50, &#x27;owner&#x27;: &#x27;admin&#x27;, &#x27;status&#x27;: &#x27;new&#x27;, &#x27;urgency&#x27;: &#x27;high&#x27;, &#x27;disposition&#x27;: &#x27;undetermined&#x27;}]</div>
+                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;investigation_ref_id&#x27;: &#x27;abc-123-def-456&#x27;, &#x27;name&#x27;: &#x27;Security Incident 2026-01&#x27;, &#x27;description&#x27;: &#x27;Investigation into suspicious login activity&#x27;, &#x27;status&#x27;: &#x27;new&#x27;, &#x27;disposition&#x27;: &#x27;undetermined&#x27;, &#x27;owner&#x27;: &#x27;admin&#x27;, &#x27;urgency&#x27;: &#x27;high&#x27;, &#x27;sensitivity&#x27;: &#x27;amber&#x27;, &#x27;finding_ids&#x27;: [&#x27;A265ED94-AE9E-428C-91D2-64BB956EB7CB@@notable@@62eaebb8c0dd2574fc0b3503a9586cd9&#x27;]}]</div>
                 </td>
             </tr>
                                 <tr>
@@ -286,7 +280,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                 </td>
                 <td></td>
                 <td>
-                            <div>Description of the finding</div>
+                            <div>Description of the investigation</div>
                     <br/>
                 </td>
             </tr>
@@ -302,7 +296,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                 </td>
                 <td></td>
                 <td>
-                            <div>Disposition of the finding</div>
+                            <div>Disposition of the investigation</div>
                     <br/>
                 </td>
             </tr>
@@ -310,7 +304,24 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                     <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>entity</b>
+                    <b>finding_ids</b>
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">list</span>
+                       / <span style="color: purple">elements=string</span>
+                    </div>
+                </td>
+                <td></td>
+                <td>
+                            <div>List of finding IDs attached to the investigation</div>
+                    <br/>
+                </td>
+            </tr>
+            <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>investigation_ref_id</b>
                     <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
                     <div style="font-size: small">
                       <span style="color: purple">string</span>
@@ -318,7 +329,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                 </td>
                 <td></td>
                 <td>
-                            <div>The risk object (entity) associated with the finding</div>
+                            <div>The unique reference ID of the investigation</div>
                     <br/>
                 </td>
             </tr>
@@ -326,7 +337,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                     <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>entity_type</b>
+                    <b>name</b>
                     <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
                     <div style="font-size: small">
                       <span style="color: purple">string</span>
@@ -334,23 +345,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                 </td>
                 <td></td>
                 <td>
-                            <div>Type of the risk object (user or system)</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>finding_score</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">integer</span>
-                    </div>
-                </td>
-                <td></td>
-                <td>
-                            <div>Risk score of the finding</div>
+                            <div>Name of the investigation</div>
                     <br/>
                 </td>
             </tr>
@@ -366,7 +361,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                 </td>
                 <td></td>
                 <td>
-                            <div>Owner of the finding</div>
+                            <div>Owner of the investigation</div>
                     <br/>
                 </td>
             </tr>
@@ -374,7 +369,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                     <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>ref_id</b>
+                    <b>sensitivity</b>
                     <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
                     <div style="font-size: small">
                       <span style="color: purple">string</span>
@@ -382,23 +377,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                 </td>
                 <td></td>
                 <td>
-                            <div>The unique reference ID of the finding</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>security_domain</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td></td>
-                <td>
-                            <div>Security domain of the finding</div>
+                            <div>Sensitivity level of the investigation</div>
                     <br/>
                 </td>
             </tr>
@@ -414,23 +393,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                 </td>
                 <td></td>
                 <td>
-                            <div>Status of the finding</div>
-                    <br/>
-                </td>
-            </tr>
-            <tr>
-                    <td class="elbow-placeholder">&nbsp;</td>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>title</b>
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">string</span>
-                    </div>
-                </td>
-                <td></td>
-                <td>
-                            <div>Title of the finding</div>
+                            <div>Status of the investigation</div>
                     <br/>
                 </td>
             </tr>
@@ -446,7 +409,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                 </td>
                 <td></td>
                 <td>
-                            <div>Urgency level of the finding</div>
+                            <div>Urgency level of the investigation</div>
                     <br/>
                 </td>
             </tr>

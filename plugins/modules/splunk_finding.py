@@ -14,7 +14,7 @@ description:
   - When C(ref_id) is provided, the module will check if the finding exists and update it.
   - Update operations use a different API endpoint and only support updating C(owner), C(status), C(urgency), and C(disposition).
   - Tested against Splunk Enterprise Server with Splunk Enterprise Security installed.
-version_added: "3.0.0"
+version_added: "5.1.0"
 options:
   ref_id:
     description:
@@ -141,7 +141,7 @@ options:
     type: str
     default: SplunkEnterpriseSecuritySuite
 
-author: Ansible Security Automation Team (@ansible-security) <https://github.com/ansible-security>
+author: Ron Gershburg (@rgershbu)
 """
 
 EXAMPLES = """

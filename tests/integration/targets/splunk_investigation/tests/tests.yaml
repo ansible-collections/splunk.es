@@ -1,0 +1,289 @@
+---
+- debug:
+    msg: START splunk_investigation integration tests on connection={{ ansible_connection }}
+
+- block:
+    # Create findings for investigation attachment
+    - name: Create a finding for investigation attachment
+      register: test_finding_result
+      splunk.es.splunk_finding:
+        title: "Finding for Investigation Test"
+        description: "Test finding to be attached to investigation"
+        security_domain: access
+        entity: "test_entity"
+        entity_type: user
+        finding_score: 25
+        urgency: medium
+        status: new
+
+    - name: Assert finding was created successfully
+      assert:
+        that:
+          - test_finding_result['changed'] == true
+          - test_finding_result['finding']['before'] is none
+          - test_finding_result['finding']['after']['title'] == create_finding_for_investigation['after']['title']
+          - test_finding_result['finding']['after']['ref_id'] is defined
+
+    - name: Wait for Splunk to index the finding
+      ansible.builtin.pause:
+        seconds: 5
+
+    # Basic investigation create tests
+    - name: Create a new investigation (CHECK MODE)
+      check_mode: true
+      register: create_check_result
+      splunk.es.splunk_investigation:
+        name: "Ansible Test Investigation"
+        description: "Test investigation created by Ansible integration test"
+        status: new
+        owner: admin
+        urgency: high
+        sensitivity: amber
+        disposition: undetermined
+
+    - name: Assert check mode reports changed but no actual creation
+      assert:
+        that:
+          - create_check_result['changed'] == true
+          - create_check_result['investigation']['before'] is none
+          - create_check_result['investigation']['after']['name'] == create_investigation['after']['name']
+
+    - name: Create a new investigation
+      register: create_result
+      splunk.es.splunk_investigation:
+        name: "Ansible Test Investigation"
+        description: "Test investigation created by Ansible integration test"
+        status: new
+        owner: admin
+        urgency: high
+        sensitivity: amber
+        disposition: undetermined
+
+    - name: Assert investigation was created successfully
+      assert:
+        that:
+          - create_result['changed'] == true
+          - create_result['investigation']['before'] is none
+          - create_result['investigation']['after']['investigation_ref_id'] is defined
+
+    # Verify creation via info module
+    - name: Query investigation by ref_id to verify creation
+      register: info_by_ref_result
+      splunk.es.splunk_investigation_info:
+        investigation_ref_id: "{{ create_result['investigation']['after']['investigation_ref_id'] }}"
+
+    - name: Assert investigation info by ref_id returns the correct investigation
+      assert:
+        that:
+          - info_by_ref_result['changed'] == false
+          - info_by_ref_result['investigations'] | length == 1
+          - info_by_ref_result['investigations'][0]['investigation_ref_id'] == create_result['investigation']['after']['investigation_ref_id']
+          - info_by_ref_result['investigations'][0]['name'] == "Ansible Test Investigation"
+          - info_by_ref_result['investigations'][0]['status'] == "new"
+
+    # Update tests with idempotency
+    - name: Update investigation status (CHECK MODE)
+      check_mode: true
+      register: update_check_result
+      splunk.es.splunk_investigation:
+        investigation_ref_id: "{{ create_result['investigation']['after']['investigation_ref_id'] }}"
+        status: in_progress
+        urgency: critical
+        disposition: undetermined
+        owner: admin
+
+    - name: Assert check mode update reports changed
+      assert:
+        that:
+          - update_check_result['changed'] == true
+          - update_check_result['investigation']['before']['status'] == update_investigation['before']['status']
+          - update_check_result['investigation']['after']['status'] == update_investigation['after']['status']
+          - update_check_result['investigation']['after']['urgency'] == update_investigation['after']['urgency']
+
+    - name: Update investigation status
+      register: update_result
+      splunk.es.splunk_investigation: &update_task
+        investigation_ref_id: "{{ create_result['investigation']['after']['investigation_ref_id'] }}"
+        status: in_progress
+        urgency: critical
+        disposition: undetermined
+        owner: admin
+
+    - name: Assert investigation was updated successfully
+      assert:
+        that:
+          - update_result['changed'] == true
+          - update_result['investigation']['before']['status'] == update_investigation['before']['status']
+          - update_result['investigation']['after']['status'] == update_investigation['after']['status']
+          - update_result['investigation']['after']['urgency'] == update_investigation['after']['urgency']
+          - update_result['investigation']['after']['disposition'] == update_investigation['after']['disposition']
+
+    - name: Update investigation status (IDEMPOTENT)
+      register: idempotent_result
+      splunk.es.splunk_investigation: *update_task
+
+    - name: Assert update is idempotent (no changes)
+      assert:
+        that:
+          - idempotent_result['changed'] == false
+          - idempotent_result['investigation']['before']['status'] == update_investigation['after']['status']
+          - idempotent_result['investigation']['after']['status'] == update_investigation['after']['status']
+
+    # Verify update via info module
+    - name: Query investigation by ref_id to verify update
+      register: info_after_update_result
+      splunk.es.splunk_investigation_info:
+        investigation_ref_id: "{{ create_result['investigation']['after']['investigation_ref_id'] }}"
+
+    - name: Assert investigation info reflects the updated status
+      assert:
+        that:
+          - info_after_update_result['changed'] == false
+          - info_after_update_result['investigations'] | length == 1
+          - info_after_update_result['investigations'][0]['status'] == "in_progress"
+          - info_after_update_result['investigations'][0]['urgency'] == "critical"
+          - info_after_update_result['investigations'][0]['disposition'] == "undetermined"
+
+    # Create investigation with findings attached
+    - name: Create investigation with finding attached
+      register: create_with_finding_result
+      splunk.es.splunk_investigation:
+        name: "Investigation with Finding"
+        description: "Investigation created with finding attached"
+        status: new
+        owner: admin
+        urgency: medium
+        sensitivity: amber
+        finding_ids:
+          - "{{ test_finding_result['finding']['after']['ref_id'] }}"
+
+    - name: Assert investigation with finding was created successfully
+      assert:
+        that:
+          - create_with_finding_result['changed'] == true
+          - create_with_finding_result['investigation']['before'] is none
+          - create_with_finding_result['investigation']['after']['investigation_ref_id'] is defined
+
+    - name: Wait for Splunk to index the investigation with finding
+      ansible.builtin.pause:
+        seconds: 5
+
+    # Verify findings attached via info module
+    - name: Query investigation to verify findings attached
+      register: info_with_findings_result
+      splunk.es.splunk_investigation_info:
+        investigation_ref_id: "{{ create_with_finding_result['investigation']['after']['investigation_ref_id'] }}"
+
+    - name: Assert investigation info contains the attached finding
+      assert:
+        that:
+          - info_with_findings_result['changed'] == false
+          - info_with_findings_result['investigations'] | length == 1
+          - info_with_findings_result['investigations'][0]['name'] == "Investigation with Finding"
+          - info_with_findings_result['investigations'][0]['finding_ids'] is defined
+          - test_finding_result['finding']['after']['ref_id'] in info_with_findings_result['investigations'][0]['finding_ids']
+
+    # Add findings to existing investigation
+    - name: Create a second finding for investigation attachment
+      register: second_finding_result
+      splunk.es.splunk_finding:
+        title: "Second Finding for Investigation Test"
+        description: "Second test finding for investigation"
+        security_domain: endpoint
+        entity: "server01"
+        entity_type: system
+        finding_score: 50
+        urgency: high
+        status: new
+
+    - name: Assert second finding was created successfully
+      assert:
+        that:
+          - second_finding_result['changed'] == true
+          - second_finding_result['finding']['after']['title'] == second_finding_for_investigation['after']['title']
+          - second_finding_result['finding']['after']['ref_id'] is defined
+
+    - name: Wait for Splunk to index the second finding
+      ansible.builtin.pause:
+        seconds: 10
+
+    - name: Add finding to existing investigation
+      register: add_finding_result
+      splunk.es.splunk_investigation:
+        investigation_ref_id: "{{ create_result['investigation']['after']['investigation_ref_id'] }}"
+        finding_ids:
+          - "{{ second_finding_result['finding']['after']['ref_id'] }}"
+
+    - name: Assert finding was added to investigation
+      assert:
+        that:
+          - add_finding_result['changed'] == true
+
+    # Verify finding added via info module
+    - name: Query investigation to verify finding added
+      register: info_finding_added_result
+      splunk.es.splunk_investigation_info:
+        investigation_ref_id: "{{ create_result['investigation']['after']['investigation_ref_id'] }}"
+
+    - name: Assert investigation info contains the newly added finding
+      assert:
+        that:
+          - info_finding_added_result['changed'] == false
+          - info_finding_added_result['investigations'] | length == 1
+          - info_finding_added_result['investigations'][0]['finding_ids'] is defined
+          - second_finding_result['finding']['after']['ref_id'] in info_finding_added_result['investigations'][0]['finding_ids']
+
+    # Test idempotency - adding same finding again should not change
+    - name: Add same finding to investigation again (IDEMPOTENT)
+      register: add_finding_idempotent_result
+      splunk.es.splunk_investigation:
+        investigation_ref_id: "{{ create_result['investigation']['after']['investigation_ref_id'] }}"
+        finding_ids:
+          - "{{ second_finding_result['finding']['after']['ref_id'] }}"
+
+    - name: Assert adding same finding is idempotent
+      assert:
+        that:
+          - add_finding_idempotent_result['changed'] == false
+
+    # Info module query tests
+    # Query by name
+    - name: Query investigations by name
+      register: info_by_name_result
+      splunk.es.splunk_investigation_info:
+        name: "Ansible Test Investigation"
+        create_time_min: "-1h"
+
+    - name: Assert query by name returns matching investigations
+      assert:
+        that:
+          - info_by_name_result['changed'] == false
+          - info_by_name_result['investigations'] | length >= 1
+          - info_by_name_result['investigations'] | selectattr('name', 'equalto', 'Ansible Test Investigation') | list | length >= 1
+
+    # Query by time range
+    - name: Query investigations by time range
+      register: info_by_time_result
+      splunk.es.splunk_investigation_info:
+        create_time_min: "-1h"
+
+    - name: Assert time range query includes our test investigations
+      assert:
+        that:
+          - info_by_time_result['changed'] == false
+          - info_by_time_result['investigations'] | length >= 2
+          - info_by_time_result['investigations'] | selectattr('name', 'equalto', 'Ansible Test Investigation') | list | length >= 1
+          - info_by_time_result['investigations'] | selectattr('name', 'equalto', 'Investigation with Finding') | list | length >= 1
+
+    # Query non-existent investigation
+    - name: Query non-existent investigation by ref_id
+      register: info_not_found_result
+      splunk.es.splunk_investigation_info:
+        investigation_ref_id: "non-existent-uuid-12345"
+
+    - name: Assert non-existent investigation returns empty list without error
+      assert:
+        that:
+          - info_not_found_result['changed'] == false
+          - info_not_found_result['failed'] is not defined or info_not_found_result['failed'] == false
+          - info_not_found_result['investigations'] | length == 0

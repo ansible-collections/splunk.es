@@ -60,6 +60,8 @@ Name | Description
 [splunk.es.splunk_data_inputs_network](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_network_module.rst)|Manage Splunk Data Inputs of type TCP or UDP resource module
 [splunk.es.splunk_finding](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_finding_module.rst)|Manage Splunk Enterprise Security findings
 [splunk.es.splunk_finding_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_finding_info_module.rst)|Gather information about Splunk Enterprise Security Findings
+[splunk.es.splunk_investigation](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_investigation_module.rst)|Manage Splunk Enterprise Security investigations
+[splunk.es.splunk_investigation_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_investigation_info_module.rst)|Gather information about Splunk Enterprise Security Investigations
 
 <!--end collection content-->
 

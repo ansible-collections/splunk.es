@@ -1,0 +1,61 @@
+---
+# Expected results for splunk_investigation integration tests
+
+# Finding for investigation attachment
+create_finding_for_investigation:
+  before: null
+  after:
+    title: "Finding for Investigation Test"
+    description: "Test finding to be attached to investigation"
+    security_domain: "access"
+    entity: "test_entity"
+    entity_type: "user"
+    finding_score: 25
+    urgency: "medium"
+    status: "new"
+
+second_finding_for_investigation:
+  before: null
+  after:
+    title: "Second Finding for Investigation Test"
+    description: "Second test finding for investigation"
+    security_domain: "endpoint"
+    entity: "server01"
+    entity_type: "system"
+    finding_score: 50
+    urgency: "high"
+    status: "new"
+
+# Basic investigation create
+create_investigation:
+  before: null
+  after:
+    name: "Ansible Test Investigation"
+    description: "Test investigation created by Ansible integration test"
+    status: "new"
+    owner: "admin"
+    urgency: "high"
+    sensitivity: "amber"
+    disposition: "undetermined"
+
+# Update investigation
+update_investigation:
+  before:
+    status: "new"
+    urgency: "high"
+  after:
+    status: "in_progress"
+    urgency: "critical"
+    disposition: "undetermined"
+    owner: "admin"
+
+# Investigation with findings attached at creation
+create_investigation_with_findings:
+  before: null
+  after:
+    name: "Investigation with Finding"
+    description: "Investigation created with finding attached"
+    status: "new"
+    owner: "admin"
+    urgency: "medium"
+    sensitivity: "amber"

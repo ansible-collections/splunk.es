@@ -76,7 +76,7 @@ options:
     type: str
     default: SplunkEnterpriseSecuritySuite
 
-author: Ansible Security Automation Team (@ansible-security)
+author: Ron Gershburg (@rgershbu)
 """
 
 EXAMPLES = """

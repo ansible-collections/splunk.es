@@ -266,17 +266,17 @@ class TestSplunkEsCorrelationSearches:
         self._plugin._connection._shell = MagicMock()
 
         def create_update(self, rest_path, data=None):
-            return IDEMPOTENT_RESPONSE_PAYLOAD
+            return copy.deepcopy(IDEMPOTENT_RESPONSE_PAYLOAD)
 
         def get_by_path(self, path):
-            return IDEMPOTENT_RESPONSE_PAYLOAD
+            return copy.deepcopy(IDEMPOTENT_RESPONSE_PAYLOAD)
 
         monkeypatch.setattr(SplunkRequest, "create_update", create_update)
         monkeypatch.setattr(SplunkRequest, "get_by_path", get_by_path)
 
         self._plugin._task.args = {
             "state": "merged",
-            "config": [IDEMPOTENT_REQUEST_PAYLOAD],
+            "config": [copy.deepcopy(IDEMPOTENT_REQUEST_PAYLOAD)],
         }
         result = self._plugin.run(task_vars=self._task_vars)
         assert result["changed"] is False
@@ -345,10 +345,10 @@ class TestSplunkEsCorrelationSearches:
         self._plugin._connection._shell = MagicMock()
 
         def create_update(self, rest_path, data=None):
-            return IDEMPOTENT_RESPONSE_PAYLOAD
+            return copy.deepcopy(IDEMPOTENT_RESPONSE_PAYLOAD)
 
         def get_by_path(self, path):
-            return IDEMPOTENT_RESPONSE_PAYLOAD
+            return copy.deepcopy(IDEMPOTENT_RESPONSE_PAYLOAD)
 
         def delete_by_path(self, path):
             return {}
@@ -359,11 +359,10 @@ class TestSplunkEsCorrelationSearches:
 
         self._plugin._task.args = {
             "state": "replaced",
-            "config": [IDEMPOTENT_REQUEST_PAYLOAD],
+            "config": [copy.deepcopy(IDEMPOTENT_REQUEST_PAYLOAD)],
         }
         result = self._plugin.run(task_vars=self._task_vars)
 
-        assert result["changed"] is False
         assert result["changed"] is False
 
     @patch("ansible.module_utils.connection.Connection.__rpc__")
