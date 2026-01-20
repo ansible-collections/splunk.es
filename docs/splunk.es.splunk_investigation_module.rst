@@ -21,8 +21,6 @@ Synopsis
 - When ``investigation_ref_id`` is not provided, a new investigation is created.
 - When ``investigation_ref_id`` is provided, the module will update the existing investigation.
 - Update operations can modify all fields except ``name``.
-- Note that ``name`` is not unique - multiple investigations can have the same name.
-- Tested against Splunk Enterprise Server with Splunk Enterprise Security installed.
 
 
 
@@ -144,6 +142,7 @@ Parameters
                 <td>
                         <div>List of finding IDs (event_ids) to attach to the investigation.</div>
                         <div>When updating, findings are added to the investigation via a separate API call.</div>
+                        <div>Finding IDs can only be added, removal is not supported.</div>
                 </td>
             </tr>
             <tr>

@@ -22,7 +22,6 @@ Synopsis
 - Query by ``investigation_ref_id`` to fetch a specific investigation.
 - Query by ``name`` to filter investigations by exact name match.
 - Use ``create_time_min`` and ``create_time_max`` to control the time range of returned investigations.
-- This module uses the httpapi connection plugin and does not require local Splunk SDK.
 
 
 
@@ -140,7 +139,6 @@ Parameters
                         <div>Reference ID (investigation ID) to query a specific investigation.</div>
                         <div>If specified, returns only the investigation with this ID.</div>
                         <div>Takes precedence over <code>name</code> if both are provided.</div>
-                        <div>Can be a GUID or display_id from an investigation.</div>
                 </td>
             </tr>
             <tr>
