@@ -1,0 +1,119 @@
+---
+# Expected results for splunk_response_plan integration tests
+
+# Basic response plan create
+create_response_plan:
+  before: null
+  after:
+    name: "Ansible Test Response Plan"
+    description: "Test response plan created by Ansible integration test"
+    template_status: "published"
+    phases:
+      - name: "Investigation Phase"
+        tasks:
+          - name: "Initial Triage"
+            description: "Perform initial assessment of the incident"
+            is_note_required: true
+            owner: "admin"
+            searches:
+              - name: "Access Over Time"
+                description: "Check access patterns"
+                spl: "| tstats count from datamodel=Authentication by _time span=10m"
+      - name: "Containment Phase"
+        tasks:
+          - name: "Isolate Systems"
+            description: "Isolate affected systems from network"
+            is_note_required: false
+            owner: "unassigned"
+            searches: []
+
+# Updated response plan (description change, add task)
+update_response_plan:
+  before:
+    name: "Ansible Test Response Plan"
+    description: "Test response plan created by Ansible integration test"
+    template_status: "published"
+  after:
+    name: "Ansible Test Response Plan"
+    description: "Updated test response plan by Ansible integration test"
+    template_status: "published"
+    phases:
+      - name: "Investigation Phase"
+        tasks:
+          - name: "Initial Triage"
+            description: "Updated: Perform thorough initial assessment"
+            is_note_required: true
+            owner: "admin"
+            searches:
+              - name: "Access Over Time"
+                description: "Check access patterns"
+                spl: "| tstats count from datamodel=Authentication by _time span=10m"
+          - name: "New Analysis Task"
+            description: "Additional analysis task"
+            is_note_required: false
+            owner: "unassigned"
+            searches: []
+      - name: "Containment Phase"
+        tasks:
+          - name: "Isolate Systems"
+            description: "Isolate affected systems from network"
+            is_note_required: false
+            owner: "unassigned"
+            searches: []
+
+# Complex response plan with multiple phases and searches
+create_complex_response_plan:
+  before: null
+  after:
+    name: "Ansible Complex Response Plan"
+    description: "Complex response plan with multiple phases and searches"
+    template_status: "published"
+    phases:
+      - name: "Phase 1 - Detection"
+        tasks:
+          - name: "Run Detection Searches"
+            description: "Execute detection searches"
+            is_note_required: true
+            owner: "admin"
+            searches:
+              - name: "Failed Logins"
+                description: "Check for failed login attempts"
+                spl: "index=security action=failure | stats count by user"
+              - name: "Anomalous Activity"
+                description: "Detect anomalous user behavior"
+                spl: "| tstats count from datamodel=Authentication where Authentication.action=failure"
+      - name: "Phase 2 - Analysis"
+        tasks:
+          - name: "Analyze Logs"
+            description: "Analyze collected logs"
+            is_note_required: true
+            owner: "admin"
+            searches: []
+          - name: "Review Artifacts"
+            description: "Review collected artifacts"
+            is_note_required: false
+            owner: "unassigned"
+            searches: []
+      - name: "Phase 3 - Remediation"
+        tasks:
+          - name: "Apply Fixes"
+            description: "Apply necessary fixes"
+            is_note_required: true
+            owner: "admin"
+            searches: []
+
+# Draft response plan
+create_draft_response_plan:
+  before: null
+  after:
+    name: "Ansible Draft Response Plan"
+    description: "Work in progress response plan"
+    template_status: "draft"
+    phases:
+      - name: "Draft Phase"
+        tasks:
+          - name: "Draft Task"
+            description: "Placeholder task"
+            is_note_required: false
+            owner: "unassigned"
+            searches: []

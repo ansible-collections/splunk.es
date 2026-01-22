@@ -10,6 +10,12 @@ making them safe to import in unit tests without triggering Ansible imports.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 
+# Default API path components (shared across all ES modules)
+DEFAULT_API_NAMESPACE = "servicesNS"
+DEFAULT_API_USER = "nobody"
+DEFAULT_API_APP = "missioncontrol"
+
+
 def remove_get_keys_from_payload_dict(payload_dict, remove_key_list):
     """Remove specified keys from a payload dictionary.
 

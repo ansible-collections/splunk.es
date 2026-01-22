@@ -1,0 +1,455 @@
+---
+- debug:
+    msg: START splunk_response_plan integration tests on connection={{ ansible_connection }}
+
+# Clean-up
+- name: Cleanup - Remove any existing test response plans before tests
+  splunk.es.splunk_response_plan: &cleanup_task
+    name: "{{ item }}"
+    state: absent
+  loop: &cleanup_names
+    - "Ansible Test Response Plan"
+    - "Ansible Complex Response Plan"
+    - "Ansible Draft Response Plan"
+
+- block:
+    - name: Create a new response plan (CHECK MODE)
+      check_mode: true
+      register: create_check_result
+      splunk.es.splunk_response_plan:
+        name: "Ansible Test Response Plan"
+        description: "Test response plan created by Ansible integration test"
+        template_status: published
+        phases:
+          - name: "Investigation Phase"
+            tasks:
+              - name: "Initial Triage"
+                description: "Perform initial assessment of the incident"
+                is_note_required: true
+                owner: admin
+                searches:
+                  - name: "Access Over Time"
+                    description: "Check access patterns"
+                    spl: "| tstats count from datamodel=Authentication by _time span=10m"
+          - name: "Containment Phase"
+            tasks:
+              - name: "Isolate Systems"
+                description: "Isolate affected systems from network"
+                is_note_required: false
+
+    - name: Assert check mode reports changed but no actual creation
+      assert:
+        that:
+          - create_check_result['changed'] == true
+          - create_check_result['response_plan']['before'] is none
+          - create_check_result['response_plan']['after']['name'] == create_response_plan['after']['name']
+
+    # Verify response plan was NOT actually created (check mode)
+    - name: Query response plan to verify check mode did not create (should be empty)
+      register: info_check_mode_verify
+      splunk.es.splunk_response_plan_info:
+        name: "Ansible Test Response Plan"
+
+    - name: Assert response plan was not created in check mode
+      assert:
+        that:
+          - info_check_mode_verify['changed'] == false
+          - info_check_mode_verify['response_plans'] | length == 0
+
+    - name: Create a new response plan
+      register: create_result
+      splunk.es.splunk_response_plan: &create_task
+        name: "Ansible Test Response Plan"
+        description: "Test response plan created by Ansible integration test"
+        template_status: published
+        phases:
+          - name: "Investigation Phase"
+            tasks:
+              - name: "Initial Triage"
+                description: "Perform initial assessment of the incident"
+                is_note_required: true
+                owner: admin
+                searches:
+                  - name: "Access Over Time"
+                    description: "Check access patterns"
+                    spl: "| tstats count from datamodel=Authentication by _time span=10m"
+          - name: "Containment Phase"
+            tasks:
+              - name: "Isolate Systems"
+                description: "Isolate affected systems from network"
+                is_note_required: false
+
+    - name: Assert response plan was created successfully
+      assert:
+        that:
+          - create_result['changed'] == true
+          - create_result['response_plan']['before'] is none
+          - create_result['response_plan']['after']['name'] == create_response_plan['after']['name']
+          - create_result['response_plan']['after']['description'] == create_response_plan['after']['description']
+          - create_result['response_plan']['after']['template_status'] == create_response_plan['after']['template_status']
+          - create_result['response_plan']['after']['phases'] | length == 2
+
+    # Verify create via info module
+    - name: Query response plan by name to verify creation
+      register: info_after_create
+      splunk.es.splunk_response_plan_info:
+        name: "Ansible Test Response Plan"
+
+    - name: Assert response plan info returns the correct data
+      assert:
+        that:
+          - info_after_create['changed'] == false
+          - info_after_create['response_plans'] | length == 1
+          - info_after_create['response_plans'][0]['name'] == "Ansible Test Response Plan"
+          - info_after_create['response_plans'][0]['description'] == "Test response plan created by Ansible integration test"
+          - info_after_create['response_plans'][0]['template_status'] == "published"
+          - info_after_create['response_plans'][0]['phases'] | length == 2
+          - info_after_create['response_plans'][0]['id'] is defined
+          - info_after_create['response_plans'][0]['id'] | length > 0
+
+    - name: Assert phases have IDs
+      assert:
+        that:
+          - info_after_create['response_plans'][0]['phases'][0]['id'] is defined
+          - info_after_create['response_plans'][0]['phases'][0]['id'] | length > 0
+          - info_after_create['response_plans'][0]['phases'][1]['id'] is defined
+          - info_after_create['response_plans'][0]['phases'][1]['id'] | length > 0
+
+    - name: Assert tasks have IDs
+      assert:
+        that:
+          - info_after_create['response_plans'][0]['phases'][0]['tasks'][0]['id'] is defined
+          - info_after_create['response_plans'][0]['phases'][0]['tasks'][0]['id'] | length > 0
+
+    # Idempotency - Same create should result in no changes
+    - name: Create response plan again (IDEMPOTENT - no changes)
+      register: create_idempotent_result
+      splunk.es.splunk_response_plan: *create_task
+
+    - name: Assert create is idempotent (no changes)
+      assert:
+        that:
+          - create_idempotent_result['changed'] == false
+          - create_idempotent_result['response_plan']['before'] == create_idempotent_result['response_plan']['after']
+
+    - name: Update response plan (CHECK MODE)
+      check_mode: true
+      register: update_check_result
+      splunk.es.splunk_response_plan:
+        name: "Ansible Test Response Plan"
+        description: "Updated test response plan by Ansible integration test"
+        template_status: published
+        phases:
+          - name: "Investigation Phase"
+            tasks:
+              - name: "Initial Triage"
+                description: "Updated: Perform thorough initial assessment"
+                is_note_required: true
+                owner: admin
+                searches:
+                  - name: "Access Over Time"
+                    description: "Check access patterns"
+                    spl: "| tstats count from datamodel=Authentication by _time span=10m"
+              - name: "New Analysis Task"
+                description: "Additional analysis task"
+                is_note_required: false
+          - name: "Containment Phase"
+            tasks:
+              - name: "Isolate Systems"
+                description: "Isolate affected systems from network"
+                is_note_required: false
+
+    - name: Assert check mode update reports changed
+      assert:
+        that:
+          - update_check_result['changed'] == true
+          - update_check_result['response_plan']['before']['description'] == create_response_plan['after']['description']
+          - update_check_result['response_plan']['after']['description'] == update_response_plan['after']['description']
+
+    - name: Update response plan
+      register: update_result
+      splunk.es.splunk_response_plan: &update_task
+        name: "Ansible Test Response Plan"
+        description: "Updated test response plan by Ansible integration test"
+        template_status: published
+        phases:
+          - name: "Investigation Phase"
+            tasks:
+              - name: "Initial Triage"
+                description: "Updated: Perform thorough initial assessment"
+                is_note_required: true
+                owner: admin
+                searches:
+                  - name: "Access Over Time"
+                    description: "Check access patterns"
+                    spl: "| tstats count from datamodel=Authentication by _time span=10m"
+              - name: "New Analysis Task"
+                description: "Additional analysis task"
+                is_note_required: false
+          - name: "Containment Phase"
+            tasks:
+              - name: "Isolate Systems"
+                description: "Isolate affected systems from network"
+                is_note_required: false
+
+    - name: Assert response plan was updated successfully
+      assert:
+        that:
+          - update_result['changed'] == true
+          - update_result['response_plan']['before']['description'] == create_response_plan['after']['description']
+          - update_result['response_plan']['after']['description'] == update_response_plan['after']['description']
+          - update_result['response_plan']['after']['phases'][0]['tasks'] | length == 2
+
+    # Verify update via info module
+    - name: Query response plan to verify update
+      register: info_after_update
+      splunk.es.splunk_response_plan_info:
+        name: "Ansible Test Response Plan"
+
+    - name: Assert response plan info reflects updated values
+      assert:
+        that:
+          - info_after_update['changed'] == false
+          - info_after_update['response_plans'] | length == 1
+          - info_after_update['response_plans'][0]['description'] == "Updated test response plan by Ansible integration test"
+          - info_after_update['response_plans'][0]['phases'][0]['tasks'] | length == 2
+          - "info_after_update['response_plans'][0]['phases'][0]['tasks'][0]['description'] == 'Updated: Perform thorough initial assessment'"
+
+    # Idempotency - Same update should result in no changes
+    - name: Update response plan (IDEMPOTENT - no changes)
+      register: idempotent_result
+      splunk.es.splunk_response_plan: *update_task
+
+    - name: Assert update is idempotent (no changes)
+      assert:
+        that:
+          - idempotent_result['changed'] == false
+          - idempotent_result['response_plan']['before'] == idempotent_result['response_plan']['after']
+
+    - name: Create complex response plan with multiple phases and searches
+      register: complex_create_result
+      splunk.es.splunk_response_plan:
+        name: "Ansible Complex Response Plan"
+        description: "Complex response plan with multiple phases and searches"
+        template_status: published
+        phases:
+          - name: "Phase 1 - Detection"
+            tasks:
+              - name: "Run Detection Searches"
+                description: "Execute detection searches"
+                is_note_required: true
+                owner: admin
+                searches:
+                  - name: "Failed Logins"
+                    description: "Check for failed login attempts"
+                    spl: "index=security action=failure | stats count by user"
+                  - name: "Anomalous Activity"
+                    description: "Detect anomalous user behavior"
+                    spl: "| tstats count from datamodel=Authentication where Authentication.action=failure"
+          - name: "Phase 2 - Analysis"
+            tasks:
+              - name: "Analyze Logs"
+                description: "Analyze collected logs"
+                is_note_required: true
+                owner: admin
+              - name: "Review Artifacts"
+                description: "Review collected artifacts"
+                is_note_required: false
+          - name: "Phase 3 - Remediation"
+            tasks:
+              - name: "Apply Fixes"
+                description: "Apply necessary fixes"
+                is_note_required: true
+                owner: admin
+
+    - name: Assert complex response plan was created
+      assert:
+        that:
+          - complex_create_result['changed'] == true
+          - complex_create_result['response_plan']['after']['name'] == "Ansible Complex Response Plan"
+          - complex_create_result['response_plan']['after']['phases'] | length == 3
+
+    # Verify via info module
+    - name: Query complex response plan to verify creation
+      register: info_complex
+      splunk.es.splunk_response_plan_info:
+        name: "Ansible Complex Response Plan"
+
+    - name: Assert complex response plan info is correct
+      assert:
+        that:
+          - info_complex['changed'] == false
+          - info_complex['response_plans'] | length == 1
+          - info_complex['response_plans'][0]['phases'] | length == 3
+          - info_complex['response_plans'][0]['phases'][0]['tasks'][0]['searches'] | length == 2
+          - info_complex['response_plans'][0]['phases'][0]['tasks'][0]['searches'][0]['name'] == "Failed Logins"
+          - info_complex['response_plans'][0]['phases'][0]['tasks'][0]['searches'][1]['name'] == "Anomalous Activity"
+
+    - name: Create draft response plan
+      register: draft_create_result
+      splunk.es.splunk_response_plan:
+        name: "Ansible Draft Response Plan"
+        description: "Work in progress response plan"
+        template_status: draft
+        phases:
+          - name: "Draft Phase"
+            tasks:
+              - name: "Draft Task"
+                description: "Placeholder task"
+                is_note_required: false
+
+    - name: Assert draft response plan was created
+      assert:
+        that:
+          - draft_create_result['changed'] == true
+          - draft_create_result['response_plan']['after']['template_status'] == "draft"
+
+    # Verify draft status via info module
+    - name: Query draft response plan to verify status
+      register: info_draft
+      splunk.es.splunk_response_plan_info:
+        name: "Ansible Draft Response Plan"
+
+    - name: Assert draft response plan has correct status
+      assert:
+        that:
+          - info_draft['response_plans'] | length == 1
+          - info_draft['response_plans'][0]['template_status'] == "draft"
+
+    - name: Query all response plans
+      register: info_all
+      splunk.es.splunk_response_plan_info:
+
+    - name: Assert all our test response plans are returned
+      assert:
+        that:
+          - info_all['changed'] == false
+          - info_all['response_plans'] | length >= 3
+          - info_all['response_plans'] | selectattr('name', 'equalto', 'Ansible Test Response Plan') | list | length == 1
+          - info_all['response_plans'] | selectattr('name', 'equalto', 'Ansible Complex Response Plan') | list | length == 1
+          - info_all['response_plans'] | selectattr('name', 'equalto', 'Ansible Draft Response Plan') | list | length == 1
+
+    - name: Delete response plan (CHECK MODE)
+      check_mode: true
+      register: delete_check_result
+      splunk.es.splunk_response_plan:
+        name: "Ansible Test Response Plan"
+        state: absent
+
+    - name: Assert check mode delete reports changed
+      assert:
+        that:
+          - delete_check_result['changed'] == true
+          - delete_check_result['response_plan']['before'] is not none
+          - delete_check_result['response_plan']['after'] is none
+
+    # Verify response plan still exists after check mode delete
+    - name: Query response plan to verify check mode did not delete
+      register: info_delete_check_verify
+      splunk.es.splunk_response_plan_info:
+        name: "Ansible Test Response Plan"
+
+    - name: Assert response plan still exists after check mode delete
+      assert:
+        that:
+          - info_delete_check_verify['response_plans'] | length == 1
+
+    - name: Delete response plan
+      register: delete_result
+      splunk.es.splunk_response_plan:
+        name: "Ansible Test Response Plan"
+        state: absent
+
+    - name: Assert response plan was deleted successfully
+      assert:
+        that:
+          - delete_result['changed'] == true
+          - delete_result['response_plan']['before'] is not none
+          - delete_result['response_plan']['before']['name'] == "Ansible Test Response Plan"
+          - delete_result['response_plan']['after'] is none
+
+    # Verify delete via info module
+    - name: Query deleted response plan to verify it no longer exists
+      register: info_after_delete
+      splunk.es.splunk_response_plan_info:
+        name: "Ansible Test Response Plan"
+
+    - name: Assert deleted response plan is not returned
+      assert:
+        that:
+          - info_after_delete['changed'] == false
+          - info_after_delete['response_plans'] | length == 0
+
+    - name: Delete already deleted response plan (IDEMPOTENT)
+      register: delete_idempotent_result
+      splunk.es.splunk_response_plan:
+        name: "Ansible Test Response Plan"
+        state: absent
+
+    - name: Assert deleting non-existent response plan is idempotent
+      assert:
+        that:
+          - delete_idempotent_result['changed'] == false
+          - delete_idempotent_result['response_plan']['before'] is none
+          - delete_idempotent_result['response_plan']['after'] is none
+
+    - name: Query non-existent response plan
+      register: info_nonexistent
+      splunk.es.splunk_response_plan_info:
+        name: "NonExistent Response Plan 12345"
+
+    - name: Assert non-existent response plan returns empty list without error
+      assert:
+        that:
+          - info_nonexistent['changed'] == false
+          - info_nonexistent['failed'] is not defined or info_nonexistent['failed'] == false
+          - info_nonexistent['response_plans'] | length == 0
+
+    # Validation errors - Duplicate phase names
+    - name: Attempt to create response plan with duplicate phase names (should fail)
+      splunk.es.splunk_response_plan:
+        name: "Invalid Response Plan"
+        description: "This should fail validation"
+        template_status: published
+        phases:
+          - name: "Duplicate Phase"
+            tasks:
+              - name: "Task 1"
+                description: "First task"
+          - name: "Duplicate Phase"
+            tasks:
+              - name: "Task 2"
+                description: "Second task"
+      register: validation_error_result
+      failed_when: "'Duplicate phase name' not in validation_error_result.msg"
+
+    # Validation errors - Duplicate task names within phase
+    - name: Attempt to create response plan with duplicate task names (should fail)
+      splunk.es.splunk_response_plan:
+        name: "Invalid Response Plan Tasks"
+        description: "This should fail validation"
+        template_status: published
+        phases:
+          - name: "Phase 1"
+            tasks:
+              - name: "Duplicate Task"
+                description: "First task"
+              - name: "Duplicate Task"
+                description: "Second task"
+      register: validation_error_task_result
+      failed_when: "'Duplicate task name' not in validation_error_task_result.msg"
+
+    # Validation errors - Missing phases when state=present
+    - name: Attempt to create response plan without phases (should fail)
+      splunk.es.splunk_response_plan:
+        name: "Response Plan Without Phases"
+        description: "This should fail validation"
+        template_status: published
+      register: validation_error_no_phases_result
+      failed_when: "'phases' not in validation_error_no_phases_result.msg"
+
+  always:
+    # Clean-up - Remove all test response plans
+    - name: Cleanup - Remove all test response plans after tests
+      splunk.es.splunk_response_plan: *cleanup_task
+      loop: *cleanup_names
