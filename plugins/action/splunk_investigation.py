@@ -30,21 +30,19 @@ from ansible.utils.display import Display
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
 
 from ansible_collections.splunk.es.plugins.module_utils.investigation import (
-    DEFAULT_API_APP,
-    DEFAULT_API_NAMESPACE,
-    DEFAULT_API_USER,
-    FINDING_IDS_FIELD,
-    UPDATABLE_FIELDS,
     build_investigation_api_path,
-    build_investigation_findings_path,
-    build_investigation_update_path,
     map_investigation_from_api,
-    map_investigation_to_api,
-    map_investigation_update_to_api,
 )
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
     check_argspec,
+)
+from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
+    DEFAULT_API_APP,
+    DEFAULT_API_NAMESPACE,
+    DEFAULT_API_USER,
+    DISPOSITION_TO_API,
+    STATUS_TO_API,
 )
 from ansible_collections.splunk.es.plugins.modules.splunk_investigation import DOCUMENTATION
 
@@ -55,6 +53,135 @@ display = Display()
 
 class ActionModule(ActionBase):
     """Action module for managing Splunk ES investigations."""
+
+    # Fields that can be updated via the main update endpoint (name cannot be updated)
+    UPDATABLE_FIELDS = [
+        "description",
+        "status",
+        "disposition",
+        "owner",
+        "urgency",
+        "sensitivity",
+    ]
+
+    # finding_ids requires a separate API endpoint
+    FINDING_IDS_FIELD = "finding_ids"
+
+    # Sensitivity mapping: module value (lowercase) -> API value (capitalized)
+    SENSITIVITY_TO_API = {
+        "white": "White",
+        "green": "Green",
+        "amber": "Amber",
+        "red": "Red",
+        "unassigned": "Unassigned",
+    }
+
+    @staticmethod
+    def build_update_path(
+        ref_id: str,
+        namespace: str = DEFAULT_API_NAMESPACE,
+        user: str = DEFAULT_API_USER,
+        app: str = DEFAULT_API_APP,
+    ) -> str:
+        """Build the investigations update API path.
+
+        Args:
+            ref_id: The investigation reference ID.
+            namespace: The namespace portion of the path. Defaults to 'servicesNS'.
+            user: The user portion of the path. Defaults to 'nobody'.
+            app: The app portion of the path. Defaults to 'missioncontrol'.
+
+        Returns:
+            The investigations update API path with ref_id.
+        """
+        return f"{build_investigation_api_path(namespace, user, app)}/{ref_id}"
+
+    @classmethod
+    def build_findings_path(
+        cls,
+        ref_id: str,
+        namespace: str = DEFAULT_API_NAMESPACE,
+        user: str = DEFAULT_API_USER,
+        app: str = DEFAULT_API_APP,
+    ) -> str:
+        """Build the API path for adding findings to an investigation.
+
+        Args:
+            ref_id: The investigation reference ID.
+            namespace: The namespace portion of the path. Defaults to 'servicesNS'.
+            user: The user portion of the path. Defaults to 'nobody'.
+            app: The app portion of the path. Defaults to 'missioncontrol'.
+
+        Returns:
+            The API path for adding findings to the investigation.
+        """
+        return f"{cls.build_update_path(ref_id, namespace, user, app)}/findings"
+
+    @classmethod
+    def map_to_api(cls, investigation: dict[str, Any]) -> dict[str, Any]:
+        """Convert module params to API payload format.
+
+        Args:
+            investigation: The investigation parameters dictionary.
+
+        Returns:
+            Dictionary formatted for the Splunk investigations API.
+        """
+        res = investigation.copy()
+
+        # Handle status conversion to API numeric value
+        if "status" in res and res["status"]:
+            res["status"] = STATUS_TO_API.get(res["status"], res["status"])
+
+        # Handle disposition conversion to API format
+        if "disposition" in res and res["disposition"]:
+            res["disposition"] = DISPOSITION_TO_API.get(
+                res["disposition"].lower(),
+                res["disposition"],
+            )
+
+        # Handle sensitivity conversion to API format (capitalized)
+        if "sensitivity" in res and res["sensitivity"]:
+            res["sensitivity"] = cls.SENSITIVITY_TO_API.get(
+                res["sensitivity"].lower(),
+                res["sensitivity"],
+            )
+
+        return res
+
+    @classmethod
+    def map_update_to_api(cls, investigation: dict[str, Any]) -> dict[str, Any]:
+        """Convert module params to API payload format for updating investigations.
+
+        Only includes fields that are allowed to be updated.
+
+        Args:
+            investigation: The investigation parameters dictionary.
+
+        Returns:
+            Dictionary formatted for the Splunk investigations update API.
+        """
+        res = {}
+
+        for field in cls.UPDATABLE_FIELDS:
+            if field in investigation and investigation[field] is not None:
+                value = investigation[field]
+
+                # Handle status conversion
+                if field == "status":
+                    value = STATUS_TO_API.get(value, value)
+
+                # Handle disposition conversion
+                if field == "disposition":
+                    value = DISPOSITION_TO_API.get(value.lower(), value)
+
+                # Handle sensitivity conversion
+                if field == "sensitivity":
+                    value = cls.SENSITIVITY_TO_API.get(value.lower(), value)
+
+                res[field] = value
+
+        return res
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -198,7 +325,7 @@ class ActionModule(ActionBase):
         Returns:
             Parsed investigation from API response.
         """
-        payload = map_investigation_to_api(investigation)
+        payload = self.map_to_api(investigation)
 
         display.vvv(f"splunk_investigation: posting to {self.api_object}")
         display.vvv(f"splunk_investigation: payload: {payload}")
@@ -228,7 +355,7 @@ class ActionModule(ActionBase):
             The updated investigation parameters.
         """
         # Build the update API path
-        update_url = build_investigation_update_path(
+        update_url = self.build_update_path(
             ref_id,
             self.api_namespace,
             self.api_user,
@@ -236,7 +363,7 @@ class ActionModule(ActionBase):
         )
 
         # Map to update API payload format
-        payload = map_investigation_update_to_api(investigation)
+        payload = self.map_update_to_api(investigation)
 
         display.vvv(f"splunk_investigation: posting update to {update_url}")
         display.vvv(f"splunk_investigation: update payload: {payload}")
@@ -265,7 +392,7 @@ class ActionModule(ActionBase):
             ref_id: The reference ID of the investigation.
             finding_ids: List of finding IDs to add to the investigation.
         """
-        findings_url = build_investigation_findings_path(
+        findings_url = self.build_findings_path(
             ref_id,
             self.api_namespace,
             self.api_user,
@@ -328,7 +455,7 @@ class ActionModule(ActionBase):
             Tuple of (filtered_fields, finding_ids).
         """
         # Extract finding_ids (handled separately via different API)
-        finding_ids = investigation.pop(FINDING_IDS_FIELD, None)
+        finding_ids = investigation.pop(self.FINDING_IDS_FIELD, None)
         if finding_ids:
             display.vv(f"splunk_investigation: will add findings: {finding_ids}")
 
@@ -338,10 +465,10 @@ class ActionModule(ActionBase):
             investigation = {k: v for k, v in investigation.items() if k != "name"}
 
         # Filter to only updatable fields
-        non_updatable = [k for k in investigation if k not in UPDATABLE_FIELDS]
+        non_updatable = [k for k in investigation if k not in self.UPDATABLE_FIELDS]
         if non_updatable:
             display.vv(f"splunk_investigation: ignoring non-updatable fields: {non_updatable}")
-            investigation = {k: v for k, v in investigation.items() if k in UPDATABLE_FIELDS}
+            investigation = {k: v for k, v in investigation.items() if k in self.UPDATABLE_FIELDS}
 
         return investigation, finding_ids
 
@@ -364,7 +491,7 @@ class ActionModule(ActionBase):
             Tuple of (changed, updated_fields).
         """
         want_conf = utils.remove_empties(investigation)
-        have_updatable = {k: have_conf.get(k) for k in UPDATABLE_FIELDS if k in have_conf}
+        have_updatable = {k: have_conf.get(k) for k in self.UPDATABLE_FIELDS if k in have_conf}
         diff = utils.dict_diff(have_updatable, want_conf)
 
         if not diff:
@@ -470,7 +597,7 @@ class ActionModule(ActionBase):
 
         # Process findings updates
         if finding_ids:
-            existing = have_conf.get(FINDING_IDS_FIELD, []) or []
+            existing = have_conf.get(self.FINDING_IDS_FIELD, []) or []
             findings_changed, final_findings = self._process_findings_updates(
                 conn_request,
                 ref_id,
@@ -479,7 +606,7 @@ class ActionModule(ActionBase):
             )
             if findings_changed:
                 changed = True
-            after_conf[FINDING_IDS_FIELD] = final_findings
+            after_conf[self.FINDING_IDS_FIELD] = final_findings
 
         # Return result
         if changed:

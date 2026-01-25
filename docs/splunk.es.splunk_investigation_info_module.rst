@@ -144,6 +144,23 @@ Parameters
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>limit</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                    </div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Maximum number of investigations to return.</div>
+                        <div>If not specified, all matching investigations are returned.</div>
+                        <div>Use this to limit large result sets.</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>name</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
@@ -212,6 +229,12 @@ Examples
       splunk.es.splunk_investigation_info:
         create_time_min: "-30d"
       register: all_investigations
+
+    - name: Query investigations with a limit on results
+      splunk.es.splunk_investigation_info:
+        create_time_min: "-7d"
+        limit: 50
+      register: limited_investigations
 
     - name: Query investigations from a specific time range (ISO 8601)
       splunk.es.splunk_investigation_info:

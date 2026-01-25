@@ -9,19 +9,14 @@ import re
 
 from typing import Any, Optional
 
-
-# Default API path components
-DEFAULT_API_NAMESPACE = "servicesNS"
-DEFAULT_API_USER = "nobody"
-DEFAULT_API_APP = "SplunkEnterpriseSecuritySuite"
-
-# Fixed app for investigations/update API
-INVESTIGATIONS_API_APP = "missioncontrol"
-
-# API path for findings API
-FINDING_API_OBJECT = (
-    f"{DEFAULT_API_NAMESPACE}/{DEFAULT_API_USER}/{DEFAULT_API_APP}/public/v2/findings"
+from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
+    DEFAULT_API_APP_SECURITY_SUITE,
+    DEFAULT_API_NAMESPACE,
+    DEFAULT_API_USER,
+    DISPOSITION_FROM_API,
+    STATUS_FROM_API,
 )
+
 
 # Key transformation: API param -> module param
 FINDING_KEY_TRANSFORM = {
@@ -37,49 +32,11 @@ FINDING_KEY_TRANSFORM = {
     "disposition": "disposition",
 }
 
-# Fields that can be updated via the investigations API
-UPDATABLE_FIELDS = ["owner", "status", "urgency", "disposition"]
-
-# Key transformation for update API: module param -> API param
-UPDATE_KEY_TRANSFORM = {
-    "owner": "assignee",
-    "status": "status",
-    "urgency": "urgency",
-    "disposition": "disposition",
-}
-
-# Disposition mapping: module value -> API value
-DISPOSITION_TO_API = {
-    "unassigned": "disposition:0",
-    "true_positive": "disposition:1",
-    "benign_positive": "disposition:2",
-    "false_positive": "disposition:3",
-    "false_positive_inaccurate_data": "disposition:4",
-    "other": "disposition:5",
-    "undetermined": "disposition:6",
-}
-
-# Disposition mapping: API value -> module value
-DISPOSITION_FROM_API = {v: k for k, v in DISPOSITION_TO_API.items()}
-
-# Status mapping: module value -> API value
-STATUS_TO_API = {
-    "unassigned": "0",
-    "new": "1",
-    "in_progress": "2",
-    "pending": "3",
-    "resolved": "4",
-    "closed": "5",
-}
-
-# Status mapping: API value -> module value
-STATUS_FROM_API = {v: k for k, v in STATUS_TO_API.items()}
-
 
 def build_finding_api_path(
     namespace: str = DEFAULT_API_NAMESPACE,
     user: str = DEFAULT_API_USER,
-    app: str = DEFAULT_API_APP,
+    app: str = DEFAULT_API_APP_SECURITY_SUITE,
 ) -> str:
     """Build the findings API path from components.
 
@@ -92,26 +49,6 @@ def build_finding_api_path(
         The complete findings API path.
     """
     return f"{namespace}/{user}/{app}/public/v2/findings"
-
-
-def build_update_api_path(
-    ref_id: str,
-    namespace: str = DEFAULT_API_NAMESPACE,
-    user: str = DEFAULT_API_USER,
-) -> str:
-    """Build the investigations update API path.
-
-    The update API uses a fixed app (missioncontrol).
-
-    Args:
-        ref_id: The finding reference ID (e.g., 'uuid@@notable@@time{timestamp}').
-        namespace: The namespace portion of the path. Defaults to 'servicesNS'.
-        user: The user portion of the path. Defaults to 'nobody'.
-
-    Returns:
-        The investigations update API path (without query parameters).
-    """
-    return f"{namespace}/{user}/{INVESTIGATIONS_API_APP}/v1/investigations/{ref_id}"
 
 
 def extract_notable_time(ref_id: str) -> Optional[str]:
@@ -178,75 +115,5 @@ def map_finding_from_api(
             res["finding_score"] = int(float(res["finding_score"]))
         except (ValueError, TypeError):
             pass
-
-    return res
-
-
-def map_finding_to_api(
-    finding: dict[str, Any],
-    key_transform: dict[str, str] = None,
-) -> dict[str, Any]:
-    """Convert module params to API payload format.
-
-    Args:
-        finding: The finding parameters dictionary.
-        key_transform: Optional key transformation dict. Defaults to FINDING_KEY_TRANSFORM.
-
-    Returns:
-        Dictionary formatted for the Splunk findings API.
-    """
-    from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import map_obj_to_params
-
-    if key_transform is None:
-        key_transform = FINDING_KEY_TRANSFORM
-
-    # Use the helper from module_utils
-    res = map_obj_to_params(finding.copy(), key_transform)
-
-    # Add default values for API
-    res["app"] = "SplunkEnterpriseSecuritySuite"
-    res["creator"] = "admin"
-
-    # Handle status conversion
-    if "status" in res and res["status"]:
-        res["status"] = STATUS_TO_API.get(res["status"], res["status"])
-
-    # Handle disposition conversion
-    if "disposition" in res and res["disposition"]:
-        res["disposition"] = DISPOSITION_TO_API.get(res["disposition"], res["disposition"])
-
-    # Handle custom fields - flatten them into the payload
-    if "fields" in finding and finding["fields"]:
-        for field in finding["fields"]:
-            if "name" in field and "value" in field:
-                res[field["name"]] = field["value"]
-
-    return res
-
-
-def map_update_to_api(finding: dict[str, Any]) -> dict[str, Any]:
-    """Convert module params to API payload format for updating findings.
-
-    Args:
-        finding: The finding parameters dictionary.
-
-    Returns:
-        Dictionary formatted for the Splunk investigations update API.
-    """
-    res = {}
-
-    for module_key, api_key in UPDATE_KEY_TRANSFORM.items():
-        if module_key in finding and finding[module_key] is not None:
-            value = finding[module_key]
-
-            # Handle status conversion
-            if module_key == "status":
-                value = STATUS_TO_API.get(value, value)
-
-            # Handle disposition conversion
-            if module_key == "disposition":
-                value = DISPOSITION_TO_API.get(value, value)
-
-            res[api_key] = value
 
     return res

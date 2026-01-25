@@ -28,23 +28,24 @@ work correctly for:
 """
 
 
+from ansible_collections.splunk.es.plugins.action.splunk_finding import (
+    ActionModule,
+)
 from ansible_collections.splunk.es.plugins.module_utils.finding import (
+    FINDING_KEY_TRANSFORM,
+    build_finding_api_path,
+    extract_notable_time,
+    map_finding_from_api,
+)
+from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     DEFAULT_API_APP,
+    DEFAULT_API_APP_SECURITY_SUITE,
     DEFAULT_API_NAMESPACE,
     DEFAULT_API_USER,
     DISPOSITION_FROM_API,
     DISPOSITION_TO_API,
-    FINDING_KEY_TRANSFORM,
-    INVESTIGATIONS_API_APP,
     STATUS_FROM_API,
     STATUS_TO_API,
-    UPDATABLE_FIELDS,
-    build_finding_api_path,
-    build_update_api_path,
-    extract_notable_time,
-    map_finding_from_api,
-    map_finding_to_api,
-    map_update_to_api,
 )
 
 
@@ -63,23 +64,25 @@ class TestBuildFindingApiPath:
         """
         result = build_finding_api_path()
 
-        expected = (
-            f"{DEFAULT_API_NAMESPACE}/{DEFAULT_API_USER}/{DEFAULT_API_APP}/public/v2/findings"
-        )
+        expected = f"{DEFAULT_API_NAMESPACE}/{DEFAULT_API_USER}/{DEFAULT_API_APP_SECURITY_SUITE}/public/v2/findings"
         assert result == expected
 
     def test_build_finding_api_path_custom_namespace(self):
         """Test API path with custom namespace value."""
         result = build_finding_api_path(namespace="customNS")
 
-        expected = f"customNS/{DEFAULT_API_USER}/{DEFAULT_API_APP}/public/v2/findings"
+        expected = (
+            f"customNS/{DEFAULT_API_USER}/{DEFAULT_API_APP_SECURITY_SUITE}/public/v2/findings"
+        )
         assert result == expected
 
     def test_build_finding_api_path_custom_user(self):
         """Test API path with custom user value."""
         result = build_finding_api_path(user="admin")
 
-        expected = f"{DEFAULT_API_NAMESPACE}/admin/{DEFAULT_API_APP}/public/v2/findings"
+        expected = (
+            f"{DEFAULT_API_NAMESPACE}/admin/{DEFAULT_API_APP_SECURITY_SUITE}/public/v2/findings"
+        )
         assert result == expected
 
     def test_build_finding_api_path_custom_app(self):
@@ -103,39 +106,35 @@ class TestBuildFindingApiPath:
 
 
 class TestBuildUpdateApiPath:
-    """Tests for the build_update_api_path function.
+    """Tests for the ActionModule.build_update_api_path method.
 
-    This function constructs the REST API path for updating findings
+    This method constructs the REST API path for updating findings
     via the investigations API (uses missioncontrol app).
     """
 
     def test_build_update_api_path_defaults(self):
         """Test update API path with default namespace and user."""
         ref_id = "abc-123@@notable@@time1234567890"
-        result = build_update_api_path(ref_id)
+        result = ActionModule.build_update_api_path(ref_id)
 
-        expected = f"{DEFAULT_API_NAMESPACE}/{DEFAULT_API_USER}/{INVESTIGATIONS_API_APP}/v1/investigations/{ref_id}"
+        expected = f"{DEFAULT_API_NAMESPACE}/{DEFAULT_API_USER}/{DEFAULT_API_APP}/v1/investigations/{ref_id}"
         assert result == expected
         assert "missioncontrol" in result
 
     def test_build_update_api_path_custom_namespace(self):
         """Test update API path with custom namespace."""
         ref_id = "abc-123@@notable@@time1234567890"
-        result = build_update_api_path(ref_id, namespace="customNS")
+        result = ActionModule.build_update_api_path(ref_id, namespace="customNS")
 
-        expected = (
-            f"customNS/{DEFAULT_API_USER}/{INVESTIGATIONS_API_APP}/v1/investigations/{ref_id}"
-        )
+        expected = f"customNS/{DEFAULT_API_USER}/{DEFAULT_API_APP}/v1/investigations/{ref_id}"
         assert result == expected
 
     def test_build_update_api_path_custom_user(self):
         """Test update API path with custom user."""
         ref_id = "abc-123@@notable@@time1234567890"
-        result = build_update_api_path(ref_id, user="admin")
+        result = ActionModule.build_update_api_path(ref_id, user="admin")
 
-        expected = (
-            f"{DEFAULT_API_NAMESPACE}/admin/{INVESTIGATIONS_API_APP}/v1/investigations/{ref_id}"
-        )
+        expected = f"{DEFAULT_API_NAMESPACE}/admin/{DEFAULT_API_APP}/v1/investigations/{ref_id}"
         assert result == expected
 
     def test_build_update_api_path_special_characters_in_ref_id(self):
@@ -144,7 +143,7 @@ class TestBuildUpdateApiPath:
         The ref_id is included as-is in the path; URL encoding happens elsewhere.
         """
         ref_id = "2008e99d-af14-4fec-89da-b9b17a81820a@@notable@@time1768225865"
-        result = build_update_api_path(ref_id)
+        result = ActionModule.build_update_api_path(ref_id)
 
         assert ref_id in result
 
@@ -307,9 +306,9 @@ class TestMapFindingFromApi:
 
 
 class TestMapFindingToApi:
-    """Tests for the map_finding_to_api function.
+    """Tests for the ActionModule.map_finding_to_api method.
 
-    This function converts module parameters to API payload format.
+    This method converts module parameters to API payload format.
     It handles key renaming and adds required default values.
     """
 
@@ -324,7 +323,7 @@ class TestMapFindingToApi:
             "finding_score": 50,
         }
 
-        result = map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
+        result = ActionModule.map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
 
         assert result["rule_title"] == "Test Finding"
         assert result["rule_description"] == "A test description"
@@ -337,7 +336,7 @@ class TestMapFindingToApi:
         """Test that app and creator defaults are added."""
         finding = {"title": "Test"}
 
-        result = map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
+        result = ActionModule.map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
 
         assert result["app"] == "SplunkEnterpriseSecuritySuite"
         assert result["creator"] == "admin"
@@ -349,7 +348,7 @@ class TestMapFindingToApi:
             "status": "new",
         }
 
-        result = map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
+        result = ActionModule.map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
 
         assert result["status"] == "1"
 
@@ -357,7 +356,7 @@ class TestMapFindingToApi:
         """Test all status value conversions to API format."""
         for module_value, api_value in STATUS_TO_API.items():
             finding = {"title": "Test", "status": module_value}
-            result = map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
+            result = ActionModule.map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
             assert result["status"] == api_value
 
     def test_map_finding_to_api_disposition_conversion(self):
@@ -367,7 +366,7 @@ class TestMapFindingToApi:
             "disposition": "true_positive",
         }
 
-        result = map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
+        result = ActionModule.map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
 
         assert result["disposition"] == "disposition:1"
 
@@ -375,7 +374,7 @@ class TestMapFindingToApi:
         """Test all disposition value conversions to API format."""
         for module_value, api_value in DISPOSITION_TO_API.items():
             finding = {"title": "Test", "disposition": module_value}
-            result = map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
+            result = ActionModule.map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
             assert result["disposition"] == api_value
 
     def test_map_finding_to_api_with_custom_fields(self):
@@ -388,7 +387,7 @@ class TestMapFindingToApi:
             ],
         }
 
-        result = map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
+        result = ActionModule.map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
 
         assert result["custom_field_a"] == "value1"
         assert result["custom_field_b"] == "value2"
@@ -400,16 +399,16 @@ class TestMapFindingToApi:
             "fields": [],
         }
 
-        result = map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
+        result = ActionModule.map_finding_to_api(finding, FINDING_KEY_TRANSFORM)
 
         # Should not raise error, just skip empty fields
         assert "rule_title" in result
 
 
 class TestMapUpdateToApi:
-    """Tests for the map_update_to_api function.
+    """Tests for the ActionModule.map_update_to_api method.
 
-    This function converts module parameters to the update API payload format.
+    This method converts module parameters to the update API payload format.
     Only updatable fields (owner, status, urgency, disposition) are included.
     """
 
@@ -417,7 +416,7 @@ class TestMapUpdateToApi:
         """Test that owner is mapped to assignee."""
         finding = {"owner": "admin"}
 
-        result = map_update_to_api(finding)
+        result = ActionModule.map_update_to_api(finding)
 
         assert result["assignee"] == "admin"
         assert "owner" not in result
@@ -426,7 +425,7 @@ class TestMapUpdateToApi:
         """Test that status is converted to numeric code."""
         finding = {"status": "resolved"}
 
-        result = map_update_to_api(finding)
+        result = ActionModule.map_update_to_api(finding)
 
         assert result["status"] == "4"
 
@@ -434,7 +433,7 @@ class TestMapUpdateToApi:
         """Test that urgency is passed through."""
         finding = {"urgency": "high"}
 
-        result = map_update_to_api(finding)
+        result = ActionModule.map_update_to_api(finding)
 
         assert result["urgency"] == "high"
 
@@ -442,7 +441,7 @@ class TestMapUpdateToApi:
         """Test that disposition is converted to API format."""
         finding = {"disposition": "false_positive"}
 
-        result = map_update_to_api(finding)
+        result = ActionModule.map_update_to_api(finding)
 
         assert result["disposition"] == "disposition:3"
 
@@ -455,7 +454,7 @@ class TestMapUpdateToApi:
             "disposition": "true_positive",
         }
 
-        result = map_update_to_api(finding)
+        result = ActionModule.map_update_to_api(finding)
 
         assert result["assignee"] == "analyst"
         assert result["status"] == "2"
@@ -470,7 +469,7 @@ class TestMapUpdateToApi:
             "owner": "admin",
         }
 
-        result = map_update_to_api(finding)
+        result = ActionModule.map_update_to_api(finding)
 
         assert "title" not in result
         assert "rule_title" not in result
@@ -484,14 +483,14 @@ class TestMapUpdateToApi:
             "status": "new",
         }
 
-        result = map_update_to_api(finding)
+        result = ActionModule.map_update_to_api(finding)
 
         assert "assignee" not in result
         assert result["status"] == "1"
 
     def test_map_update_to_api_empty_dict(self):
         """Test handling of empty dictionary."""
-        result = map_update_to_api({})
+        result = ActionModule.map_update_to_api({})
 
         assert result == {}
 
@@ -542,17 +541,17 @@ class TestDispositionMappings:
             assert disposition in DISPOSITION_TO_API
 
 
-class TestUpdatableFields:
-    """Tests for the UPDATABLE_FIELDS constant."""
+class TestUpdateKeyTransform:
+    """Tests for the ActionModule.UPDATE_KEY_TRANSFORM constant."""
 
-    def test_updatable_fields_contains_expected(self):
-        """Test that UPDATABLE_FIELDS contains the correct fields."""
+    def test_update_key_transform_contains_expected_keys(self):
+        """Test that UPDATE_KEY_TRANSFORM contains the correct updatable fields."""
         expected = ["owner", "status", "urgency", "disposition"]
 
-        assert set(UPDATABLE_FIELDS) == set(expected)
+        assert set(ActionModule.UPDATE_KEY_TRANSFORM.keys()) == set(expected)
 
-    def test_updatable_fields_excludes_create_only(self):
-        """Test that create-only fields are not in UPDATABLE_FIELDS."""
+    def test_update_key_transform_excludes_create_only(self):
+        """Test that create-only fields are not in UPDATE_KEY_TRANSFORM."""
         create_only = [
             "title",
             "description",
@@ -563,4 +562,8 @@ class TestUpdatableFields:
         ]
 
         for field in create_only:
-            assert field not in UPDATABLE_FIELDS
+            assert field not in ActionModule.UPDATE_KEY_TRANSFORM
+
+    def test_update_key_transform_owner_maps_to_assignee(self):
+        """Test that owner is mapped to assignee for the API."""
+        assert ActionModule.UPDATE_KEY_TRANSFORM["owner"] == "assignee"

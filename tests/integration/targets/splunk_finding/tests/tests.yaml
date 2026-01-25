@@ -232,3 +232,16 @@
           - info_resolved_result['findings'] | length == 1
           - info_resolved_result['findings'][0]['status'] == "resolved"
           - info_resolved_result['findings'][0]['disposition'] == "true_positive"
+
+    # splunk_finding_info tests - Query with limit parameter
+    - name: Query findings with limit=1
+      register: info_limit_one_result
+      splunk.es.splunk_finding_info:
+        earliest: "-1h"
+        limit: 1
+
+    - name: Assert limit=1 returns exactly one finding
+      assert:
+        that:
+          - info_limit_one_result['changed'] == false
+          - info_limit_one_result['findings'] | length == 1

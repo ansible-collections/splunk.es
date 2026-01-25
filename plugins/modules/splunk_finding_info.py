@@ -57,6 +57,13 @@ options:
       - Applies when querying by C(title) or all findings.
     required: false
     type: str
+  limit:
+    description:
+      - Maximum number of findings to return.
+      - If not specified, all matching findings are returned.
+      - Use this to limit large result sets.
+    required: false
+    type: int
   api_namespace:
     description:
       - The namespace portion of the Splunk API path.
@@ -122,6 +129,12 @@ EXAMPLES = """
   splunk.es.splunk_finding_info:
     earliest: "-30d"
   register: all_findings
+
+- name: Query findings with a limit on results
+  splunk.es.splunk_finding_info:
+    earliest: "-7d"
+    limit: 100
+  register: limited_findings
 
 - name: Query findings from a specific time range (ISO 8601)
   splunk.es.splunk_finding_info:

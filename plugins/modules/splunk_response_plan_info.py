@@ -24,6 +24,13 @@ options:
       - If not specified, returns all response plans.
     required: false
     type: str
+  limit:
+    description:
+      - Maximum number of response plans to return.
+      - If not specified, returns all matching response plans.
+      - Useful for limiting results when querying large numbers of response plans.
+    required: false
+    type: int
   api_namespace:
     description:
       - The namespace portion of the Splunk API path.

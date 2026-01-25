@@ -169,6 +169,20 @@ class ActionModule(ActionBase):
         """
         return _build_response_plan_api_path(self.api_namespace, self.api_user, self.api_app)
 
+    def _build_query_params(self) -> dict[str, Any] | None:
+        """Build query params dict with limit if provided.
+
+        Returns:
+            Dict with query params if any are set, None otherwise.
+        """
+        query_params: dict[str, Any] = {}
+
+        limit = self._task.args.get("limit")
+        if limit:
+            query_params["limit"] = limit
+
+        return query_params if query_params else None
+
     def get_all_response_plans(self, conn_request: SplunkRequest) -> list[dict[str, Any]]:
         """Get all response plans from the API.
 
@@ -180,7 +194,10 @@ class ActionModule(ActionBase):
         """
         display.vv("splunk_response_plan_info: fetching all response plans")
 
-        response = conn_request.get_by_path(self.api_object)
+        query_params = self._build_query_params()
+        display.vv(f"splunk_response_plan_info: query_params={query_params}")
+
+        response = conn_request.get_by_path(self.api_object, query_params=query_params)
 
         response_plans = []
         if response and "items" in response:
@@ -250,6 +267,7 @@ class ActionModule(ActionBase):
             connection=conn,
             not_rest_data_keys=[
                 "name",
+                "limit",
                 "api_namespace",
                 "api_user",
                 "api_app",

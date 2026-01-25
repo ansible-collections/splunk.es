@@ -329,6 +329,18 @@
           - info_all['response_plans'] | selectattr('name', 'equalto', 'Ansible Complex Response Plan') | list | length == 1
           - info_all['response_plans'] | selectattr('name', 'equalto', 'Ansible Draft Response Plan') | list | length == 1
 
+    # splunk_response_plan_info tests - Query with limit parameter
+    - name: Query response plans with limit=1
+      register: info_limit_one_result
+      splunk.es.splunk_response_plan_info:
+        limit: 1
+
+    - name: Assert limit=1 returns exactly one response plan
+      assert:
+        that:
+          - info_limit_one_result['changed'] == false
+          - info_limit_one_result['response_plans'] | length == 1
+
     - name: Delete response plan (CHECK MODE)
       check_mode: true
       register: delete_check_result

@@ -1,0 +1,3 @@
+---
+minor_changes:
+  - Added ``limit`` parameter to splunk_finding_info, splunk_investigation_info, and splunk_response_plan_info modules to control the maximum number of results returned.

@@ -14,9 +14,6 @@ from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
 
 from ansible_collections.splunk.es.plugins.module_utils.finding import (
-    DEFAULT_API_APP,
-    DEFAULT_API_NAMESPACE,
-    DEFAULT_API_USER,
     FINDING_KEY_TRANSFORM,
     build_finding_api_path,
     extract_notable_time,
@@ -25,6 +22,11 @@ from ansible_collections.splunk.es.plugins.module_utils.finding import (
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
     check_argspec,
+)
+from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
+    DEFAULT_API_APP_SECURITY_SUITE,
+    DEFAULT_API_NAMESPACE,
+    DEFAULT_API_USER,
 )
 from ansible_collections.splunk.es.plugins.modules.splunk_finding_info import (
     DOCUMENTATION,
@@ -45,7 +47,7 @@ class ActionModule(ActionBase):
         # API path components - will be set in run() from task args
         self.api_namespace = DEFAULT_API_NAMESPACE
         self.api_user = DEFAULT_API_USER
-        self.api_app = DEFAULT_API_APP
+        self.api_app = DEFAULT_API_APP_SECURITY_SUITE
         self.api_object = None  # Will be built dynamically
 
     def fail_json(self, msg: str) -> None:
@@ -68,8 +70,8 @@ class ActionModule(ActionBase):
         """
         return build_finding_api_path(self.api_namespace, self.api_user, self.api_app)
 
-    def _build_time_query_params(self) -> Optional[Dict[str, Any]]:
-        """Build query params dict with earliest/latest if provided.
+    def _build_query_params(self) -> Optional[Dict[str, Any]]:
+        """Build query params dict with earliest/latest/limit if provided.
 
         Returns:
             Dict with query params if any are set, None otherwise.
@@ -77,10 +79,13 @@ class ActionModule(ActionBase):
         query_params: Dict[str, Any] = {}
         earliest = self._task.args.get("earliest")
         latest = self._task.args.get("latest")
+        limit = self._task.args.get("limit")
         if earliest:
             query_params["earliest"] = earliest
         if latest:
             query_params["latest"] = latest
+        if limit:
+            query_params["limit"] = limit
 
         return query_params if query_params else None
 
@@ -132,7 +137,7 @@ class ActionModule(ActionBase):
         """
         display.vv("splunk_finding_info: fetching all findings")
 
-        query_params = self._build_time_query_params()
+        query_params = self._build_query_params()
         display.vv(f"splunk_finding_info: query_params={query_params}")
 
         query_dict = conn_request.get_by_path(self.api_object, query_params=query_params)
@@ -190,7 +195,7 @@ class ActionModule(ActionBase):
         # Get API path configuration from task args
         self.api_namespace = self._task.args.get("api_namespace", DEFAULT_API_NAMESPACE)
         self.api_user = self._task.args.get("api_user", DEFAULT_API_USER)
-        self.api_app = self._task.args.get("api_app", DEFAULT_API_APP)
+        self.api_app = self._task.args.get("api_app", DEFAULT_API_APP_SECURITY_SUITE)
 
         # Build the API path
         self.api_object = self._build_api_path()
@@ -206,6 +211,7 @@ class ActionModule(ActionBase):
                 "title",
                 "earliest",
                 "latest",
+                "limit",
                 "api_namespace",
                 "api_user",
                 "api_app",

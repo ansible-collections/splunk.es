@@ -13,15 +13,17 @@ from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
 
 from ansible_collections.splunk.es.plugins.module_utils.investigation import (
-    DEFAULT_API_APP,
-    DEFAULT_API_NAMESPACE,
-    DEFAULT_API_USER,
     build_investigation_api_path,
     map_investigation_from_api,
 )
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
     check_argspec,
+)
+from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
+    DEFAULT_API_APP,
+    DEFAULT_API_NAMESPACE,
+    DEFAULT_API_USER,
 )
 from ansible_collections.splunk.es.plugins.modules.splunk_investigation_info import (
     DOCUMENTATION,
@@ -64,8 +66,8 @@ class ActionModule(ActionBase):
         """
         return build_investigation_api_path(self.api_namespace, self.api_user, self.api_app)
 
-    def _build_time_query_params(self) -> dict[str, Any] | None:
-        """Build query params dict with create_time_min/create_time_max if provided.
+    def _build_query_params(self) -> dict[str, Any] | None:
+        """Build query params dict with create_time_min/create_time_max/limit if provided.
 
         Returns:
             Dict with query params if any are set, None otherwise.
@@ -73,11 +75,14 @@ class ActionModule(ActionBase):
         query_params: dict[str, Any] = {}
         create_time_min = self._task.args.get("create_time_min")
         create_time_max = self._task.args.get("create_time_max")
+        limit = self._task.args.get("limit")
 
         if create_time_min:
             query_params["create_time_min"] = create_time_min
         if create_time_max:
             query_params["create_time_max"] = create_time_max
+        if limit:
+            query_params["limit"] = limit
 
         return query_params if query_params else None
 
@@ -100,10 +105,10 @@ class ActionModule(ActionBase):
         # Use the ids query parameter to filter by investigation ID
         query_params = {"ids": ref_id}
 
-        # Add time filters if provided
-        time_params = self._build_time_query_params()
-        if time_params:
-            query_params.update(time_params)
+        # Add time/limit filters if provided
+        extra_params = self._build_query_params()
+        if extra_params:
+            query_params.update(extra_params)
 
         response = conn_request.get_by_path(self.api_object, query_params=query_params)
 
@@ -130,7 +135,7 @@ class ActionModule(ActionBase):
         """
         display.vv("splunk_investigation_info: fetching all investigations")
 
-        query_params = self._build_time_query_params()
+        query_params = self._build_query_params()
         display.vv(f"splunk_investigation_info: query_params={query_params}")
 
         response = conn_request.get_by_path(self.api_object, query_params=query_params)
@@ -207,6 +212,7 @@ class ActionModule(ActionBase):
                 "name",
                 "create_time_min",
                 "create_time_max",
+                "limit",
                 "api_namespace",
                 "api_user",
                 "api_app",

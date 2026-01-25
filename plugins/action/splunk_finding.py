@@ -31,21 +31,22 @@ from ansible.utils.display import Display
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
 
 from ansible_collections.splunk.es.plugins.module_utils.finding import (
-    DEFAULT_API_APP,
-    DEFAULT_API_NAMESPACE,
-    DEFAULT_API_USER,
     FINDING_KEY_TRANSFORM,
-    UPDATABLE_FIELDS,
     build_finding_api_path,
-    build_update_api_path,
     extract_notable_time,
     map_finding_from_api,
-    map_finding_to_api,
-    map_update_to_api,
 )
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
     check_argspec,
+)
+from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
+    DEFAULT_API_APP,
+    DEFAULT_API_APP_SECURITY_SUITE,
+    DEFAULT_API_NAMESPACE,
+    DEFAULT_API_USER,
+    DISPOSITION_TO_API,
+    STATUS_TO_API,
 )
 from ansible_collections.splunk.es.plugins.modules.splunk_finding import DOCUMENTATION
 
@@ -57,6 +58,107 @@ display = Display()
 class ActionModule(ActionBase):
     """Action module for managing Splunk ES findings."""
 
+    # Key transformation for update API: module param -> API param
+    UPDATE_KEY_TRANSFORM = {
+        "owner": "assignee",
+        "status": "status",
+        "urgency": "urgency",
+        "disposition": "disposition",
+    }
+
+    @staticmethod
+    def build_update_api_path(
+        ref_id: str,
+        namespace: str = DEFAULT_API_NAMESPACE,
+        user: str = DEFAULT_API_USER,
+    ) -> str:
+        """Build the investigations update API path.
+
+        The update API uses a fixed app (missioncontrol).
+
+        Args:
+            ref_id: The finding reference ID (e.g., 'uuid@@notable@@time{timestamp}').
+            namespace: The namespace portion of the path. Defaults to 'servicesNS'.
+            user: The user portion of the path. Defaults to 'nobody'.
+
+        Returns:
+            The investigations update API path (without query parameters).
+        """
+        return f"{namespace}/{user}/{DEFAULT_API_APP}/v1/investigations/{ref_id}"
+
+    @classmethod
+    def map_finding_to_api(
+        cls,
+        finding: dict[str, Any],
+        key_transform: dict[str, str] = None,
+    ) -> dict[str, Any]:
+        """Convert module params to API payload format.
+
+        Args:
+            finding: The finding parameters dictionary.
+            key_transform: Optional key transformation dict. Defaults to FINDING_KEY_TRANSFORM.
+
+        Returns:
+            Dictionary formatted for the Splunk findings API.
+        """
+        from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
+            map_obj_to_params,
+        )
+
+        if key_transform is None:
+            key_transform = FINDING_KEY_TRANSFORM
+
+        # Use the helper from module_utils
+        res = map_obj_to_params(finding.copy(), key_transform)
+
+        # Add default values for API
+        res["app"] = DEFAULT_API_APP_SECURITY_SUITE
+        res["creator"] = "admin"
+
+        # Handle status conversion
+        if "status" in res and res["status"]:
+            res["status"] = STATUS_TO_API.get(res["status"], res["status"])
+
+        # Handle disposition conversion
+        if "disposition" in res and res["disposition"]:
+            res["disposition"] = DISPOSITION_TO_API.get(res["disposition"], res["disposition"])
+
+        # Handle custom fields - flatten them into the payload
+        if "fields" in finding and finding["fields"]:
+            for field in finding["fields"]:
+                if "name" in field and "value" in field:
+                    res[field["name"]] = field["value"]
+
+        return res
+
+    @classmethod
+    def map_update_to_api(cls, finding: dict[str, Any]) -> dict[str, Any]:
+        """Convert module params to API payload format for updating findings.
+
+        Args:
+            finding: The finding parameters dictionary.
+
+        Returns:
+            Dictionary formatted for the Splunk investigations update API.
+        """
+        res = {}
+
+        for module_key, api_key in cls.UPDATE_KEY_TRANSFORM.items():
+            if module_key in finding and finding[module_key] is not None:
+                value = finding[module_key]
+
+                # Handle status conversion
+                if module_key == "status":
+                    value = STATUS_TO_API.get(value, value)
+
+                # Handle disposition conversion
+                if module_key == "disposition":
+                    value = DISPOSITION_TO_API.get(value, value)
+
+                res[api_key] = value
+
+        return res
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._result = None
@@ -64,7 +166,7 @@ class ActionModule(ActionBase):
         self.key_transform = FINDING_KEY_TRANSFORM
         self.api_namespace = DEFAULT_API_NAMESPACE
         self.api_user = DEFAULT_API_USER
-        self.api_app = DEFAULT_API_APP
+        self.api_app = DEFAULT_API_APP_SECURITY_SUITE
         self.api_object = None  # Will be built dynamically
 
     def fail_json(self, msg: str) -> None:
@@ -91,7 +193,7 @@ class ActionModule(ActionBase):
         """Configure API path components from task arguments."""
         self.api_namespace = self._task.args.get("api_namespace", DEFAULT_API_NAMESPACE)
         self.api_user = self._task.args.get("api_user", DEFAULT_API_USER)
-        self.api_app = self._task.args.get("api_app", DEFAULT_API_APP)
+        self.api_app = self._task.args.get("api_app", DEFAULT_API_APP_SECURITY_SUITE)
         self.api_object = self._build_api_path()
         display.vv(f"splunk_finding: using API path: {self.api_object}")
 
@@ -217,7 +319,7 @@ class ActionModule(ActionBase):
         Returns:
             Parsed finding from API response.
         """
-        payload = map_finding_to_api(finding, self.key_transform)
+        payload = self.map_finding_to_api(finding, self.key_transform)
 
         display.vvv(f"splunk_finding: posting to {self.api_object}")
         display.vvv(f"splunk_finding: payload: {payload}")
@@ -247,7 +349,7 @@ class ActionModule(ActionBase):
             The updated finding parameters.
         """
         # Build the update API path
-        update_url = build_update_api_path(ref_id, self.api_namespace, self.api_user)
+        update_url = self.build_update_api_path(ref_id, self.api_namespace, self.api_user)
 
         # Extract notable_time from ref_id for query param
         notable_time = extract_notable_time(ref_id)
@@ -260,7 +362,7 @@ class ActionModule(ActionBase):
         query_params = {"notable_time": notable_time}
 
         # Map to update API payload format (owner -> assignee, etc.)
-        payload = map_update_to_api(finding)
+        payload = self.map_update_to_api(finding)
 
         display.vvv(f"splunk_finding: posting update to {update_url}")
         display.vvv(f"splunk_finding: query_params: {query_params}")
@@ -325,11 +427,11 @@ class ActionModule(ActionBase):
         display.v(f"splunk_finding: updating finding with ref_id: {ref_id}")
 
         # Validate that only updatable fields are provided
-        non_updatable = [k for k in finding if k not in UPDATABLE_FIELDS]
+        non_updatable = [k for k in finding if k not in self.UPDATE_KEY_TRANSFORM]
         if non_updatable:
             display.vv(f"splunk_finding: ignoring non-updatable fields: {non_updatable}")
             # Filter to only updatable fields
-            finding = {k: v for k, v in finding.items() if k in UPDATABLE_FIELDS}
+            finding = {k: v for k, v in finding.items() if k in self.UPDATE_KEY_TRANSFORM}
 
         if not finding:
             display.v("splunk_finding: no updatable fields provided")
@@ -354,7 +456,7 @@ class ActionModule(ActionBase):
 
         # Compare to detect changes (only for updatable fields)
         want_conf = utils.remove_empties(finding)
-        have_updatable = {k: have_conf.get(k) for k in UPDATABLE_FIELDS if k in have_conf}
+        have_updatable = {k: have_conf.get(k) for k in self.UPDATE_KEY_TRANSFORM if k in have_conf}
         diff = utils.dict_diff(have_updatable, want_conf)
 
         if diff:

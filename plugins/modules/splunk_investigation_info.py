@@ -48,6 +48,13 @@ options:
       - If not provided, no maximum time filter is applied.
     required: false
     type: str
+  limit:
+    description:
+      - Maximum number of investigations to return.
+      - If not specified, all matching investigations are returned.
+      - Use this to limit large result sets.
+    required: false
+    type: int
   api_namespace:
     description:
       - The namespace portion of the Splunk API path.
@@ -113,6 +120,12 @@ EXAMPLES = """
   splunk.es.splunk_investigation_info:
     create_time_min: "-30d"
   register: all_investigations
+
+- name: Query investigations with a limit on results
+  splunk.es.splunk_investigation_info:
+    create_time_min: "-7d"
+    limit: 50
+  register: limited_investigations
 
 - name: Query investigations from a specific time range (ISO 8601)
   splunk.es.splunk_investigation_info:

@@ -134,6 +134,23 @@ Parameters
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>limit</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                    </div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>Maximum number of findings to return.</div>
+                        <div>If not specified, all matching findings are returned.</div>
+                        <div>Use this to limit large result sets.</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>ref_id</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
@@ -221,6 +238,12 @@ Examples
       splunk.es.splunk_finding_info:
         earliest: "-30d"
       register: all_findings
+
+    - name: Query findings with a limit on results
+      splunk.es.splunk_finding_info:
+        earliest: "-7d"
+        limit: 100
+      register: limited_findings
 
     - name: Query findings from a specific time range (ISO 8601)
       splunk.es.splunk_finding_info:

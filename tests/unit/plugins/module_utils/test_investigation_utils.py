@@ -19,35 +19,35 @@
 """
 Unit tests for the investigation module utilities.
 
-These tests verify that the utility functions in plugins/module_utils/investigation.py
-work correctly for:
+These tests verify that the utility functions work correctly for:
 - Building API paths
 - Mapping between API and module parameter formats
 - Status, disposition, and sensitivity value conversions
+
+Shared utilities are in plugins/module_utils/investigation.py
+Main-only utilities are in plugins/action/splunk_investigation.py
 """
 
 
-# Import shared mappings from finding module (reused by investigation)
-from ansible_collections.splunk.es.plugins.module_utils.finding import (
+# Main-only utilities via ActionModule class
+from ansible_collections.splunk.es.plugins.action.splunk_investigation import ActionModule
+
+# Shared utilities (used by both info and main modules)
+from ansible_collections.splunk.es.plugins.module_utils.investigation import (
+    SENSITIVITY_FROM_API,
+    build_investigation_api_path,
+    map_investigation_from_api,
+)
+
+# Shared constants from splunk_utils
+from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
+    DEFAULT_API_APP,
+    DEFAULT_API_NAMESPACE,
+    DEFAULT_API_USER,
     DISPOSITION_FROM_API,
     DISPOSITION_TO_API,
     STATUS_FROM_API,
     STATUS_TO_API,
-)
-from ansible_collections.splunk.es.plugins.module_utils.investigation import (
-    DEFAULT_API_APP,
-    DEFAULT_API_NAMESPACE,
-    DEFAULT_API_USER,
-    SENSITIVITY_FROM_API,
-    SENSITIVITY_TO_API,
-    UPDATABLE_FIELDS,
-    URGENCY_CHOICES,
-    build_investigation_api_path,
-    build_investigation_findings_path,
-    build_investigation_update_path,
-    map_investigation_from_api,
-    map_investigation_to_api,
-    map_investigation_update_to_api,
 )
 
 
@@ -104,15 +104,15 @@ class TestBuildInvestigationApiPath:
 
 
 class TestBuildInvestigationUpdatePath:
-    """Tests for the build_investigation_update_path function.
+    """Tests for the ActionModule.build_update_path method.
 
-    This function constructs the REST API path for updating a specific investigation.
+    This method constructs the REST API path for updating a specific investigation.
     """
 
     def test_build_investigation_update_path_defaults(self):
         """Test update API path with default namespace and user."""
         ref_id = "inv-abc-123"
-        result = build_investigation_update_path(ref_id)
+        result = ActionModule.build_update_path(ref_id)
 
         expected = f"{DEFAULT_API_NAMESPACE}/{DEFAULT_API_USER}/{DEFAULT_API_APP}/public/v2/investigations/{ref_id}"
         assert result == expected
@@ -120,7 +120,7 @@ class TestBuildInvestigationUpdatePath:
     def test_build_investigation_update_path_custom_namespace(self):
         """Test update API path with custom namespace."""
         ref_id = "inv-abc-123"
-        result = build_investigation_update_path(ref_id, namespace="customNS")
+        result = ActionModule.build_update_path(ref_id, namespace="customNS")
 
         expected = (
             f"customNS/{DEFAULT_API_USER}/{DEFAULT_API_APP}/public/v2/investigations/{ref_id}"
@@ -130,7 +130,7 @@ class TestBuildInvestigationUpdatePath:
     def test_build_investigation_update_path_custom_user(self):
         """Test update API path with custom user."""
         ref_id = "inv-abc-123"
-        result = build_investigation_update_path(ref_id, user="admin")
+        result = ActionModule.build_update_path(ref_id, user="admin")
 
         expected = (
             f"{DEFAULT_API_NAMESPACE}/admin/{DEFAULT_API_APP}/public/v2/investigations/{ref_id}"
@@ -140,21 +140,21 @@ class TestBuildInvestigationUpdatePath:
     def test_build_investigation_update_path_guid_ref_id(self):
         """Test update API path with GUID-style ref_id."""
         ref_id = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-        result = build_investigation_update_path(ref_id)
+        result = ActionModule.build_update_path(ref_id)
 
         assert ref_id in result
 
 
 class TestBuildInvestigationFindingsPath:
-    """Tests for the build_investigation_findings_path function.
+    """Tests for the ActionModule.build_findings_path method.
 
-    This function constructs the REST API path for adding findings to an investigation.
+    This method constructs the REST API path for adding findings to an investigation.
     """
 
     def test_build_investigation_findings_path_defaults(self):
         """Test findings API path with default values."""
         ref_id = "inv-abc-123"
-        result = build_investigation_findings_path(ref_id)
+        result = ActionModule.build_findings_path(ref_id)
 
         expected = f"{DEFAULT_API_NAMESPACE}/{DEFAULT_API_USER}/{DEFAULT_API_APP}/public/v2/investigations/{ref_id}/findings"
         assert result == expected
@@ -163,7 +163,7 @@ class TestBuildInvestigationFindingsPath:
     def test_build_investigation_findings_path_custom_namespace(self):
         """Test findings API path with custom namespace."""
         ref_id = "inv-abc-123"
-        result = build_investigation_findings_path(ref_id, namespace="customNS")
+        result = ActionModule.build_findings_path(ref_id, namespace="customNS")
 
         assert "customNS" in result
         assert result.endswith("/findings")
@@ -171,7 +171,7 @@ class TestBuildInvestigationFindingsPath:
     def test_build_investigation_findings_path_includes_ref_id(self):
         """Test that ref_id is included in the path."""
         ref_id = "unique-investigation-id"
-        result = build_investigation_findings_path(ref_id)
+        result = ActionModule.build_findings_path(ref_id)
 
         assert ref_id in result
 
@@ -316,9 +316,9 @@ class TestMapInvestigationFromApi:
 
 
 class TestMapInvestigationToApi:
-    """Tests for the map_investigation_to_api function.
+    """Tests for the ActionModule.map_to_api method.
 
-    This function converts module parameters to API payload format.
+    This method converts module parameters to API payload format.
     """
 
     def test_map_investigation_to_api_basic(self):
@@ -330,7 +330,7 @@ class TestMapInvestigationToApi:
             "urgency": "high",
         }
 
-        result = map_investigation_to_api(investigation)
+        result = ActionModule.map_to_api(investigation)
 
         assert result["name"] == "Test Investigation"
         assert result["description"] == "A test description"
@@ -344,7 +344,7 @@ class TestMapInvestigationToApi:
             "status": "new",
         }
 
-        result = map_investigation_to_api(investigation)
+        result = ActionModule.map_to_api(investigation)
 
         assert result["status"] == "1"
 
@@ -352,7 +352,7 @@ class TestMapInvestigationToApi:
         """Test all status value conversions to API format."""
         for module_value, api_value in STATUS_TO_API.items():
             investigation = {"name": "Test", "status": module_value}
-            result = map_investigation_to_api(investigation)
+            result = ActionModule.map_to_api(investigation)
             assert result["status"] == api_value
 
     def test_map_investigation_to_api_disposition_conversion(self):
@@ -362,7 +362,7 @@ class TestMapInvestigationToApi:
             "disposition": "true_positive",
         }
 
-        result = map_investigation_to_api(investigation)
+        result = ActionModule.map_to_api(investigation)
 
         assert result["disposition"] == "disposition:1"
 
@@ -370,7 +370,7 @@ class TestMapInvestigationToApi:
         """Test all disposition value conversions to API format."""
         for module_value, api_value in DISPOSITION_TO_API.items():
             investigation = {"name": "Test", "disposition": module_value}
-            result = map_investigation_to_api(investigation)
+            result = ActionModule.map_to_api(investigation)
             assert result["disposition"] == api_value
 
     def test_map_investigation_to_api_sensitivity_conversion(self):
@@ -380,22 +380,22 @@ class TestMapInvestigationToApi:
             "sensitivity": "amber",
         }
 
-        result = map_investigation_to_api(investigation)
+        result = ActionModule.map_to_api(investigation)
 
         assert result["sensitivity"] == "Amber"
 
     def test_map_investigation_to_api_all_sensitivity_values(self):
         """Test all sensitivity value conversions to API format."""
-        for module_value, api_value in SENSITIVITY_TO_API.items():
+        for module_value, api_value in ActionModule.SENSITIVITY_TO_API.items():
             investigation = {"name": "Test", "sensitivity": module_value}
-            result = map_investigation_to_api(investigation)
+            result = ActionModule.map_to_api(investigation)
             assert result["sensitivity"] == api_value
 
 
 class TestMapInvestigationUpdateToApi:
-    """Tests for the map_investigation_update_to_api function.
+    """Tests for the ActionModule.map_update_to_api method.
 
-    This function converts module parameters to the update API payload format.
+    This method converts module parameters to the update API payload format.
     Only updatable fields are included in the result.
     """
 
@@ -403,7 +403,7 @@ class TestMapInvestigationUpdateToApi:
         """Test that description is passed through."""
         investigation = {"description": "Updated description"}
 
-        result = map_investigation_update_to_api(investigation)
+        result = ActionModule.map_update_to_api(investigation)
 
         assert result["description"] == "Updated description"
 
@@ -411,7 +411,7 @@ class TestMapInvestigationUpdateToApi:
         """Test that status is converted to numeric code."""
         investigation = {"status": "resolved"}
 
-        result = map_investigation_update_to_api(investigation)
+        result = ActionModule.map_update_to_api(investigation)
 
         assert result["status"] == "4"
 
@@ -419,7 +419,7 @@ class TestMapInvestigationUpdateToApi:
         """Test that urgency is passed through."""
         investigation = {"urgency": "high"}
 
-        result = map_investigation_update_to_api(investigation)
+        result = ActionModule.map_update_to_api(investigation)
 
         assert result["urgency"] == "high"
 
@@ -427,7 +427,7 @@ class TestMapInvestigationUpdateToApi:
         """Test that owner is passed through."""
         investigation = {"owner": "analyst1"}
 
-        result = map_investigation_update_to_api(investigation)
+        result = ActionModule.map_update_to_api(investigation)
 
         assert result["owner"] == "analyst1"
 
@@ -435,7 +435,7 @@ class TestMapInvestigationUpdateToApi:
         """Test that disposition is converted to API format."""
         investigation = {"disposition": "false_positive"}
 
-        result = map_investigation_update_to_api(investigation)
+        result = ActionModule.map_update_to_api(investigation)
 
         assert result["disposition"] == "disposition:3"
 
@@ -443,7 +443,7 @@ class TestMapInvestigationUpdateToApi:
         """Test that sensitivity is converted to capitalized format."""
         investigation = {"sensitivity": "red"}
 
-        result = map_investigation_update_to_api(investigation)
+        result = ActionModule.map_update_to_api(investigation)
 
         assert result["sensitivity"] == "Red"
 
@@ -458,7 +458,7 @@ class TestMapInvestigationUpdateToApi:
             "sensitivity": "amber",
         }
 
-        result = map_investigation_update_to_api(investigation)
+        result = ActionModule.map_update_to_api(investigation)
 
         assert result["description"] == "Updated desc"
         assert result["owner"] == "analyst"
@@ -474,7 +474,7 @@ class TestMapInvestigationUpdateToApi:
             "owner": "admin",
         }
 
-        result = map_investigation_update_to_api(investigation)
+        result = ActionModule.map_update_to_api(investigation)
 
         assert "name" not in result
         assert result["owner"] == "admin"
@@ -486,14 +486,14 @@ class TestMapInvestigationUpdateToApi:
             "status": "new",
         }
 
-        result = map_investigation_update_to_api(investigation)
+        result = ActionModule.map_update_to_api(investigation)
 
         assert "owner" not in result
         assert result["status"] == "1"
 
     def test_map_investigation_update_to_api_empty_dict(self):
         """Test handling of empty dictionary."""
-        result = map_investigation_update_to_api({})
+        result = ActionModule.map_update_to_api({})
 
         assert result == {}
 
@@ -552,7 +552,7 @@ class TestSensitivityMappings:
 
     def test_sensitivity_mappings_are_inverses(self):
         """Test that TO_API and FROM_API mappings are consistent inverses."""
-        for module_val, api_val in SENSITIVITY_TO_API.items():
+        for module_val, api_val in ActionModule.SENSITIVITY_TO_API.items():
             assert SENSITIVITY_FROM_API[api_val] == module_val
 
     def test_sensitivity_mappings_complete(self):
@@ -560,32 +560,22 @@ class TestSensitivityMappings:
         expected_sensitivities = ["white", "green", "amber", "red", "unassigned"]
 
         for sensitivity in expected_sensitivities:
-            assert sensitivity in SENSITIVITY_TO_API
+            assert sensitivity in ActionModule.SENSITIVITY_TO_API
 
 
 class TestUpdatableFields:
-    """Tests for the UPDATABLE_FIELDS constant."""
+    """Tests for the ActionModule.UPDATABLE_FIELDS constant."""
 
     def test_updatable_fields_contains_expected(self):
         """Test that UPDATABLE_FIELDS contains the correct fields."""
         expected = ["description", "status", "disposition", "owner", "urgency", "sensitivity"]
 
-        assert set(UPDATABLE_FIELDS) == set(expected)
+        assert set(ActionModule.UPDATABLE_FIELDS) == set(expected)
 
     def test_updatable_fields_excludes_name(self):
         """Test that name is not in UPDATABLE_FIELDS."""
-        assert "name" not in UPDATABLE_FIELDS
+        assert "name" not in ActionModule.UPDATABLE_FIELDS
 
     def test_updatable_fields_excludes_finding_ids(self):
         """Test that finding_ids is not in UPDATABLE_FIELDS (handled separately)."""
-        assert "finding_ids" not in UPDATABLE_FIELDS
-
-
-class TestUrgencyChoices:
-    """Tests for the URGENCY_CHOICES constant."""
-
-    def test_urgency_choices_complete(self):
-        """Test that all expected urgency values are present."""
-        expected = ["informational", "low", "medium", "high", "critical", "unknown"]
-
-        assert set(URGENCY_CHOICES) == set(expected)
+        assert "finding_ids" not in ActionModule.UPDATABLE_FIELDS

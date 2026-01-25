@@ -287,3 +287,16 @@
           - info_not_found_result['changed'] == false
           - info_not_found_result['failed'] is not defined or info_not_found_result['failed'] == false
           - info_not_found_result['investigations'] | length == 0
+
+    # splunk_investigation_info tests - Query with limit parameter
+    - name: Query investigations with limit=1
+      register: info_limit_one_result
+      splunk.es.splunk_investigation_info:
+        create_time_min: "-1h"
+        limit: 1
+
+    - name: Assert limit=1 returns exactly one investigation
+      assert:
+        that:
+          - info_limit_one_result['changed'] == false
+          - info_limit_one_result['investigations'] | length == 1

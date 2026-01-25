@@ -14,6 +14,34 @@ making them safe to import in unit tests without triggering Ansible imports.
 DEFAULT_API_NAMESPACE = "servicesNS"
 DEFAULT_API_USER = "nobody"
 DEFAULT_API_APP = "missioncontrol"
+DEFAULT_API_APP_SECURITY_SUITE = "SplunkEnterpriseSecuritySuite"
+
+# Disposition mapping: module value -> API value (shared by finding and investigation)
+DISPOSITION_TO_API = {
+    "unassigned": "disposition:0",
+    "true_positive": "disposition:1",
+    "benign_positive": "disposition:2",
+    "false_positive": "disposition:3",
+    "false_positive_inaccurate_data": "disposition:4",
+    "other": "disposition:5",
+    "undetermined": "disposition:6",
+}
+
+# Disposition mapping: API value -> module value
+DISPOSITION_FROM_API = {v: k for k, v in DISPOSITION_TO_API.items()}
+
+# Status mapping: module value -> API value (shared by finding and investigation)
+STATUS_TO_API = {
+    "unassigned": "0",
+    "new": "1",
+    "in_progress": "2",
+    "pending": "3",
+    "resolved": "4",
+    "closed": "5",
+}
+
+# Status mapping: API value -> module value
+STATUS_FROM_API = {v: k for k, v in STATUS_TO_API.items()}
 
 
 def remove_get_keys_from_payload_dict(payload_dict, remove_key_list):
