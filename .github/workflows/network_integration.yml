@@ -2,7 +2,7 @@
 name: "Network Integration Tests"
 
 concurrency:
-  group: integration-${{ github.head_ref || github.run_id }}
+  group: ${{ github.actor == 'pre-commit-ci[bot]' && format('integration-bot-{0}', github.run_id) || 'integration' }}
   cancel-in-progress: true
 
 on:
@@ -21,8 +21,18 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
+  check-actor:
+    name: Check Actor
+    if: github.actor != 'pre-commit-ci[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Actor ${{ github.actor }} is allowed to run integration tests"
   safe-to-test:
+    needs:
+      - check-actor
     if: >-
+      always() &&
+      needs.check-actor.result == 'success' &&
       github.event_name == 'pull_request_target' &&
       (github.event.label.name == 'safe to test' ||
       github.event.action != 'labeled')
@@ -35,9 +45,11 @@ jobs:
     environment:
       name: ${{ github.event_name == 'schedule' && 'eco-splunk-daily' || 'eco-splunk-protected' }}
     needs:
+      - check-actor
       - safe-to-test
     if: >-
       always() &&
+      needs.check-actor.result == 'success' &&
       (needs.safe-to-test.result == 'success' || needs.safe-to-test.result == 'skipped')
     steps:
       - name: Checkout repository
