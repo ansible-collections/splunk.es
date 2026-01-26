@@ -61,6 +61,8 @@ options:
   owner:
     description:
       - The owner of the investigation.
+      - Use C(admin) for the administrator user.
+      - Use C(unassigned) to leave the investigation unassigned.
       - Can be updated on existing investigations.
     type: str
   urgency:

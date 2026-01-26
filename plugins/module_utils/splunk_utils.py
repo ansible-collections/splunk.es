@@ -9,6 +9,14 @@ making them safe to import in unit tests without triggering Ansible imports.
 # (c) 2018, Adam Miller (admiller@redhat.com)
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
+import re
+
+
+# UUID regex pattern for validation
+UUID_PATTERN = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
 
 # Default API path components (shared across all ES modules)
 DEFAULT_API_NAMESPACE = "servicesNS"
@@ -93,3 +101,15 @@ def set_defaults(config, defaults):
     for k, v in defaults.items():
         config.setdefault(k, v)
     return config
+
+
+def is_uuid(value: str) -> bool:
+    """Check if a string is a valid UUID format.
+
+    Args:
+        value: The string to check.
+
+    Returns:
+        True if the string matches UUID format, False otherwise.
+    """
+    return bool(UUID_PATTERN.match(value))

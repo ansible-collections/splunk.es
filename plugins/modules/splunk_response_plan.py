@@ -91,6 +91,8 @@ options:
           owner:
             description:
               - The owner of the task.
+              - Use C(admin) for the administrator user.
+              - Use C(unassigned) to leave the task unassigned.
             type: str
             default: unassigned
           searches:

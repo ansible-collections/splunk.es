@@ -252,6 +252,8 @@ Parameters
                 </td>
                 <td>
                         <div>The owner of the task.</div>
+                        <div>Use <code>admin</code> for the administrator user.</div>
+                        <div>Use <code>unassigned</code> to leave the task unassigned.</div>
                 </td>
             </tr>
             <tr>

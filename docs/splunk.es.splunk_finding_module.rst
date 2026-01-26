@@ -246,6 +246,8 @@ Parameters
                 </td>
                 <td>
                         <div>Owner of the finding.</div>
+                        <div>Use <code>admin</code> for the administrator user.</div>
+                        <div>Use <code>unassigned</code> to leave the finding unassigned.</div>
                         <div>Can be updated on existing findings.</div>
                 </td>
             </tr>

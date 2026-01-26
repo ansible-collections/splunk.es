@@ -67,6 +67,8 @@ options:
   owner:
     description:
       - Owner of the finding.
+      - Use C(admin) for the administrator user.
+      - Use C(unassigned) to leave the finding unassigned.
       - Can be updated on existing findings.
     type: str
   status:

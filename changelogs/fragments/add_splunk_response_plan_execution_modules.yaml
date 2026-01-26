@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - Added splunk_response_plan_execution module to apply/remove response plans to investigations and manage task statuses.
+  - Added splunk_response_plan_execution_info module to query applied response plans and task statuses on investigations.

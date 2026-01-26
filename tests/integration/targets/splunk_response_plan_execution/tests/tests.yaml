@@ -1,0 +1,450 @@
+---
+- debug:
+    msg: START splunk_response_plan_execution integration tests on connection={{ ansible_connection }}
+
+# SETUP - Create response plan and investigation for testing
+- block:
+    - name: Setup - Create a response plan for testing
+      register: setup_response_plan
+      splunk.es.splunk_response_plan:
+        name: "{{ test_response_plan.name }}"
+        description: "{{ test_response_plan.description }}"
+        template_status: "{{ test_response_plan.template_status }}"
+        phases: "{{ test_response_plan.phases }}"
+
+    - name: Setup - Assert response plan created
+      assert:
+        that:
+          - setup_response_plan['response_plan']['after']['name'] == test_response_plan.name
+
+    - name: Setup - Query response plan to get ID
+      register: response_plan_info
+      splunk.es.splunk_response_plan_info:
+        name: "{{ test_response_plan.name }}"
+
+    - name: Setup - Set response plan ID fact
+      ansible.builtin.set_fact:
+        test_response_plan_id: "{{ response_plan_info.response_plans[0].id }}"
+
+    - name: Setup - Create an investigation for testing
+      register: setup_investigation
+      splunk.es.splunk_investigation:
+        name: "{{ test_investigation.name }}"
+        description: "{{ test_investigation.description }}"
+        status: "{{ test_investigation.status }}"
+        owner: "{{ test_investigation.owner }}"
+        urgency: "{{ test_investigation.urgency }}"
+        sensitivity: "{{ test_investigation.sensitivity }}"
+
+    - name: Setup - Assert investigation created
+      assert:
+        that:
+          - setup_investigation['changed'] == true
+          - setup_investigation['investigation']['after']['investigation_ref_id'] is defined
+
+    - name: Setup - Set investigation ID fact
+      ansible.builtin.set_fact:
+        test_investigation_id: "{{ setup_investigation['investigation']['after']['investigation_ref_id'] }}"
+
+    - name: Setup - Debug IDs
+      debug:
+        msg: "Response Plan ID: {{ test_response_plan_id }}, Investigation ID: {{ test_investigation_id }}"
+
+    # TEST: Apply response plan - CHECK MODE
+    - name: Apply response plan to investigation (CHECK MODE)
+      check_mode: true
+      register: apply_check_result
+      splunk.es.splunk_response_plan_execution:
+        investigation_ref_id: "{{ test_investigation_id }}"
+        response_plan: "{{ test_response_plan.name }}"
+        state: present
+
+    - name: Assert check mode reports changed but no actual application
+      assert:
+        that:
+          - apply_check_result['changed'] == true
+          - apply_check_result['response_plan_execution']['before']['applied'] == false
+          - apply_check_result['response_plan_execution']['after']['applied'] == true
+
+    - name: Verify check mode did not actually apply (via info module)
+      register: info_check_verify
+      splunk.es.splunk_response_plan_execution_info:
+        investigation_ref_id: "{{ test_investigation_id }}"
+
+    - name: Assert response plan was not actually applied in check mode
+      assert:
+        that:
+          - info_check_verify['applied_response_plans'] | length == 0
+
+    # TEST: Apply response plan by NAME
+    - name: Apply response plan to investigation by name
+      register: apply_by_name_result
+      splunk.es.splunk_response_plan_execution: &apply_task
+        investigation_ref_id: "{{ test_investigation_id }}"
+        response_plan: "{{ test_response_plan.name }}"
+        state: present
+
+    - name: Assert response plan was applied successfully by name
+      assert:
+        that:
+          - apply_by_name_result['changed'] == true
+          - apply_by_name_result['response_plan_execution']['before']['applied'] == false
+          - apply_by_name_result['response_plan_execution']['after']['applied'] == true
+          - apply_by_name_result['response_plan_execution']['after']['applied_plan_id'] is defined
+          - apply_by_name_result['response_plan_execution']['after']['applied_plan_id'] | length > 0
+
+    - name: Set applied plan ID fact
+      ansible.builtin.set_fact:
+        applied_plan_id: "{{ apply_by_name_result['response_plan_execution']['after']['applied_plan_id'] }}"
+
+    # TEST: Verify apply via info module
+    - name: Query applied response plans via info module
+      register: info_after_apply
+      splunk.es.splunk_response_plan_execution_info:
+        investigation_ref_id: "{{ test_investigation_id }}"
+
+    - name: Assert info module returns the applied response plan
+      assert:
+        that:
+          - info_after_apply['changed'] == false
+          - info_after_apply['applied_response_plans'] | length >= 1
+          - info_after_apply['applied_response_plans'] | selectattr('name', 'equalto', test_response_plan.name) | list | length >= 1
+
+    - name: Assert phases and tasks are returned in info
+      vars:
+        applied_plan: "{{ info_after_apply['applied_response_plans'] | selectattr('name', 'equalto', test_response_plan.name) | first }}"
+      assert:
+        that:
+          - applied_plan['phases'] | length == 2
+          - applied_plan['phases'][0]['name'] == "Investigation Phase"
+          - applied_plan['phases'][0]['tasks'] | length == 2
+          - applied_plan['phases'][0]['tasks'][0]['name'] == "Initial Triage"
+          - applied_plan['phases'][0]['tasks'][0]['status'] == "pending"
+          - applied_plan['phases'][1]['name'] == "Containment Phase"
+          - applied_plan['phases'][1]['tasks'] | length == 1
+
+    # TEST: Apply response plan - IDEMPOTENCY
+    - name: Apply response plan again (IDEMPOTENT - no changes expected)
+      register: apply_idempotent_result
+      splunk.es.splunk_response_plan_execution: *apply_task
+
+    - name: Assert apply is idempotent (no changes)
+      assert:
+        that:
+          - apply_idempotent_result['changed'] == false
+          - apply_idempotent_result['response_plan_execution']['before']['applied'] == true
+          - apply_idempotent_result['response_plan_execution']['after']['applied'] == true
+
+    # TEST: Apply response plan by UUID
+    # Create a second investigation for UUID test
+    - name: Create second investigation for UUID test
+      register: setup_investigation_2
+      splunk.es.splunk_investigation:
+        name: "Second Investigation for UUID Test"
+        description: "Investigation for testing UUID-based apply"
+        status: new
+        owner: admin
+        urgency: low
+        sensitivity: green
+
+    - name: Set second investigation ID fact
+      ansible.builtin.set_fact:
+        test_investigation_id_2: "{{ setup_investigation_2['investigation']['after']['investigation_ref_id'] }}"
+
+    - name: Apply response plan to investigation by UUID
+      register: apply_by_uuid_result
+      splunk.es.splunk_response_plan_execution:
+        investigation_ref_id: "{{ test_investigation_id_2 }}"
+        response_plan: "{{ test_response_plan_id }}"
+        state: present
+
+    - name: Assert response plan was applied successfully by UUID
+      assert:
+        that:
+          - apply_by_uuid_result['changed'] == true
+          - apply_by_uuid_result['response_plan_execution']['after']['applied'] == true
+
+    # TEST: Manage tasks - CHECK MODE
+    - name: Update task status (CHECK MODE)
+      check_mode: true
+      register: task_update_check_result
+      splunk.es.splunk_response_plan_execution:
+        investigation_ref_id: "{{ test_investigation_id }}"
+        response_plan: "{{ test_response_plan.name }}"
+        state: present
+        tasks:
+          - phase_name: "Investigation Phase"
+            task_name: "Initial Triage"
+            status: started
+            owner: admin
+
+    - name: Assert check mode task update reports changed
+      assert:
+        that:
+          - task_update_check_result['changed'] == true
+          - task_update_check_result['response_plan_execution']['tasks_updated'] | length == 1
+          - task_update_check_result['response_plan_execution']['tasks_updated'][0]['changed'] == true
+
+    - name: Verify check mode did not actually update task (via info)
+      register: info_task_check_verify
+      splunk.es.splunk_response_plan_execution_info:
+        investigation_ref_id: "{{ test_investigation_id }}"
+
+    - name: Assert task was not actually updated in check mode
+      vars:
+        applied_plan: "{{ info_task_check_verify['applied_response_plans'] | selectattr('name', 'equalto', test_response_plan.name) | first }}"
+        initial_triage: "{{ applied_plan['phases'][0]['tasks'] | selectattr('name', 'equalto', 'Initial Triage') | first }}"
+      assert:
+        that:
+          - initial_triage['status'] == "pending"
+          - initial_triage['owner'] == "unassigned"
+
+    # TEST: Manage tasks - Start task
+    - name: Start task - Initial Triage
+      register: start_task_result
+      splunk.es.splunk_response_plan_execution: &start_task
+        investigation_ref_id: "{{ test_investigation_id }}"
+        response_plan: "{{ test_response_plan.name }}"
+        state: present
+        tasks:
+          - phase_name: "Investigation Phase"
+            task_name: "Initial Triage"
+            status: started
+            owner: admin
+
+    - name: Assert task was started successfully
+      assert:
+        that:
+          - start_task_result['changed'] == true
+          - start_task_result['response_plan_execution']['tasks_updated'] | length == 1
+          - start_task_result['response_plan_execution']['tasks_updated'][0]['task_name'] == "Initial Triage"
+          - start_task_result['response_plan_execution']['tasks_updated'][0]['changed'] == true
+
+    - name: Verify task start via info module
+      register: info_after_start
+      splunk.es.splunk_response_plan_execution_info:
+        investigation_ref_id: "{{ test_investigation_id }}"
+
+    - name: Assert task status is started
+      vars:
+        applied_plan: "{{ info_after_start['applied_response_plans'] | selectattr('name', 'equalto', test_response_plan.name) | first }}"
+        initial_triage: "{{ applied_plan['phases'][0]['tasks'] | selectattr('name', 'equalto', 'Initial Triage') | first }}"
+      assert:
+        that:
+          - initial_triage['status'] == "started"
+          - initial_triage['owner'] == "admin"
+
+    # TEST: Manage tasks - IDEMPOTENCY
+    - name: Start same task again (IDEMPOTENT - no changes expected)
+      register: start_task_idempotent_result
+      splunk.es.splunk_response_plan_execution: *start_task
+
+    - name: Assert task start is idempotent
+      assert:
+        that:
+          - start_task_idempotent_result['changed'] == false
+          - start_task_idempotent_result['response_plan_execution']['tasks_updated'][0]['changed'] == false
+
+    # TEST: Manage multiple tasks
+    - name: Update multiple tasks at once
+      register: multi_task_result
+      splunk.es.splunk_response_plan_execution:
+        investigation_ref_id: "{{ test_investigation_id }}"
+        response_plan: "{{ test_response_plan.name }}"
+        state: present
+        tasks:
+          - phase_name: "Investigation Phase"
+            task_name: "Initial Triage"
+            status: ended
+            owner: admin
+          - phase_name: "Investigation Phase"
+            task_name: "Gather Evidence"
+            status: started
+            owner: admin
+          - phase_name: "Containment Phase"
+            task_name: "Isolate Systems"
+            status: started
+
+    - name: Assert multiple tasks were updated
+      assert:
+        that:
+          - multi_task_result['changed'] == true
+          - multi_task_result['response_plan_execution']['tasks_updated'] | length == 3
+
+    - name: Verify multiple task updates via info module
+      register: info_after_multi
+      splunk.es.splunk_response_plan_execution_info:
+        investigation_ref_id: "{{ test_investigation_id }}"
+
+    - name: Assert all task statuses are updated correctly
+      vars:
+        applied_plan: "{{ info_after_multi['applied_response_plans'] | selectattr('name', 'equalto', test_response_plan.name) | first }}"
+        initial_triage: "{{ applied_plan['phases'][0]['tasks'] | selectattr('name', 'equalto', 'Initial Triage') | first }}"
+        gather_evidence: "{{ applied_plan['phases'][0]['tasks'] | selectattr('name', 'equalto', 'Gather Evidence') | first }}"
+        isolate_systems: "{{ applied_plan['phases'][1]['tasks'] | selectattr('name', 'equalto', 'Isolate Systems') | first }}"
+      assert:
+        that:
+          - initial_triage['status'] == "ended"
+          - gather_evidence['status'] == "started"
+          - gather_evidence['owner'] == "admin"
+          - isolate_systems['status'] == "started"
+
+    # TEST: Change task owner only (no status change)
+    - name: Change task owner only
+      register: change_owner_result
+      splunk.es.splunk_response_plan_execution:
+        investigation_ref_id: "{{ test_investigation_id }}"
+        response_plan: "{{ test_response_plan.name }}"
+        state: present
+        tasks:
+          - phase_name: "Containment Phase"
+            task_name: "Isolate Systems"
+            owner: unassigned
+
+    - name: Assert owner was changed
+      assert:
+        that:
+          - change_owner_result['changed'] == true
+          - change_owner_result['response_plan_execution']['tasks_updated'][0]['changed'] == true
+
+    - name: Verify owner change via info module
+      register: info_after_owner_change
+      splunk.es.splunk_response_plan_execution_info:
+        investigation_ref_id: "{{ test_investigation_id }}"
+
+    - name: Assert owner is changed but status is preserved
+      vars:
+        applied_plan: "{{ info_after_owner_change['applied_response_plans'] | selectattr('name', 'equalto', test_response_plan.name) | first }}"
+        isolate_systems: "{{ applied_plan['phases'][1]['tasks'] | selectattr('name', 'equalto', 'Isolate Systems') | first }}"
+      assert:
+        that:
+          - isolate_systems['owner'] == "unassigned"
+          - isolate_systems['status'] == "started"
+
+    # TEST: Remove response plan - CHECK MODE
+    - name: Remove response plan (CHECK MODE)
+      check_mode: true
+      register: remove_check_result
+      splunk.es.splunk_response_plan_execution:
+        investigation_ref_id: "{{ test_investigation_id }}"
+        response_plan: "{{ test_response_plan.name }}"
+        state: absent
+
+    - name: Assert check mode remove reports changed
+      assert:
+        that:
+          - remove_check_result['changed'] == true
+          - remove_check_result['response_plan_execution']['before']['applied'] == true
+          - remove_check_result['response_plan_execution']['after']['applied'] == false
+
+    - name: Verify check mode did not actually remove (via info)
+      register: info_remove_check_verify
+      splunk.es.splunk_response_plan_execution_info:
+        investigation_ref_id: "{{ test_investigation_id }}"
+
+    - name: Assert response plan still exists after check mode remove
+      assert:
+        that:
+          - info_remove_check_verify['applied_response_plans'] | selectattr('name', 'equalto', test_response_plan.name) | list | length >= 1
+
+    # TEST: Remove response plan
+    - name: Remove response plan from investigation
+      register: remove_result
+      splunk.es.splunk_response_plan_execution: &remove_task
+        investigation_ref_id: "{{ test_investigation_id }}"
+        response_plan: "{{ test_response_plan.name }}"
+        state: absent
+
+    - name: Assert response plan was removed successfully
+      assert:
+        that:
+          - remove_result['changed'] == true
+          - remove_result['response_plan_execution']['before']['applied'] == true
+          - remove_result['response_plan_execution']['after']['applied'] == false
+
+    - name: Verify removal via info module
+      register: info_after_remove
+      splunk.es.splunk_response_plan_execution_info:
+        investigation_ref_id: "{{ test_investigation_id }}"
+
+    - name: Assert response plan is no longer applied
+      assert:
+        that:
+          - info_after_remove['applied_response_plans'] | selectattr('name', 'equalto', test_response_plan.name) | list | length == 0
+
+    # TEST: Remove response plan - IDEMPOTENCY
+    - name: Remove already removed response plan (IDEMPOTENT)
+      register: remove_idempotent_result
+      splunk.es.splunk_response_plan_execution: *remove_task
+
+    - name: Assert remove is idempotent (no changes)
+      assert:
+        that:
+          - remove_idempotent_result['changed'] == false
+          - remove_idempotent_result['response_plan_execution']['before']['applied'] == false
+          - remove_idempotent_result['response_plan_execution']['after']['applied'] == false
+
+    # TEST: Info module on empty investigation
+    - name: Query investigation with no applied response plans
+      register: info_empty
+      splunk.es.splunk_response_plan_execution_info:
+        investigation_ref_id: "{{ test_investigation_id }}"
+
+    - name: Assert empty investigation returns empty list
+      assert:
+        that:
+          - info_empty['changed'] == false
+          - info_empty['applied_response_plans'] | length == 0
+
+    # TEST: Re-apply after remove (full cycle)
+    - name: Re-apply response plan after removal
+      register: reapply_result
+      splunk.es.splunk_response_plan_execution:
+        investigation_ref_id: "{{ test_investigation_id }}"
+        response_plan: "{{ test_response_plan.name }}"
+        state: present
+
+    - name: Assert response plan was re-applied
+      assert:
+        that:
+          - reapply_result['changed'] == true
+          - reapply_result['response_plan_execution']['after']['applied'] == true
+
+    - name: Verify re-apply via info module - tasks should be reset
+      register: info_after_reapply
+      splunk.es.splunk_response_plan_execution_info:
+        investigation_ref_id: "{{ test_investigation_id }}"
+
+    - name: Assert tasks are reset to initial state after re-apply
+      vars:
+        applied_plan: "{{ info_after_reapply['applied_response_plans'] | selectattr('name', 'equalto', test_response_plan.name) | first }}"
+        initial_triage: "{{ applied_plan['phases'][0]['tasks'] | selectattr('name', 'equalto', 'Initial Triage') | first }}"
+      assert:
+        that:
+          - info_after_reapply['applied_response_plans'] | length >= 1
+          - initial_triage['status'] == "pending"
+          - initial_triage['owner'] == "unassigned"
+
+  # CLEANUP
+  always:
+    - name: Cleanup - Remove response plan from first investigation
+      splunk.es.splunk_response_plan_execution:
+        investigation_ref_id: "{{ test_investigation_id }}"
+        response_plan: "{{ test_response_plan.name }}"
+        state: absent
+      when: test_investigation_id is defined
+      ignore_errors: true
+
+    - name: Cleanup - Remove response plan from second investigation
+      splunk.es.splunk_response_plan_execution:
+        investigation_ref_id: "{{ test_investigation_id_2 }}"
+        response_plan: "{{ test_response_plan_id }}"
+        state: absent
+      when: test_investigation_id_2 is defined and test_response_plan_id is defined
+      ignore_errors: true
+
+    - name: Cleanup - Delete test response plan
+      splunk.es.splunk_response_plan:
+        name: "{{ test_response_plan.name }}"
+        state: absent
+      ignore_errors: true

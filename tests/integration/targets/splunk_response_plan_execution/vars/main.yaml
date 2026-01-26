@@ -1,0 +1,80 @@
+---
+# Expected results for splunk_response_plan_execution integration tests
+
+# Response plan used for testing
+test_response_plan:
+  name: "Test Response Plan for Execution"
+  description: "Response plan used for execution tests"
+  template_status: "published"
+  phases:
+    - name: "Investigation Phase"
+      tasks:
+        - name: "Initial Triage"
+          description: "Perform initial assessment"
+          is_note_required: false
+          owner: unassigned
+        - name: "Gather Evidence"
+          description: "Collect relevant logs"
+          is_note_required: false
+          owner: unassigned
+    - name: "Containment Phase"
+      tasks:
+        - name: "Isolate Systems"
+          description: "Isolate affected systems"
+          is_note_required: false
+          owner: unassigned
+
+# Investigation used for testing
+test_investigation:
+  name: "Test Investigation for Response Plan Execution"
+  description: "Investigation used for response plan execution tests"
+  status: "new"
+  owner: "admin"
+  urgency: "medium"
+  sensitivity: "amber"
+
+# Apply response plan - expected state after apply
+apply_response_plan:
+  before:
+    applied: false
+  after:
+    applied: true
+
+# Task status values
+task_statuses:
+  pending: "pending"
+  started: "started"
+  ended: "ended"
+
+# Task update scenarios
+task_start:
+  phase_name: "Investigation Phase"
+  task_name: "Initial Triage"
+  before:
+    status: "pending"
+    owner: "unassigned"
+  after:
+    status: "started"
+    owner: "admin"
+
+multi_task_update:
+  tasks:
+    - phase_name: "Investigation Phase"
+      task_name: "Initial Triage"
+      status: "ended"
+      owner: "admin"
+    - phase_name: "Investigation Phase"
+      task_name: "Gather Evidence"
+      status: "started"
+      owner: "admin"
+    - phase_name: "Containment Phase"
+      task_name: "Isolate Systems"
+      status: "started"
+      owner: "unassigned"
+
+# Remove response plan - expected state after remove
+remove_response_plan:
+  before:
+    applied: true
+  after:
+    applied: false

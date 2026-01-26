@@ -63,6 +63,8 @@ Name | Description
 [splunk.es.splunk_investigation](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_investigation_module.rst)|Manage Splunk Enterprise Security investigations
 [splunk.es.splunk_investigation_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_investigation_info_module.rst)|Gather information about Splunk Enterprise Security Investigations
 [splunk.es.splunk_response_plan](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_response_plan_module.rst)|Manage Splunk Enterprise Security response plans
+[splunk.es.splunk_response_plan_execution](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_response_plan_execution_module.rst)|Apply response plans to investigations and manage tasks
+[splunk.es.splunk_response_plan_execution_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_response_plan_execution_info_module.rst)|Gather information about applied response plans on an investigation
 [splunk.es.splunk_response_plan_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_response_plan_info_module.rst)|Gather information about Splunk Enterprise Security response plans
 
 <!--end collection content-->

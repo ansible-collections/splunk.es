@@ -194,6 +194,8 @@ Parameters
                 </td>
                 <td>
                         <div>The owner of the investigation.</div>
+                        <div>Use <code>admin</code> for the administrator user.</div>
+                        <div>Use <code>unassigned</code> to leave the investigation unassigned.</div>
                         <div>Can be updated on existing investigations.</div>
                 </td>
             </tr>
