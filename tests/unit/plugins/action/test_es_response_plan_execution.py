@@ -30,8 +30,8 @@ from ansible.playbook.task import Task
 from ansible.template import Templar
 
 from ansible_collections.splunk.es.plugins.action.splunk_response_plan_execution import (
-    ActionModule,
     TASK_STATUS_TO_API,
+    ActionModule,
 )
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
@@ -855,7 +855,9 @@ class TestResponsePlanExecutionHelperMethods:
 
         result = self._plugin._build_response_plan_path("inv-001-uuid", "plan-001-uuid")
 
-        expected = "servicesNS/nobody/missioncontrol/v1/incidents/inv-001-uuid/responseplans/plan-001-uuid"
+        expected = (
+            "servicesNS/nobody/missioncontrol/v1/incidents/inv-001-uuid/responseplans/plan-001-uuid"
+        )
         assert result == expected
 
     def test_build_task_path(self):
@@ -1037,6 +1039,10 @@ class TestTaskStatusMapping:
     def test_task_status_to_api_ended(self):
         """Test ended status maps correctly."""
         assert TASK_STATUS_TO_API["ended"] == "Ended"
+
+    def test_task_status_to_api_reopened(self):
+        """Test reopened status maps correctly."""
+        assert TASK_STATUS_TO_API["reopened"] == "Reopened"
 
     def test_task_status_to_api_pending(self):
         """Test pending status maps correctly."""

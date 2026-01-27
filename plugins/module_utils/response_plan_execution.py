@@ -20,6 +20,7 @@ from urllib.parse import unquote
 TASK_STATUS_FROM_API = {
     "Started": "started",
     "Ended": "ended",
+    "Reopened": "reopened",
     "Pending": "pending",
 }
 

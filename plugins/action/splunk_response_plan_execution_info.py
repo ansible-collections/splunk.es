@@ -113,7 +113,7 @@ class ActionModule(ActionBase):
         if not check_argspec(self, self._result, DOCUMENTATION):
             display.v(
                 f"splunk_response_plan_execution_info: argument validation failed: "
-                f"{self._result.get('msg')}"
+                f"{self._result.get('msg')}",
             )
             return self._result
 
@@ -124,7 +124,7 @@ class ActionModule(ActionBase):
 
         display.vv(
             f"splunk_response_plan_execution_info: API config - "
-            f"namespace={self.api_namespace}, user={self.api_user}, app={self.api_app}"
+            f"namespace={self.api_namespace}, user={self.api_user}, app={self.api_app}",
         )
 
         # Get required parameter
@@ -136,7 +136,7 @@ class ActionModule(ActionBase):
             return self._result
 
         display.vv(
-            f"splunk_response_plan_execution_info: investigation_ref_id: {investigation_id}"
+            f"splunk_response_plan_execution_info: investigation_ref_id: {investigation_id}",
         )
 
         # Setup connection
@@ -156,7 +156,7 @@ class ActionModule(ActionBase):
             # Fetch applied response plans
             display.v(
                 f"splunk_response_plan_execution_info: fetching applied plans for "
-                f"{investigation_id}"
+                f"{investigation_id}",
             )
             raw_plans = self._get_applied_response_plans(conn_request, investigation_id)
 
@@ -171,7 +171,7 @@ class ActionModule(ActionBase):
 
             display.v(
                 f"splunk_response_plan_execution_info: found {len(applied_plans)} "
-                f"applied response plan(s)"
+                f"applied response plan(s)",
             )
 
         except Exception as e:
@@ -182,7 +182,7 @@ class ActionModule(ActionBase):
                 self._result["msg"] = f"Investigation not found: {investigation_id}"
             else:
                 self.fail_json(
-                    msg=f"Failed to query applied response plans: {error_msg}"
+                    msg=f"Failed to query applied response plans: {error_msg}",
                 )
 
         return self._result

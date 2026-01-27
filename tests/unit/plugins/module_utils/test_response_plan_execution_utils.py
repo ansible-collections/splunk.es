@@ -41,6 +41,10 @@ class TestTaskStatusFromApiMapping:
         """Test that 'Ended' API status maps to 'ended'."""
         assert TASK_STATUS_FROM_API["Ended"] == "ended"
 
+    def test_reopened_status_mapping(self):
+        """Test that 'Reopened' API status maps to 'reopened'."""
+        assert TASK_STATUS_FROM_API["Reopened"] == "reopened"
+
     def test_pending_status_mapping(self):
         """Test that 'Pending' API status maps to 'pending'."""
         assert TASK_STATUS_FROM_API["Pending"] == "pending"

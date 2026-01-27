@@ -17,9 +17,9 @@ Version added: 5.1.0
 
 Synopsis
 --------
-- This module applies or removes response plans to/from Splunk Enterprise Security investigations.
+- This module applies or removes response plans from Splunk Enterprise Security investigations.
 - It also manages task lifecycle within applied response plans (start, end, change owner).
-- The ``response_plan`` parameter accepts either a UUID or a name. If a UUID format is detected, it is used directly. Otherwise, the module resolves the name to an ID via API lookup.
+- The ``response_plan`` parameter accepts either a UUID or a name.
 - When ``state=present``, the response plan is applied to the investigation.
 - When ``state=absent``, the response plan is removed from the investigation.
 - Use the ``tasks`` parameter to manage individual task statuses and owners within the applied plan.
@@ -103,7 +103,7 @@ Parameters
                 </td>
                 <td>
                         <div>The investigation UUID to apply or manage response plans.</div>
-                        <div>This is the unique identifier of the investigation (incident) in Splunk ES.</div>
+                        <div>This is the unique identifier of the investigation in Splunk ES.</div>
                 </td>
             </tr>
             <tr>
@@ -142,7 +142,7 @@ Parameters
                 </td>
                 <td>
                         <div>The desired state of the response plan on the investigation.</div>
-                        <div>Use <code>present</code> to apply the response plan to the investigation.</div>
+                        <div>Use <code>present</code> to apply the response plan to the investigation or update the tasks.</div>
                         <div>Use <code>absent</code> to remove the response plan from the investigation.</div>
                 </td>
             </tr>

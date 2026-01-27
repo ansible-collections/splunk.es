@@ -422,6 +422,7 @@ class TestSplunkResponsePlanExecutionInfo:
         ]
 
         for response in test_responses:
+
             def get_by_path(self, path, query_params=None):
                 return copy.deepcopy(response)
 

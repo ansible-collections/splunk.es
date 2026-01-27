@@ -69,10 +69,12 @@ options:
           - The desired status of the task.
           - Use C(started) to mark the task as in progress.
           - Use C(ended) to mark the task as completed.
+          - Use C(reopened) to reopen a completed task.
         type: str
         choices:
           - started
           - ended
+          - reopened
       owner:
         description:
           - The owner/assignee of the task.

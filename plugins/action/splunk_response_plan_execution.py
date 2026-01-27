@@ -53,6 +53,7 @@ display = Display()
 TASK_STATUS_TO_API = {
     "started": "Started",
     "ended": "Ended",
+    "reopened": "Reopened",
     "pending": "Pending",
 }
 
@@ -380,6 +381,144 @@ class ActionModule(ActionBase):
 
         return response or {}
 
+    def _build_task_error_result(
+        self,
+        phase_name: str,
+        task_name: str,
+        error_msg: str,
+    ) -> dict[str, Any]:
+        """Build an error result for a task operation.
+
+        Args:
+            phase_name: The phase name.
+            task_name: The task name.
+            error_msg: The error message.
+
+        Returns:
+            A task result dictionary with error information.
+        """
+        return {
+            "phase_name": phase_name,
+            "task_name": task_name,
+            "error": error_msg,
+            "changed": False,
+        }
+
+    def _build_task_result(
+        self,
+        phase_name: str,
+        task_name: str,
+        status: str,
+        owner: str,
+        changed: bool,
+    ) -> dict[str, Any]:
+        """Build a result dictionary for a task operation.
+
+        Args:
+            phase_name: The phase name.
+            task_name: The task name.
+            status: The task status.
+            owner: The task owner.
+            changed: Whether the task was changed.
+
+        Returns:
+            A task result dictionary.
+        """
+        return {
+            "phase_name": phase_name,
+            "task_name": task_name,
+            "status": status,
+            "owner": owner,
+            "changed": changed,
+        }
+
+    def _process_single_task(
+        self,
+        conn_request: SplunkRequest,
+        investigation_id: str,
+        applied_plan_id: str,
+        phases: list[dict[str, Any]],
+        task_config: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Process a single task update.
+
+        Args:
+            conn_request: The SplunkRequest instance.
+            investigation_id: The investigation UUID.
+            applied_plan_id: The applied plan ID.
+            phases: List of phases in the applied plan.
+            task_config: The task configuration from module parameters.
+
+        Returns:
+            A task result dictionary.
+        """
+        phase_name = task_config.get("phase_name", "")
+        task_name = task_config.get("task_name", "")
+        desired_status = task_config.get("status")
+        desired_owner = task_config.get("owner")
+
+        # Find the phase
+        phase = self._find_phase_by_name(phases, phase_name)
+        if not phase:
+            display.warning(
+                f"splunk_response_plan_execution: phase '{phase_name}' not found, skipping task",
+            )
+            return self._build_task_error_result(
+                phase_name, task_name, f"Phase '{phase_name}' not found"
+            )
+
+        # Find the task
+        task = self._find_task_by_name(phase.get("tasks", []), task_name)
+        if not task:
+            display.warning(
+                f"splunk_response_plan_execution: task '{task_name}' not found in phase "
+                f"'{phase_name}', skipping",
+            )
+            return self._build_task_error_result(
+                phase_name, task_name, f"Task '{task_name}' not found in phase '{phase_name}'"
+            )
+
+        current_status = task.get("status", "")
+        current_owner = task.get("owner", "")
+        status_needs_update = desired_status and desired_status != current_status
+        owner_needs_update = desired_owner and desired_owner != current_owner
+
+        # No update needed - already in desired state
+        if not status_needs_update and not owner_needs_update:
+            display.vv(
+                f"splunk_response_plan_execution: task '{task_name}' already in desired state",
+            )
+            return self._build_task_result(
+                phase_name, task_name, current_status, current_owner, changed=False
+            )
+
+        final_status = desired_status or current_status
+        final_owner = desired_owner or current_owner
+
+        # Check mode - don't make actual changes
+        if self._task.check_mode:
+            display.v(
+                f"splunk_response_plan_execution: check mode - would update task '{task_name}'",
+            )
+            return self._build_task_result(
+                phase_name, task_name, final_status, final_owner, changed=True
+            )
+
+        # Perform the update
+        self._update_task(
+            conn_request,
+            investigation_id,
+            applied_plan_id,
+            phase.get("id", ""),
+            task.get("id", ""),
+            desired_status if status_needs_update else None,
+            desired_owner if owner_needs_update else None,
+        )
+
+        return self._build_task_result(
+            phase_name, task_name, final_status, final_owner, changed=True
+        )
+
     def _process_tasks(
         self,
         conn_request: SplunkRequest,
@@ -398,115 +537,98 @@ class ActionModule(ActionBase):
         Returns:
             Tuple of (tasks_updated list, any_changed boolean).
         """
-        tasks_updated = []
-        any_changed = False
-
         applied_plan_id = applied_plan.get("id", "")
         phases = applied_plan.get("phases", [])
 
+        tasks_updated = []
         for task_config in tasks_config:
-            phase_name = task_config.get("phase_name", "")
-            task_name = task_config.get("task_name", "")
-            desired_status = task_config.get("status")
-            desired_owner = task_config.get("owner")
-
-            # Find the phase
-            phase = self._find_phase_by_name(phases, phase_name)
-            if not phase:
-                display.warning(
-                    f"splunk_response_plan_execution: phase '{phase_name}' not found, skipping task",
-                )
-                tasks_updated.append(
-                    {
-                        "phase_name": phase_name,
-                        "task_name": task_name,
-                        "error": f"Phase '{phase_name}' not found",
-                        "changed": False,
-                    },
-                )
-                continue
-
-            # Find the task
-            task = self._find_task_by_name(phase.get("tasks", []), task_name)
-            if not task:
-                display.warning(
-                    f"splunk_response_plan_execution: task '{task_name}' not found in phase "
-                    f"'{phase_name}', skipping",
-                )
-                tasks_updated.append(
-                    {
-                        "phase_name": phase_name,
-                        "task_name": task_name,
-                        "error": f"Task '{task_name}' not found in phase '{phase_name}'",
-                        "changed": False,
-                    },
-                )
-                continue
-
-            phase_id = phase.get("id", "")
-            task_id = task.get("id", "")
-
-            # Check if update is needed (idempotency)
-            current_status = task.get("status", "")
-            current_owner = task.get("owner", "")
-
-            status_needs_update = desired_status and desired_status != current_status
-            owner_needs_update = desired_owner and desired_owner != current_owner
-
-            if not status_needs_update and not owner_needs_update:
-                display.vv(
-                    f"splunk_response_plan_execution: task '{task_name}' already in desired state",
-                )
-                tasks_updated.append(
-                    {
-                        "phase_name": phase_name,
-                        "task_name": task_name,
-                        "status": current_status,
-                        "owner": current_owner,
-                        "changed": False,
-                    },
-                )
-                continue
-
-            # Update the task
-            if self._task.check_mode:
-                display.v(
-                    f"splunk_response_plan_execution: check mode - would update task '{task_name}'",
-                )
-                tasks_updated.append(
-                    {
-                        "phase_name": phase_name,
-                        "task_name": task_name,
-                        "status": desired_status or current_status,
-                        "owner": desired_owner or current_owner,
-                        "changed": True,
-                    },
-                )
-                any_changed = True
-                continue
-
-            self._update_task(
+            result = self._process_single_task(
                 conn_request,
                 investigation_id,
                 applied_plan_id,
-                phase_id,
-                task_id,
-                desired_status if status_needs_update else None,
-                desired_owner if owner_needs_update else None,
+                phases,
+                task_config,
             )
+            tasks_updated.append(result)
 
-            tasks_updated.append(
-                {
-                    "phase_name": phase_name,
-                    "task_name": task_name,
-                    "status": desired_status or current_status,
-                    "owner": desired_owner or current_owner,
-                    "changed": True,
-                },
-            )
-            any_changed = True
-
+        any_changed = any(task.get("changed", False) for task in tasks_updated)
         return tasks_updated, any_changed
+
+    def _build_before_state(
+        self,
+        existing_plan: dict[str, Any] | None,
+        template_id: str,
+    ) -> dict[str, Any]:
+        """Build the before state for result output.
+
+        Args:
+            existing_plan: The existing applied plan, if any.
+            template_id: The response plan template ID.
+
+        Returns:
+            The before state dictionary.
+        """
+        before_state: dict[str, Any] = {"applied": existing_plan is not None}
+        if existing_plan:
+            before_state["applied_plan_id"] = existing_plan.get("id")
+            before_state["response_plan_id"] = template_id
+        return before_state
+
+    def _get_result_message(self, plan_changed: bool, tasks_changed: bool) -> str:
+        """Get the result message based on what changed.
+
+        Args:
+            plan_changed: Whether the plan was applied/changed.
+            tasks_changed: Whether any tasks were updated.
+
+        Returns:
+            The appropriate result message.
+        """
+        if plan_changed and tasks_changed:
+            return "Response plan applied and tasks updated successfully"
+        if plan_changed:
+            return "Response plan applied successfully"
+        if tasks_changed:
+            return "Tasks updated successfully"
+        return "No changes required"
+
+    def _process_tasks_if_configured(
+        self,
+        conn_request: SplunkRequest,
+        investigation_id: str,
+        template_name: str,
+        tasks_config: list[dict[str, Any]] | None,
+        plan_changed: bool,
+    ) -> tuple[list[dict[str, Any]], bool]:
+        """Process task updates if task configuration is provided.
+
+        Args:
+            conn_request: The SplunkRequest instance.
+            investigation_id: The investigation UUID.
+            template_name: The response plan template name.
+            tasks_config: Optional list of task configurations.
+            plan_changed: Whether the plan was just applied.
+
+        Returns:
+            Tuple of (tasks_updated list, tasks_changed boolean).
+        """
+        if not tasks_config:
+            return [], False
+
+        # Re-fetch to get the full structure with phases/tasks
+        applied_plans = self._get_applied_response_plans(conn_request, investigation_id)
+        applied_plan = self._find_applied_plan_by_name(applied_plans, template_name)
+
+        if not applied_plan:
+            return [], False
+
+        mapped_plan = map_applied_response_plan_from_api(applied_plan)
+        return self._process_tasks(
+            conn_request,
+            investigation_id,
+            mapped_plan,
+            tasks_config,
+        )
 
     def _handle_present(
         self,
@@ -535,87 +657,47 @@ class ActionModule(ActionBase):
             f"splunk_response_plan_execution: existing plan found: {existing_plan is not None}",
         )
 
-        before_state = {
-            "applied": existing_plan is not None,
-        }
-        if existing_plan:
-            before_state["applied_plan_id"] = existing_plan.get("id")
-            before_state["response_plan_id"] = template_id
+        before_state = self._build_before_state(existing_plan, template_id)
 
-        # Apply if not already applied
+        # Handle check mode for applying a new plan
+        if not existing_plan and self._task.check_mode:
+            display.v("splunk_response_plan_execution: check mode - would apply response plan")
+            self._result[self.module_name] = {
+                "before": before_state,
+                "after": {"applied": True, "response_plan_id": template_id},
+            }
+            self._result["changed"] = True
+            self._result["msg"] = "Check mode: would apply response plan"
+            return
+
+        # Apply or use existing plan
         if existing_plan:
             display.v("splunk_response_plan_execution: response plan already applied")
             applied_plan = existing_plan
             plan_changed = False
         else:
-            if self._task.check_mode:
-                display.v("splunk_response_plan_execution: check mode - would apply response plan")
-                self._result[self.module_name] = {
-                    "before": before_state,
-                    "after": {
-                        "applied": True,
-                        "response_plan_id": template_id,
-                    },
-                }
-                self._result["changed"] = True
-                self._result["msg"] = "Check mode: would apply response plan"
-                return
-
-            applied_plan_response = self._apply_response_plan(
-                conn_request,
-                investigation_id,
-                template_id,
-            )
-            applied_plan = applied_plan_response
+            applied_plan = self._apply_response_plan(conn_request, investigation_id, template_id)
             plan_changed = True
             display.v("splunk_response_plan_execution: response plan applied successfully")
 
-        # Build after state
+        # Process tasks if configured
+        tasks_updated, tasks_changed = self._process_tasks_if_configured(
+            conn_request, investigation_id, template_name, tasks_config, plan_changed
+        )
+
+        # Build result
         after_state = {
             "applied": True,
             "applied_plan_id": applied_plan.get("id", ""),
             "response_plan_id": template_id,
         }
 
-        # Process tasks if provided
-        tasks_updated = []
-        tasks_changed = False
-
-        if tasks_config:
-            # Need to get fresh applied plan data with phases/tasks
-            if plan_changed or not existing_plan:
-                # Re-fetch to get the full structure
-                applied_plans = self._get_applied_response_plans(conn_request, investigation_id)
-                applied_plan = self._find_applied_plan_by_name(applied_plans, template_name)
-
-            if applied_plan:
-                # Map to module format for task processing
-                mapped_plan = map_applied_response_plan_from_api(applied_plan)
-                tasks_updated, tasks_changed = self._process_tasks(
-                    conn_request,
-                    investigation_id,
-                    mapped_plan,
-                    tasks_config,
-                )
-
-        # Set result
-        self._result[self.module_name] = {
-            "before": before_state,
-            "after": after_state,
-        }
+        self._result[self.module_name] = {"before": before_state, "after": after_state}
         if tasks_updated:
             self._result[self.module_name]["tasks_updated"] = tasks_updated
 
         self._result["changed"] = plan_changed or tasks_changed
-
-        if plan_changed and tasks_changed:
-            self._result["msg"] = "Response plan applied and tasks updated successfully"
-        elif plan_changed:
-            self._result["msg"] = "Response plan applied successfully"
-        elif tasks_changed:
-            self._result["msg"] = "Tasks updated successfully"
-        else:
-            self._result["msg"] = "No changes required"
+        self._result["msg"] = self._get_result_message(plan_changed, tasks_changed)
 
     def _handle_absent(
         self,
