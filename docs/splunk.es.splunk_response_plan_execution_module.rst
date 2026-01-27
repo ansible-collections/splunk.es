@@ -215,12 +215,14 @@ Parameters
                         <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                     <li>started</li>
                                     <li>ended</li>
+                                    <li>reopened</li>
                         </ul>
                 </td>
                 <td>
                         <div>The desired status of the task.</div>
                         <div>Use <code>started</code> to mark the task as in progress.</div>
                         <div>Use <code>ended</code> to mark the task as completed.</div>
+                        <div>Use <code>reopened</code> to reopen a completed task.</div>
                 </td>
             </tr>
             <tr>

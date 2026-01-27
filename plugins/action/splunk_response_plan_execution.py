@@ -464,7 +464,9 @@ class ActionModule(ActionBase):
                 f"splunk_response_plan_execution: phase '{phase_name}' not found, skipping task",
             )
             return self._build_task_error_result(
-                phase_name, task_name, f"Phase '{phase_name}' not found"
+                phase_name,
+                task_name,
+                f"Phase '{phase_name}' not found",
             )
 
         # Find the task
@@ -475,7 +477,9 @@ class ActionModule(ActionBase):
                 f"'{phase_name}', skipping",
             )
             return self._build_task_error_result(
-                phase_name, task_name, f"Task '{task_name}' not found in phase '{phase_name}'"
+                phase_name,
+                task_name,
+                f"Task '{task_name}' not found in phase '{phase_name}'",
             )
 
         current_status = task.get("status", "")
@@ -489,7 +493,11 @@ class ActionModule(ActionBase):
                 f"splunk_response_plan_execution: task '{task_name}' already in desired state",
             )
             return self._build_task_result(
-                phase_name, task_name, current_status, current_owner, changed=False
+                phase_name,
+                task_name,
+                current_status,
+                current_owner,
+                changed=False,
             )
 
         final_status = desired_status or current_status
@@ -501,7 +509,11 @@ class ActionModule(ActionBase):
                 f"splunk_response_plan_execution: check mode - would update task '{task_name}'",
             )
             return self._build_task_result(
-                phase_name, task_name, final_status, final_owner, changed=True
+                phase_name,
+                task_name,
+                final_status,
+                final_owner,
+                changed=True,
             )
 
         # Perform the update
@@ -516,7 +528,11 @@ class ActionModule(ActionBase):
         )
 
         return self._build_task_result(
-            phase_name, task_name, final_status, final_owner, changed=True
+            phase_name,
+            task_name,
+            final_status,
+            final_owner,
+            changed=True,
         )
 
     def _process_tasks(
@@ -682,7 +698,11 @@ class ActionModule(ActionBase):
 
         # Process tasks if configured
         tasks_updated, tasks_changed = self._process_tasks_if_configured(
-            conn_request, investigation_id, template_name, tasks_config, plan_changed
+            conn_request,
+            investigation_id,
+            template_name,
+            tasks_config,
+            plan_changed,
         )
 
         # Build result
