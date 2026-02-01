@@ -208,7 +208,7 @@ class SplunkRequest:
 
     def create_update(self, rest_path, data, query_params=None, json_payload=False):
         """
-        Create or Update a resource in Splunk.
+        Create or Update a resource in Splunk using POST.
 
         :param rest_path: The REST API path
         :param data: Data dictionary to send
@@ -230,6 +230,34 @@ class SplunkRequest:
                     params[k] = v
 
         return self.post(
+            f"/{rest_path}?{urlencode(params, doseq=True)}",
+            payload=data,
+        )
+
+    def update_by_path(self, rest_path, data, query_params=None, json_payload=False):
+        """
+        Update a resource in Splunk using PUT.
+
+        :param rest_path: The REST API path (without leading slash)
+        :param data: Data dictionary to send
+        :param query_params: Optional dictionary of query parameters to append.
+        :param json_payload: If True, send as JSON. If False, send as URL-encoded (default).
+        :return: API response
+        """
+        # Apply keymap transformation if data is a dictionary
+        if data is not None and isinstance(data, dict):
+            if json_payload:
+                data = json.dumps(data)
+            else:
+                data = self.get_urlencoded_data(data)
+
+        params = {"output_mode": "json"}
+        if query_params and isinstance(query_params, dict):
+            for k, v in query_params.items():
+                if v is not None:
+                    params[k] = v
+
+        return self.put(
             f"/{rest_path}?{urlencode(params, doseq=True)}",
             payload=data,
         )

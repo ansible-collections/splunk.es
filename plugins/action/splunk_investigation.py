@@ -62,6 +62,7 @@ class ActionModule(ActionBase):
         "owner",
         "urgency",
         "sensitivity",
+        "investigation_type",
     ]
 
     # finding_ids requires a separate API endpoint
@@ -239,6 +240,7 @@ class ActionModule(ActionBase):
             "urgency",
             "sensitivity",
             "finding_ids",
+            "investigation_type",
         ]
         for key in param_keys:
             value = self._task.args.get(key)
@@ -437,7 +439,12 @@ class ActionModule(ActionBase):
             return {"before": None, "after": investigation}, True
 
         want_conf = utils.remove_empties(investigation)
-        after = self._post_investigation(conn_request, want_conf)
+        api_response = self._post_investigation(conn_request, want_conf)
+
+        # API only returns the GUID on create, so merge input params with response
+        # Input params provide the expected state, API response provides the ref_id
+        after = want_conf.copy()
+        after.update(api_response)
 
         display.v("splunk_investigation: created investigation successfully")
         return {"before": None, "after": after}, True

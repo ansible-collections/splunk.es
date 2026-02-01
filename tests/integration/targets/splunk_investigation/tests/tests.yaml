@@ -3,6 +3,17 @@
     msg: START splunk_investigation integration tests on connection={{ ansible_connection }}
 
 - block:
+    - name: Create investigation type for testing
+      register: test_investigation_type_result
+      splunk.es.splunk_investigation_type:
+        name: "ansible-test-type"
+        description: "Investigation type for integration testing"
+
+    - name: Assert investigation type was created
+      assert:
+        that:
+          - test_investigation_type_result is defined
+
     # Create findings for investigation attachment
     - name: Create a finding for investigation attachment
       register: test_finding_result
@@ -40,6 +51,7 @@
         urgency: high
         sensitivity: amber
         disposition: undetermined
+        investigation_type: "ansible-test-type"
 
     - name: Assert check mode reports changed but no actual creation
       assert:
@@ -47,6 +59,7 @@
           - create_check_result['changed'] == true
           - create_check_result['investigation']['before'] is none
           - create_check_result['investigation']['after']['name'] == create_investigation['after']['name']
+          - create_check_result['investigation']['after']['investigation_type'] == create_investigation['after']['investigation_type']
 
     - name: Create a new investigation
       register: create_result
@@ -58,6 +71,7 @@
         urgency: high
         sensitivity: amber
         disposition: undetermined
+        investigation_type: "ansible-test-type"
 
     - name: Assert investigation was created successfully
       assert:
@@ -65,6 +79,7 @@
           - create_result['changed'] == true
           - create_result['investigation']['before'] is none
           - create_result['investigation']['after']['investigation_ref_id'] is defined
+          - create_result['investigation']['after']['investigation_type'] == create_investigation['after']['investigation_type']
 
     # Verify creation via info module
     - name: Query investigation by ref_id to verify creation
@@ -80,6 +95,7 @@
           - info_by_ref_result['investigations'][0]['investigation_ref_id'] == create_result['investigation']['after']['investigation_ref_id']
           - info_by_ref_result['investigations'][0]['name'] == "Ansible Test Investigation"
           - info_by_ref_result['investigations'][0]['status'] == "new"
+          - info_by_ref_result['investigations'][0]['investigation_type'] == "ansible-test-type"
 
     # Update tests with idempotency
     - name: Update investigation status (CHECK MODE)
@@ -108,6 +124,7 @@
         urgency: critical
         disposition: undetermined
         owner: admin
+        investigation_type: "default"
 
     - name: Assert investigation was updated successfully
       assert:
@@ -143,6 +160,7 @@
           - info_after_update_result['investigations'][0]['status'] == "in_progress"
           - info_after_update_result['investigations'][0]['urgency'] == "critical"
           - info_after_update_result['investigations'][0]['disposition'] == "undetermined"
+          - info_after_update_result['investigations'][0]['investigation_type'] == "default"
 
     # Create investigation with findings attached
     - name: Create investigation with finding attached

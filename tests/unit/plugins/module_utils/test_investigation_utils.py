@@ -568,7 +568,15 @@ class TestUpdatableFields:
 
     def test_updatable_fields_contains_expected(self):
         """Test that UPDATABLE_FIELDS contains the correct fields."""
-        expected = ["description", "status", "disposition", "owner", "urgency", "sensitivity"]
+        expected = [
+            "description",
+            "status",
+            "disposition",
+            "owner",
+            "urgency",
+            "sensitivity",
+            "investigation_type",
+        ]
 
         assert set(ActionModule.UPDATABLE_FIELDS) == set(expected)
 

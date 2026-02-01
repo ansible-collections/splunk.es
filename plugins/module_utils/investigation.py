@@ -118,6 +118,7 @@ def map_investigation_from_api(config: dict[str, Any]) -> dict[str, Any]:
         "owner",
         "urgency",
         "sensitivity",
+        "investigation_type",
     ]
     for field in field_names:
         if field in config and config[field] is not None:

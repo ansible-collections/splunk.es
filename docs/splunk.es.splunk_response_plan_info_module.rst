@@ -178,7 +178,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                             <div>List of response plans matching the query</div>
                     <br/>
                         <div style="font-size: smaller"><b>Sample:</b></div>
-                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;id&#x27;: &#x27;abc123-def456-ghi789&#x27;, &#x27;name&#x27;: &#x27;Incident Response Plan&#x27;, &#x27;description&#x27;: &#x27;Standard incident response procedure&#x27;, &#x27;template_status&#x27;: &#x27;published&#x27;, &#x27;phases&#x27;: [{&#x27;id&#x27;: &#x27;phase-uuid-001&#x27;, &#x27;name&#x27;: &#x27;Investigation&#x27;, &#x27;tasks&#x27;: [{&#x27;id&#x27;: &#x27;task-uuid-001&#x27;, &#x27;name&#x27;: &#x27;Initial Triage&#x27;, &#x27;description&#x27;: &#x27;Perform initial assessment&#x27;, &#x27;is_note_required&#x27;: True, &#x27;owner&#x27;: &#x27;admin&#x27;, &#x27;searches&#x27;: [{&#x27;name&#x27;: &#x27;Access Over Time&#x27;, &#x27;description&#x27;: &#x27;Check access patterns&#x27;, &#x27;spl&#x27;: &#x27;| tstats count from datamodel=Authentication&#x27;}]}]}]}]</div>
+                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[{&#x27;id&#x27;: &#x27;abc123-def456-ghi789&#x27;, &#x27;template_id&#x27;: &#x27;c4522c17-7f27-4569-a130-80ac31c46de8&#x27;, &#x27;name&#x27;: &#x27;Incident Response Plan&#x27;, &#x27;description&#x27;: &#x27;Standard incident response procedure&#x27;, &#x27;template_status&#x27;: &#x27;published&#x27;, &#x27;phases&#x27;: [{&#x27;id&#x27;: &#x27;phase-uuid-001&#x27;, &#x27;name&#x27;: &#x27;Investigation&#x27;, &#x27;tasks&#x27;: [{&#x27;id&#x27;: &#x27;task-uuid-001&#x27;, &#x27;name&#x27;: &#x27;Initial Triage&#x27;, &#x27;description&#x27;: &#x27;Perform initial assessment&#x27;, &#x27;is_note_required&#x27;: True, &#x27;owner&#x27;: &#x27;admin&#x27;, &#x27;searches&#x27;: [{&#x27;name&#x27;: &#x27;Access Over Time&#x27;, &#x27;description&#x27;: &#x27;Check access patterns&#x27;, &#x27;spl&#x27;: &#x27;| tstats count from datamodel=Authentication&#x27;}]}]}]}]</div>
                 </td>
             </tr>
                                 <tr>
@@ -467,6 +467,22 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
 
 
 
+            <tr>
+                    <td class="elbow-placeholder">&nbsp;</td>
+                <td colspan="4">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>template_id</b>
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">string</span>
+                    </div>
+                </td>
+                <td>when available</td>
+                <td>
+                            <div>The template ID of the response plan (used for investigation_type associations)</div>
+                    <br/>
+                </td>
+            </tr>
             <tr>
                     <td class="elbow-placeholder">&nbsp;</td>
                 <td colspan="4">

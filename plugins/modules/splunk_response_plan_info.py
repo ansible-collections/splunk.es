@@ -81,6 +81,10 @@ response_plans:
     id:
       description: The unique ID of the response plan
       type: str
+    template_id:
+      description: The template ID of the response plan (used for investigation_type associations)
+      type: str
+      returned: when available
     name:
       description: Name of the response plan
       type: str
@@ -137,6 +141,7 @@ response_plans:
                   type: str
   sample:
     - id: "abc123-def456-ghi789"
+      template_id: "c4522c17-7f27-4569-a130-80ac31c46de8"
       name: "Incident Response Plan"
       description: "Standard incident response procedure"
       template_status: "published"

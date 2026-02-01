@@ -27,6 +27,7 @@ from typing import Any, Optional
 
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.connection import Connection
+from ansible.module_utils.six.moves.urllib.parse import unquote
 from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
 
@@ -272,15 +273,15 @@ def _map_task_from_api(task: dict[str, Any]) -> dict[str, Any]:
     for search in suggestions.get("searches", []) or []:
         searches.append(
             {
-                "name": search.get("name", ""),
-                "description": search.get("description", ""),
-                "spl": search.get("spl", ""),
+                "name": unquote(search.get("name", "")),
+                "description": unquote(search.get("description", "")),
+                "spl": unquote(search.get("spl", "")),
             },
         )
 
     return {
-        "name": task.get("name", ""),
-        "description": task.get("description", ""),
+        "name": unquote(task.get("name", "")),
+        "description": unquote(task.get("description", "")),
         "is_note_required": task.get("is_note_required", False),
         "owner": task.get("owner", "unassigned"),
         "searches": searches,
@@ -301,7 +302,7 @@ def _map_phase_from_api(phase: dict[str, Any]) -> dict[str, Any]:
         tasks.append(_map_task_from_api(task))
 
     return {
-        "name": phase.get("name", ""),
+        "name": unquote(phase.get("name", "")),
         "tasks": tasks,
     }
 
@@ -320,8 +321,8 @@ def _map_response_plan_from_api(config: dict[str, Any]) -> dict[str, Any]:
         phases.append(_map_phase_from_api(phase))
 
     return {
-        "name": config.get("name", ""),
-        "description": config.get("description", ""),
+        "name": unquote(config.get("name", "")),
+        "description": unquote(config.get("description", "")),
         "template_status": config.get("template_status", "draft"),
         "phases": phases,
     }

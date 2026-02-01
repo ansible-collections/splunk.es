@@ -37,6 +37,7 @@ create_investigation:
     urgency: "high"
     sensitivity: "amber"
     disposition: "undetermined"
+    investigation_type: "ansible-test-type"
 
 # Update investigation
 update_investigation:
@@ -48,6 +49,7 @@ update_investigation:
     urgency: "critical"
     disposition: "undetermined"
     owner: "admin"
+    investigation_type: "default"
 
 # Investigation with findings attached at creation
 create_investigation_with_findings:

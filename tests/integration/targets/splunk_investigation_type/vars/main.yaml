@@ -1,0 +1,5 @@
+---
+# Variables for splunk_investigation_type integration tests
+# Test descriptions for create and update operations
+test_description_initial: "Initial description for Ansible integration test"
+test_description_updated: "Updated description by Ansible integration test"

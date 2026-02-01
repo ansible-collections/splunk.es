@@ -95,6 +95,12 @@ options:
       - Finding IDs can only be added, removal is not supported.
     type: list
     elements: str
+  investigation_type:
+    description:
+      - The type of the investigation.
+      - If not specified, the default investigation type is used.
+      - Can be updated on existing investigations.
+    type: str
   api_namespace:
     description:
       - The namespace portion of the Splunk API path.
@@ -140,6 +146,16 @@ EXAMPLES = """
     sensitivity: red
     finding_ids:
       - "A265ED94-AE9E-428C-91D2-64BB956EB7CB@@notable@@62eaebb8c0dd2574fc0b3503a9586cd9"
+
+# Create an investigation with a specific type
+- name: Create investigation with investigation type
+  splunk.es.splunk_investigation:
+    name: "Phishing Investigation"
+    description: "Investigation into phishing attempt"
+    status: new
+    owner: admin
+    urgency: high
+    investigation_type: "phishing"
 
 # Update an existing investigation status
 - name: Update investigation status
@@ -188,6 +204,7 @@ investigation:
       urgency: "high"
       sensitivity: "amber"
       disposition: "undetermined"
+      investigation_type: "phishing"
 changed:
   description: Whether any changes were made.
   returned: always

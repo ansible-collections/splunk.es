@@ -62,6 +62,8 @@ Name | Description
 [splunk.es.splunk_finding_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_finding_info_module.rst)|Gather information about Splunk Enterprise Security Findings
 [splunk.es.splunk_investigation](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_investigation_module.rst)|Manage Splunk Enterprise Security investigations
 [splunk.es.splunk_investigation_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_investigation_info_module.rst)|Gather information about Splunk Enterprise Security Investigations
+[splunk.es.splunk_investigation_type](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_investigation_type_module.rst)|Manage Splunk Enterprise Security investigation types
+[splunk.es.splunk_investigation_type_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_investigation_type_info_module.rst)|Gather information about Splunk Enterprise Security investigation types
 [splunk.es.splunk_notes](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_notes_module.rst)|Manage notes for findings, investigations, and response plan tasks
 [splunk.es.splunk_notes_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_notes_info_module.rst)|Gather information about notes in Splunk Enterprise Security
 [splunk.es.splunk_response_plan](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_response_plan_module.rst)|Manage Splunk Enterprise Security response plans

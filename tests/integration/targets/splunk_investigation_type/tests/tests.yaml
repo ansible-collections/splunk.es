@@ -1,0 +1,210 @@
+---
+- debug:
+    msg: START splunk_investigation_type integration tests on connection={{ ansible_connection }}
+
+- name: Setup - Query response plans to get valid IDs for testing
+  register: response_plans_info
+  splunk.es.splunk_response_plan_info:
+    limit: 2
+
+- name: Setup - Assert we have response plans available for testing
+  assert:
+    that:
+      - response_plans_info['response_plans'] | length >= 2
+    fail_msg: "Need at least 2 response plans in the system for testing response_plan_ids"
+
+- name: Setup - Set response plan IDs as facts for testing
+  ansible.builtin.set_fact:
+    test_response_plan_id_1: "{{ response_plans_info['response_plans'][0]['id'] }}"
+    test_response_plan_id_2: "{{ response_plans_info['response_plans'][1]['id'] }}"
+    test_investigation_type_name: "ansible-test-inv-type-{{ now(utc=true, fmt='%Y%m%d-%H%M%S') }}"
+
+- name: Setup - Display test investigation type name (with timestamp)
+  debug:
+    msg: "Test investigation type name: {{ test_investigation_type_name }}"
+
+- name: Create - Create investigation type (CHECK MODE)
+  check_mode: true
+  register: create_check_result
+  splunk.es.splunk_investigation_type:
+    name: "{{ test_investigation_type_name }}"
+    description: "{{ test_description_initial }}"
+    response_plan_ids:
+      - "{{ test_response_plan_id_1 }}"
+
+- name: Create - Assert check mode reports changed for new investigation type
+  assert:
+    that:
+      - create_check_result['changed'] == true
+      - create_check_result['investigation_type']['before'] is none
+      - create_check_result['investigation_type']['after']['name'] == test_investigation_type_name
+      - create_check_result['investigation_type']['after']['description'] == test_description_initial
+
+- name: Create - Verify check mode did not actually create anything
+  register: info_after_check_mode
+  splunk.es.splunk_investigation_type_info:
+    name: "{{ test_investigation_type_name }}"
+
+- name: Create - Assert check mode did not create investigation type
+  assert:
+    that:
+      - info_after_check_mode['investigation_types'] | length == 0
+
+- name: Create - Create investigation type with one response plan (ACTUAL)
+  register: create_result
+  splunk.es.splunk_investigation_type: &create_task
+    name: "{{ test_investigation_type_name }}"
+    description: "{{ test_description_initial }}"
+    response_plan_ids:
+      - "{{ test_response_plan_id_1 }}"
+
+- name: Create - Assert investigation type was created successfully
+  assert:
+    that:
+      - create_result['changed'] == true
+      - create_result['investigation_type']['before'] is none
+      - create_result['investigation_type']['after']['name'] == test_investigation_type_name
+      - create_result['investigation_type']['after']['description'] == test_description_initial
+      - test_response_plan_id_1 in create_result['investigation_type']['after']['response_plan_ids']
+
+- name: Create - Verify creation via info module
+  register: info_after_create
+  splunk.es.splunk_investigation_type_info:
+    name: "{{ test_investigation_type_name }}"
+
+- name: Create - Assert info module reflects created values
+  assert:
+    that:
+      - info_after_create['investigation_types'] | length == 1
+      - info_after_create['investigation_types'][0]['name'] == test_investigation_type_name
+      - info_after_create['investigation_types'][0]['description'] == test_description_initial
+      - test_response_plan_id_1 in info_after_create['investigation_types'][0]['response_plan_ids']
+
+- name: Create - Same creation again (IDEMPOTENT - no changes)
+  register: create_idempotent_result
+  splunk.es.splunk_investigation_type: *create_task
+
+- name: Create - Assert create is idempotent (no changes)
+  assert:
+    that:
+      - create_idempotent_result['changed'] == false
+      - create_idempotent_result['investigation_type']['before'] == create_idempotent_result['investigation_type']['after']
+
+# UPDATE - Add second response plan and update description
+- name: Update - Add second response plan and update description (CHECK MODE)
+  check_mode: true
+  register: update_check_result
+  splunk.es.splunk_investigation_type:
+    name: "{{ test_investigation_type_name }}"
+    description: "{{ test_description_updated }}"
+    response_plan_ids:
+      - "{{ test_response_plan_id_1 }}"
+      - "{{ test_response_plan_id_2 }}"
+
+- name: Update - Assert check mode reports changed
+  assert:
+    that:
+      - update_check_result['changed'] == true
+      - update_check_result['investigation_type']['before'] is not none
+      - update_check_result['investigation_type']['after']['description'] == test_description_updated
+      - test_response_plan_id_1 in update_check_result['investigation_type']['after']['response_plan_ids']
+      - test_response_plan_id_2 in update_check_result['investigation_type']['after']['response_plan_ids']
+
+- name: Update - Verify check mode did not actually change anything
+  register: info_after_update_check_mode
+  splunk.es.splunk_investigation_type_info:
+    name: "{{ test_investigation_type_name }}"
+
+- name: Update - Assert check mode did not modify investigation type
+  assert:
+    that:
+      - info_after_update_check_mode['investigation_types'][0]['description'] == test_description_initial
+      - info_after_update_check_mode['investigation_types'][0]['response_plan_ids'] | length == 1
+
+- name: Update - Add second response plan and update description (ACTUAL)
+  register: update_result
+  splunk.es.splunk_investigation_type: &update_task
+    name: "{{ test_investigation_type_name }}"
+    description: "{{ test_description_updated }}"
+    response_plan_ids:
+      - "{{ test_response_plan_id_1 }}"
+      - "{{ test_response_plan_id_2 }}"
+
+- name: Update - Assert investigation type was updated successfully
+  assert:
+    that:
+      - update_result['changed'] == true
+      - update_result['investigation_type']['before']['description'] == test_description_initial
+      - update_result['investigation_type']['after']['description'] == test_description_updated
+      - test_response_plan_id_1 in update_result['investigation_type']['after']['response_plan_ids']
+      - test_response_plan_id_2 in update_result['investigation_type']['after']['response_plan_ids']
+      - update_result['investigation_type']['after']['response_plan_ids'] | length == 2
+
+- name: Update - Verify update via info module
+  register: info_after_update
+  splunk.es.splunk_investigation_type_info:
+    name: "{{ test_investigation_type_name }}"
+
+- name: Update - Assert info module reflects updated values
+  assert:
+    that:
+      - info_after_update['investigation_types'][0]['description'] == test_description_updated
+      - test_response_plan_id_1 in info_after_update['investigation_types'][0]['response_plan_ids']
+      - test_response_plan_id_2 in info_after_update['investigation_types'][0]['response_plan_ids']
+      - info_after_update['investigation_types'][0]['response_plan_ids'] | length == 2
+
+- name: Update - Same update again (IDEMPOTENT - no changes)
+  register: update_idempotent_result
+  splunk.es.splunk_investigation_type: *update_task
+
+- name: Update - Assert update is idempotent (no changes)
+  assert:
+    that:
+      - update_idempotent_result['changed'] == false
+      - update_idempotent_result['investigation_type']['before'] == update_idempotent_result['investigation_type']['after']
+
+# REMOVE ALL RESPONSE PLAN IDs
+- name: Remove IDs - Set response_plan_ids to empty list
+  register: remove_ids_result
+  splunk.es.splunk_investigation_type: &remove_ids_task
+    name: "{{ test_investigation_type_name }}"
+    description: "{{ test_description_updated }}"
+    response_plan_ids: []
+
+- name: Remove IDs - Assert response_plan_ids were removed
+  assert:
+    that:
+      - remove_ids_result['changed'] == true
+      - remove_ids_result['investigation_type']['after']['response_plan_ids'] | length == 0
+
+- name: Remove IDs - Verify via info module
+  register: info_after_remove_ids
+  splunk.es.splunk_investigation_type_info:
+    name: "{{ test_investigation_type_name }}"
+
+- name: Remove IDs - Assert info module shows empty response_plan_ids
+  assert:
+    that:
+      - info_after_remove_ids['investigation_types'][0]['response_plan_ids'] | length == 0
+
+- name: Remove IDs - Same removal again (IDEMPOTENT)
+  register: remove_ids_idempotent_result
+  splunk.es.splunk_investigation_type: *remove_ids_task
+
+- name: Remove IDs - Assert removal is idempotent
+  assert:
+    that:
+      - remove_ids_idempotent_result['changed'] == false
+      - remove_ids_idempotent_result['investigation_type']['before'] == remove_ids_idempotent_result['investigation_type']['after']
+
+# INFO MODULE - Query all investigation types
+- name: Info - Query all investigation types
+  register: info_all_result
+  splunk.es.splunk_investigation_type_info:
+
+- name: Info - Assert all query returns our created investigation type
+  assert:
+    that:
+      - info_all_result['changed'] == false
+      - info_all_result['investigation_types'] | length >= 1
+      - test_investigation_type_name in (info_all_result['investigation_types'] | map(attribute='name') | list)

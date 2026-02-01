@@ -166,6 +166,23 @@ Parameters
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>investigation_type</b>
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                    </div>
+                </td>
+                <td>
+                </td>
+                <td>
+                        <div>The type of the investigation.</div>
+                        <div>If not specified, the default investigation type is used.</div>
+                        <div>Can be updated on existing investigations.</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>name</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
@@ -304,6 +321,16 @@ Examples
         finding_ids:
           - "A265ED94-AE9E-428C-91D2-64BB956EB7CB@@notable@@62eaebb8c0dd2574fc0b3503a9586cd9"
 
+    # Create an investigation with a specific type
+    - name: Create investigation with investigation type
+      splunk.es.splunk_investigation:
+        name: "Phishing Investigation"
+        description: "Investigation into phishing attempt"
+        status: new
+        owner: admin
+        urgency: high
+        investigation_type: "phishing"
+
     # Update an existing investigation status
     - name: Update investigation status
       splunk.es.splunk_investigation:
@@ -371,7 +398,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                             <div>The investigation result containing before/after states.</div>
                     <br/>
                         <div style="font-size: smaller"><b>Sample:</b></div>
-                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;before&#x27;: None, &#x27;after&#x27;: {&#x27;name&#x27;: &#x27;Security Incident 2026-01&#x27;, &#x27;description&#x27;: &#x27;Investigation into suspicious login activity&#x27;, &#x27;status&#x27;: &#x27;new&#x27;, &#x27;owner&#x27;: &#x27;admin&#x27;, &#x27;urgency&#x27;: &#x27;high&#x27;, &#x27;sensitivity&#x27;: &#x27;amber&#x27;, &#x27;disposition&#x27;: &#x27;undetermined&#x27;}}</div>
+                        <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{&#x27;before&#x27;: None, &#x27;after&#x27;: {&#x27;name&#x27;: &#x27;Security Incident 2026-01&#x27;, &#x27;description&#x27;: &#x27;Investigation into suspicious login activity&#x27;, &#x27;status&#x27;: &#x27;new&#x27;, &#x27;owner&#x27;: &#x27;admin&#x27;, &#x27;urgency&#x27;: &#x27;high&#x27;, &#x27;sensitivity&#x27;: &#x27;amber&#x27;, &#x27;disposition&#x27;: &#x27;undetermined&#x27;, &#x27;investigation_type&#x27;: &#x27;phishing&#x27;}}</div>
                 </td>
             </tr>
                                 <tr>
