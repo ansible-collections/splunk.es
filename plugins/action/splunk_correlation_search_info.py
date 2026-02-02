@@ -9,12 +9,11 @@ from ansible.errors import AnsibleActionFail
 from ansible.module_utils.connection import Connection
 from ansible.module_utils.six.moves.urllib.parse import quote
 from ansible.plugins.action import ActionBase
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
-from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
-    AnsibleArgSpecValidator,
-)
 
-from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
+from ansible_collections.splunk.es.plugins.module_utils.splunk import (
+    SplunkRequest,
+    check_argspec,
+)
 from ansible_collections.splunk.es.plugins.modules.splunk_correlation_search_info import (
     DOCUMENTATION,
 )
@@ -24,21 +23,9 @@ class ActionModule(ActionBase):
     """action module"""
 
     def __init__(self, *args, **kwargs):
-        super(ActionModule, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._result = None
         self.api_object = "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches"
-
-    def _check_argspec(self):
-        aav = AnsibleArgSpecValidator(
-            data=utils.remove_empties(self._task.args),
-            schema=DOCUMENTATION,
-            schema_format="doc",
-            name=self._task.action,
-        )
-        valid, errors, self._task.args = aav.validate()
-        if not valid:
-            self._result["failed"] = True
-            self._result["msg"] = errors
 
     def fail_json(self, msg):
         """Replace the AnsibleModule fail_json here
@@ -50,10 +37,9 @@ class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
         self._supports_check_mode = True
-        self._result = super(ActionModule, self).run(tmp, task_vars)
+        self._result = super().run(tmp, task_vars)
 
-        self._check_argspec()
-        if self._result.get("failed"):
+        if not check_argspec(self, self._result, DOCUMENTATION):
             return self._result
 
         conn = Connection(self._connection.socket_path)

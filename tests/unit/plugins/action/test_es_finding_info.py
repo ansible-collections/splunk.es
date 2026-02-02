@@ -29,11 +29,6 @@ These tests verify that the splunk_finding_info action plugin works correctly fo
 The tests use mocking to simulate Splunk API responses
 """
 
-from __future__ import absolute_import, division, print_function
-
-
-__metaclass__ = type
-
 import copy
 import tempfile
 

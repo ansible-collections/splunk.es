@@ -28,8 +28,6 @@ These tests verify that the splunk_notes_info action plugin works correctly for:
 The tests use mocking to simulate Splunk API responses.
 """
 
-__metaclass__ = type
-
 import copy
 import tempfile
 

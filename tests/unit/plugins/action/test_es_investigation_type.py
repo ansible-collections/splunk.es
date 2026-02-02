@@ -31,8 +31,6 @@ The tests use mocking to simulate Splunk API responses without requiring
 a real Splunk server connection.
 """
 
-__metaclass__ = type
-
 import copy
 import tempfile
 

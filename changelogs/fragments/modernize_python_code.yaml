@@ -1,0 +1,7 @@
+---
+minor_changes:
+  - Modernized Python code across the collection by removing Python 2 compatibility
+    patterns (``from __future__ import`` and ``__metaclass__ = type``), updating to
+    modern ``super()`` syntax, converting ``.format()`` calls to f-strings, and
+    consolidating duplicated ``_check_argspec()`` methods into the shared
+    ``check_argspec()`` helper.

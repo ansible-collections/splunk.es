@@ -21,11 +21,6 @@
 The module file for adaptive_response_notable_events
 """
 
-from __future__ import absolute_import, division, print_function
-
-
-__metaclass__ = type
-
 import json
 
 from ansible.errors import AnsibleActionFail
@@ -33,11 +28,11 @@ from ansible.module_utils.connection import Connection
 from ansible.module_utils.six.moves.urllib.parse import quote
 from ansible.plugins.action import ActionBase
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
-from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
-    AnsibleArgSpecValidator,
-)
 
-from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
+from ansible_collections.splunk.es.plugins.module_utils.splunk import (
+    SplunkRequest,
+    check_argspec,
+)
 from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     map_obj_to_params,
     map_params_to_obj,
@@ -53,7 +48,7 @@ class ActionModule(ActionBase):
     """action module"""
 
     def __init__(self, *args, **kwargs):
-        super(ActionModule, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._result = None
         self.api_object = "servicesNS/nobody/SplunkEnterpriseSecuritySuite/saved/searches"
         self.module_name = "adaptive_response_notable_events"
@@ -74,18 +69,6 @@ class ActionModule(ActionBase):
             "action.notable.param.severity": "severity",
             "name": "correlation_search_name",
         }
-
-    def _check_argspec(self):
-        aav = AnsibleArgSpecValidator(
-            data=utils.remove_empties(self._task.args),
-            schema=DOCUMENTATION,
-            schema_format="doc",
-            name=self._task.action,
-        )
-        valid, errors, self._task.args = aav.validate()
-        if not valid:
-            self._result["failed"] = True
-            self._result["msg"] = errors
 
     def fail_json(self, msg):
         """Replace the AnsibleModule fail_json here
@@ -215,9 +198,9 @@ class ActionModule(ActionBase):
             )
 
         if "action.notable.param.next_steps" in res:
-            next_steps = ""
-            for next_step in res["action.notable.param.next_steps"]:
-                next_steps += "[[action|{0}]]".format(next_step)
+            next_steps = "".join(
+                f"[[action|{next_step}]]" for next_step in res["action.notable.param.next_steps"]
+            )
 
             # NOTE: version:1 appears to be hard coded when you create this via the splunk web UI
             next_steps_dict = {"version": 1, "data": next_steps}
@@ -245,10 +228,7 @@ class ActionModule(ActionBase):
 
     def search_for_resource_name(self, conn_request, correlation_search_name):
         query_dict = conn_request.get_by_path(
-            "{0}/{1}".format(
-                self.api_object,
-                quote(correlation_search_name),
-            ),
+            f"{self.api_object}/{quote(correlation_search_name)}",
         )
 
         search_result = {}
@@ -259,9 +239,7 @@ class ActionModule(ActionBase):
             )
         else:
             raise AnsibleActionFail(
-                "Correlation Search '{0}' doesn't exist".format(
-                    correlation_search_name,
-                ),
+                f"Correlation Search '{correlation_search_name}' doesn't exist",
             )
 
         return search_result, metadata
@@ -307,10 +285,7 @@ class ActionModule(ActionBase):
                         "action.notable.param.severity": "",
                     }
                     payload.update(self.create_metadata(metadata, mode="delete"))
-                    url = "{0}/{1}".format(
-                        self.api_object,
-                        quote(want_conf["correlation_search_name"]),
-                    )
+                    url = f"{self.api_object}/{quote(want_conf['correlation_search_name'])}"
                     conn_request.create_update(
                         url,
                         data=payload,
@@ -402,10 +377,7 @@ class ActionModule(ActionBase):
                                 want_conf,
                             )
 
-                            url = "{0}/{1}".format(
-                                self.api_object,
-                                quote(correlation_search_name),
-                            )
+                            url = f"{self.api_object}/{quote(correlation_search_name)}"
                             api_response = conn_request.create_update(
                                 url,
                                 data=payload,
@@ -432,10 +404,7 @@ class ActionModule(ActionBase):
                                 want_conf,
                             )
 
-                            url = "{0}/{1}".format(
-                                self.api_object,
-                                quote(correlation_search_name),
-                            )
+                            url = f"{self.api_object}/{quote(correlation_search_name)}"
                             api_response = conn_request.create_update(
                                 url,
                                 data=payload,
@@ -459,10 +428,7 @@ class ActionModule(ActionBase):
                 else:
                     payload = self.map_objects_to_params(metadata, want_conf)
 
-                    url = "{0}/{1}".format(
-                        self.api_object,
-                        quote(correlation_search_name),
-                    )
+                    url = f"{self.api_object}/{quote(correlation_search_name)}"
                     api_response = conn_request.create_update(
                         url,
                         data=payload,
@@ -485,10 +451,9 @@ class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
         self._supports_check_mode = True
-        self._result = super(ActionModule, self).run(tmp, task_vars)
+        self._result = super().run(tmp, task_vars)
 
-        self._check_argspec()
-        if self._result.get("failed"):
+        if not check_argspec(self, self._result, DOCUMENTATION):
             return self._result
 
         self._result[self.module_name] = {}

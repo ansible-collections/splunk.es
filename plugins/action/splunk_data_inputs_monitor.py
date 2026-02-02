@@ -21,20 +21,15 @@
 The module file for data_inputs_monitor
 """
 
-from __future__ import absolute_import, division, print_function
-
-
-__metaclass__ = type
-
 from ansible.module_utils.connection import Connection
 from ansible.module_utils.six.moves.urllib.parse import quote_plus
 from ansible.plugins.action import ActionBase
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
-from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
-    AnsibleArgSpecValidator,
-)
 
-from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
+from ansible_collections.splunk.es.plugins.module_utils.splunk import (
+    SplunkRequest,
+    check_argspec,
+)
 from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     map_obj_to_params,
     map_params_to_obj,
@@ -48,7 +43,7 @@ class ActionModule(ActionBase):
     """action module"""
 
     def __init__(self, *args, **kwargs):
-        super(ActionModule, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._result = None
         self.api_object = "servicesNS/nobody/search/data/inputs/monitor"
         self.module_name = "data_inputs_monitor"
@@ -72,18 +67,6 @@ class ActionModule(ActionBase):
             "whitelist": "whitelist",
         }
 
-    def _check_argspec(self):
-        aav = AnsibleArgSpecValidator(
-            data=utils.remove_empties(self._task.args),
-            schema=DOCUMENTATION,
-            schema_format="doc",
-            name=self._task.action,
-        )
-        valid, errors, self._task.args = aav.validate()
-        if not valid:
-            self._result["failed"] = True
-            self._result["msg"] = errors
-
     def map_params_to_object(self, config):
         res = {}
         res["name"] = config["name"]
@@ -99,7 +82,7 @@ class ActionModule(ActionBase):
 
     def search_for_resource_name(self, conn_request, directory_name):
         query_dict = conn_request.get_by_path(
-            "{0}/{1}".format(self.api_object, quote_plus(directory_name)),
+            f"{self.api_object}/{quote_plus(directory_name)}",
         )
 
         search_result = {}
@@ -122,10 +105,7 @@ class ActionModule(ActionBase):
                 before.append(search_by_name)
                 if not self._task.check_mode:
                     conn_request.delete_by_path(
-                        "{0}/{1}".format(
-                            self.api_object,
-                            quote_plus(want_conf["name"]),
-                        ),
+                        f"{self.api_object}/{quote_plus(want_conf['name'])}",
                     )
                 changed = True
                 after = []
@@ -197,10 +177,7 @@ class ActionModule(ActionBase):
                                     want_conf,
                                     self.key_transform,
                                 )
-                                url = "{0}/{1}".format(
-                                    self.api_object,
-                                    quote_plus(payload.pop("name")),
-                                )
+                                url = f"{self.api_object}/{quote_plus(payload.pop('name'))}"
                                 api_response = conn_request.create_update(
                                     url,
                                     data=payload,
@@ -213,10 +190,7 @@ class ActionModule(ActionBase):
                         elif self._task.args["state"] == "replaced":
                             if not self._task.check_mode:
                                 conn_request.delete_by_path(
-                                    "{0}/{1}".format(
-                                        self.api_object,
-                                        quote_plus(want_conf["name"]),
-                                    ),
+                                    f"{self.api_object}/{quote_plus(want_conf['name'])}",
                                 )
                             changed = True
 
@@ -228,9 +202,8 @@ class ActionModule(ActionBase):
                                     want_conf,
                                     self.key_transform,
                                 )
-                                url = "{0}".format(self.api_object)
                                 api_response = conn_request.create_update(
-                                    url,
+                                    self.api_object,
                                     data=payload,
                                 )
                                 response_json = self.map_params_to_object(
@@ -254,9 +227,8 @@ class ActionModule(ActionBase):
                     after.append(want_conf)
                 else:
                     payload = map_obj_to_params(want_conf, self.key_transform)
-                    url = "{0}".format(self.api_object)
                     api_response = conn_request.create_update(
-                        url,
+                        self.api_object,
                         data=payload,
                     )
                     response_json = self.map_params_to_object(
@@ -276,10 +248,9 @@ class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
         self._supports_check_mode = True
-        self._result = super(ActionModule, self).run(tmp, task_vars)
+        self._result = super().run(tmp, task_vars)
 
-        self._check_argspec()
-        if self._result.get("failed"):
+        if not check_argspec(self, self._result, DOCUMENTATION):
             return self._result
 
         # self._result[self.module_name] = {}

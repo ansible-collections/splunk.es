@@ -21,21 +21,16 @@
 The module file for data_inputs_network
 """
 
-from __future__ import absolute_import, division, print_function
-
-
-__metaclass__ = type
-
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.connection import Connection
 from ansible.module_utils.six.moves.urllib.parse import quote_plus
 from ansible.plugins.action import ActionBase
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
-from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
-    AnsibleArgSpecValidator,
-)
 
-from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
+from ansible_collections.splunk.es.plugins.module_utils.splunk import (
+    SplunkRequest,
+    check_argspec,
+)
 from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     map_obj_to_params,
     map_params_to_obj,
@@ -48,7 +43,7 @@ class ActionModule(ActionBase):
     """action module"""
 
     def __init__(self, *args, **kwargs):
-        super(ActionModule, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._result = None
         self.api_object = "servicesNS/nobody/search/data/inputs"
         self.module_return = "data_inputs_network"
@@ -73,18 +68,6 @@ class ActionModule(ActionBase):
             "serverCert": "server_cert",
             "cipherSuite": "cipher_suite",
         }
-
-    def _check_argspec(self):
-        aav = AnsibleArgSpecValidator(
-            data=utils.remove_empties(self._task.args),
-            schema=DOCUMENTATION,
-            schema_format="doc",
-            name=self._task.action,
-        )
-        valid, errors, self._task.args = aav.validate()
-        if not valid:
-            self._result["failed"] = True
-            self._result["msg"] = errors
 
     def fail_json(self, msg):
         """Replace the AnsibleModule fail_json here
@@ -143,12 +126,7 @@ class ActionModule(ActionBase):
             if not name or (req_type == "post_create" and datatype != "ssl"):
                 name = ""
 
-            url = "{0}/{1}/{2}/{3}".format(
-                self.api_object,
-                protocol,
-                datatype,
-                quote_plus(str(name)),
-            )
+            url = f"{self.api_object}/{protocol}/{datatype}/{quote_plus(str(name))}"
             # if no "name" was provided
             if url[-1] == "/":
                 url = url[:-1]
@@ -159,11 +137,7 @@ class ActionModule(ActionBase):
             if not name or req_type == "post_create":
                 name = ""
 
-            url = "{0}/{1}/{2}".format(
-                self.api_object,
-                protocol,
-                quote_plus(str(name)),
-            )
+            url = f"{self.api_object}/{protocol}/{quote_plus(str(name))}"
             # if no "name" was provided
             if url[-1] == "/":
                 url = url[:-1]
@@ -237,10 +211,7 @@ class ActionModule(ActionBase):
                 want_conf.get("restrict_to_host")
                 and want_conf["restrict_to_host"] not in want_conf["name"]
             ):
-                want_conf["name"] = "{0}:{1}".format(
-                    want_conf["restrict_to_host"],
-                    want_conf["name"],
-                )
+                want_conf["name"] = f"{want_conf['restrict_to_host']}:{want_conf['name']}"
 
             # If datatype is "splunktcptoken", the value "splunktcptoken://" is appended
             # to the name
@@ -249,10 +220,7 @@ class ActionModule(ActionBase):
                 and datatype == "splunktcptoken"
                 and "splunktcptoken://" not in want_conf["name"]
             ):
-                want_conf["name"] = "{0}{1}".format(
-                    "splunktcptoken://",
-                    want_conf["name"],
-                )
+                want_conf["name"] = f"splunktcptoken://{want_conf['name']}"
 
         name = want_conf["name"]
 
@@ -502,9 +470,8 @@ class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None):
         self._supports_check_mode = True
-        self._result = super(ActionModule, self).run(tmp, task_vars)
-        self._check_argspec()
-        if self._result.get("failed"):
+        self._result = super().run(tmp, task_vars)
+        if not check_argspec(self, self._result, DOCUMENTATION):
             return self._result
 
         config = self._task.args.get("config")

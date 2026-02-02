@@ -28,8 +28,6 @@ These tests verify that the splunk_investigation_type_info action plugin works c
 The tests use mocking to simulate Splunk API responses.
 """
 
-__metaclass__ = type
-
 import copy
 import tempfile
 
