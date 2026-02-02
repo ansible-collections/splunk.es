@@ -1,7 +1,8 @@
 # Splunk Enterprise Security Ansible Collection
 
-[![Codecov](https://codecov.io/gh/ansible-collections/splunk.es/branch/main/graph/badge.svg)](https://codecov.io/gh/ansible-collections/splunk.es)
-[![CI](https://github.com/ansible-collections/splunk.es/actions/workflows/tests.yml/badge.svg?branch=main&event=schedule)](https://github.com/ansible-collections/splunk.es/actions/workflows/tests.yml)
+[![Collection Tests](https://github.com/ansible-collections/splunk.es/actions/workflows/tests.yml/badge.svg?event=schedule)](https://github.com/ansible-collections/splunk.es/actions/workflows/tests.yml)
+[![Integration Tests](https://github.com/ansible-collections/splunk.es/actions/workflows/network_integration.yml/badge.svg?branch=main&event=schedule)](https://github.com/ansible-collections/splunk.es/actions/workflows/network_integration.yml)
+[![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=ansible-collections_splunk.es&metric=coverage)](https://sonarcloud.io/project/overview?id=ansible-collections_splunk.es)
 
 This is the [Ansible
 Collection](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html)
