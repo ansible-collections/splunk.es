@@ -6,8 +6,6 @@ concurrency:
   cancel-in-progress: true
 
 on:  # yamllint disable-line rule:truthy
-  push:
-    branches: [main]
   pull_request_target:
     branches: [main]
   workflow_dispatch:
