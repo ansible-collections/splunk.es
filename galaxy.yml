@@ -5,7 +5,8 @@ authors:
   - Ansible Ecosystem Engineering team
   - Ron Gershburg <rgershbu@redhat.com>
   - Shahar Golshani <sgolshan@redhat.com>
-dependencies: {}
+dependencies:
+  ansible.utils: ">=2.0.0"
 description: Ansible Security Collection for Splunk Enterprise Security SIEM
 license_file: LICENSE
 tags: ["security", "splunk"]
