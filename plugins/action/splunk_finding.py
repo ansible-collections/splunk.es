@@ -28,8 +28,8 @@ from ansible.module_utils.connection import Connection
 from ansible.module_utils.six.moves.urllib.parse import quote
 from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
 
+from ansible_collections.splunk.es.plugins.module_utils import dict_utils as utils
 from ansible_collections.splunk.es.plugins.module_utils.finding import (
     FINDING_KEY_TRANSFORM,
     build_finding_api_path,

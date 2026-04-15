@@ -25,8 +25,8 @@ from ansible.errors import AnsibleActionFail
 from ansible.module_utils.connection import Connection
 from ansible.module_utils.six.moves.urllib.parse import quote_plus
 from ansible.plugins.action import ActionBase
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
 
+from ansible_collections.splunk.es.plugins.module_utils import dict_utils as utils
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
     check_argspec,

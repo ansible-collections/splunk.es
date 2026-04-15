@@ -1,0 +1,4 @@
+major_changes:
+  - Remove dependency on the ``ansible.netcommon`` collection. Utility functions
+    (``remove_empties``, ``dict_diff``, ``dict_merge``) are now bundled locally,
+    and the httpapi plugin inherits directly from ansible-core's ``HttpApiBase``.

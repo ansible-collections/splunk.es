@@ -43,13 +43,12 @@
           - create_result['finding']['after']['title'] == create_finding['after']['title']
           - create_result['finding']['after']['ref_id'] is defined
 
-    - name: Wait for Splunk to index the finding
-      ansible.builtin.pause:
-        seconds: 10
-
-    # Query by ref_id
+    # Query by ref_id -- retry to allow Splunk indexing lag
     - name: Query finding by ref_id (time extracted from ref_id automatically)
       register: info_by_ref_result
+      until: info_by_ref_result['findings'] | length == 1
+      retries: 6
+      delay: 10
       splunk.es.splunk_finding_info:
         ref_id: "{{ create_result['finding']['after']['ref_id'] }}"
 
@@ -149,9 +148,14 @@
           - custom_result['finding']['after']['security_domain'] == create_finding_custom['after']['security_domain']
           - custom_result['finding']['after']['entity_type'] == create_finding_custom['after']['entity_type']
 
-    - name: Wait for Splunk to index the custom finding
-      ansible.builtin.pause:
-        seconds: 10
+    # Wait for custom finding to be indexed before updating
+    - name: Wait for custom finding to be queryable
+      register: custom_indexed
+      until: custom_indexed['findings'] | length == 1
+      retries: 6
+      delay: 10
+      splunk.es.splunk_finding_info:
+        ref_id: "{{ custom_result['finding']['after']['ref_id'] }}"
 
     - name: Update finding to resolved status
       register: resolve_result

@@ -15,10 +15,11 @@ except ImportError:
 from ansible.module_utils.common.text.converters import to_text
 from ansible.module_utils.connection import ConnectionError as AnsibleConnectionError
 from ansible.module_utils.six.moves.urllib.parse import urlencode
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
 from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
     AnsibleArgSpecValidator,
 )
+
+from ansible_collections.splunk.es.plugins.module_utils import dict_utils as utils
 
 
 def check_argspec(action_module, result, documentation):

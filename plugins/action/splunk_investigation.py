@@ -27,8 +27,8 @@ from ansible.errors import AnsibleActionFail
 from ansible.module_utils.connection import Connection
 from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import utils
 
+from ansible_collections.splunk.es.plugins.module_utils import dict_utils as utils
 from ansible_collections.splunk.es.plugins.module_utils.investigation import (
     build_investigation_api_path,
     map_investigation_from_api,

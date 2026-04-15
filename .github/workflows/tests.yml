@@ -22,7 +22,6 @@ jobs:
       sonar_scanner_java_opts: "-Xss2m"
       galaxy_dependencies: |
         git+https://github.com/ansible-collections/ansible.utils.git
-        git+https://github.com/ansible-collections/ansible.netcommon.git
     secrets:
       SONAR_TOKEN: ${{ secrets.ANSIBLE_COLLECTIONS_ORG_SONAR_TOKEN_CICD_BOT }}
   changelog:
