@@ -4,6 +4,29 @@ Splunk Enterprise Security Collection Release Notes
 
 .. contents:: Topics
 
+v6.0.0
+======
+
+Release Summary
+---------------
+
+This major release removes the ``ansible.netcommon`` collection dependency, bundling required utility functions locally and inheriting the httpapi plugin directly from ansible-core's ``HttpApiBase``. It also fixes a finding query time-boundary precision issue and adds an ansible-core version matrix to the integration test workflow.
+
+Major Changes
+-------------
+
+- Remove dependency on the ``ansible.netcommon`` collection. Utility functions (``remove_empties``, ``dict_diff``, ``dict_merge``) are now bundled locally, and the httpapi plugin inherits directly from ansible-core's ``HttpApiBase``.
+
+Minor Changes
+-------------
+
+- ci - Add ansible-core version matrix (stable-2.16 through stable-2.21) to the network integration test workflow, aligning with the ITSI pattern. Lower minimum supported ansible-core version to 2.16.0.
+
+Bugfixes
+--------
+
+- splunk_finding, splunk_finding_info - Fix query by ref_id failing to find findings due to sub-second time precision mismatch. The ``earliest`` time extracted from the ref_id now includes a 1-second buffer to ensure the finding falls within the search window.
+
 v5.1.0
 ======
 

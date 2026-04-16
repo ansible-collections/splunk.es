@@ -1,4 +1,0 @@
-minor_changes:
-  - ci - Add ansible-core version matrix (stable-2.16 through stable-2.21) to the network
-    integration test workflow, aligning with the ITSI pattern. Lower minimum supported
-    ansible-core version to 2.16.0.

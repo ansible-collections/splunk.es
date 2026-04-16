@@ -1,4 +1,0 @@
-bugfixes:
-  - splunk_finding, splunk_finding_info - Fix query by ref_id failing to find findings due to
-    sub-second time precision mismatch. The ``earliest`` time extracted from the ref_id now
-    includes a 1-second buffer to ensure the finding falls within the search window.
