@@ -142,7 +142,8 @@ class ActionModule(ActionBase):
                 "name": transform["name"],
                 "METRIC-SCHEMA-MEASURES": transform.get("metric_value_field", "_value"),
                 "METRIC-SCHEMA-MEASURES-METRIC-NAME": transform.get(
-                    "metric_name_field", "metric_name"
+                    "metric_name_field",
+                    "metric_name",
                 ),
             }
             dimensions = transform.get("dimensions", [])
