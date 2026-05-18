@@ -15,5 +15,5 @@
       - 200
       - 201
       - 409
-  register: _gpu_dashboard_result
-  changed_when: _gpu_dashboard_result.status in [200, 201]
+  register: ai_factory_dashboards_gpu_result
+  changed_when: ai_factory_dashboards_gpu_result.status in [200, 201]

@@ -28,7 +28,6 @@ from ansible.module_utils.connection import Connection
 from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
 
-from ansible_collections.splunk.es.plugins.module_utils import dict_utils as utils
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (
     SplunkRequest,
     check_argspec,
