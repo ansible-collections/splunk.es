@@ -45,30 +45,30 @@ display = Display()
 # Pre-built SPL search templates for AI Factory monitoring
 SEARCH_TEMPLATES = {
     "gpu_thermal": (
-        '| mstats avg(dcgm_gpu_temp) as gpu_temp '
-        'WHERE index={index} by host gpu_id span=5m '
-        '| where gpu_temp > {threshold}'
+        "| mstats avg(dcgm_gpu_temp) as gpu_temp "
+        "WHERE index={index} by host gpu_id span=5m "
+        "| where gpu_temp > {threshold}"
     ),
     "model_drift": (
-        '| mstats avg(nim_inference_drift_score) as drift_score '
-        'WHERE index={index} by model_name endpoint span=15m '
-        '| where drift_score > {threshold}'
+        "| mstats avg(nim_inference_drift_score) as drift_score "
+        "WHERE index={index} by model_name endpoint span=15m "
+        "| where drift_score > {threshold}"
     ),
     "infiniband_errors": (
-        '| mstats sum(ib_port_rcv_errors) as rcv_errors '
-        'sum(ib_port_xmit_discards) as xmit_discards '
-        'WHERE index={index} by host port_id span=5m '
-        '| where rcv_errors > 0 OR xmit_discards > 0'
+        "| mstats sum(ib_port_rcv_errors) as rcv_errors "
+        "sum(ib_port_xmit_discards) as xmit_discards "
+        "WHERE index={index} by host port_id span=5m "
+        "| where rcv_errors > 0 OR xmit_discards > 0"
     ),
     "training_anomaly": (
-        '| mstats avg(training_loss) as loss stdev(training_loss) as loss_std '
-        'WHERE index={index} by job_id framework span=5m '
-        '| where loss > (loss + 3 * loss_std) OR loss != loss'
+        "| mstats avg(training_loss) as loss stdev(training_loss) as loss_std "
+        "WHERE index={index} by job_id framework span=5m "
+        "| where loss > (loss + 3 * loss_std) OR loss != loss"
     ),
     "gpu_utilization": (
-        '| mstats avg(dcgm_gpu_utilization) as gpu_util '
-        'WHERE index={index} by host gpu_id span=15m '
-        '| where gpu_util < {threshold}'
+        "| mstats avg(dcgm_gpu_utilization) as gpu_util "
+        "WHERE index={index} by host gpu_id span=15m "
+        "| where gpu_util < {threshold}"
     ),
 }
 
@@ -184,8 +184,13 @@ class ActionModule(ActionBase):
             action_module=self,
             connection=conn,
             not_rest_data_keys=[
-                "state", "search_type", "threshold", "severity",
-                "metrics_index", "api_namespace", "api_user",
+                "state",
+                "search_type",
+                "threshold",
+                "severity",
+                "metrics_index",
+                "api_namespace",
+                "api_user",
             ],
         )
 

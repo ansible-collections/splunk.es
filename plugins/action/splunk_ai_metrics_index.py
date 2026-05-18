@@ -134,12 +134,16 @@ class ActionModule(ActionBase):
         if not transforms:
             return
 
-        transforms_api = f"{self.api_namespace}/{self.api_user}/search/data/transforms/metric-schema"
+        transforms_api = (
+            f"{self.api_namespace}/{self.api_user}/search/data/transforms/metric-schema"
+        )
         for transform in transforms:
             payload = {
                 "name": transform["name"],
                 "METRIC-SCHEMA-MEASURES": transform.get("metric_value_field", "_value"),
-                "METRIC-SCHEMA-MEASURES-METRIC-NAME": transform.get("metric_name_field", "metric_name"),
+                "METRIC-SCHEMA-MEASURES-METRIC-NAME": transform.get(
+                    "metric_name_field", "metric_name"
+                ),
             }
             dimensions = transform.get("dimensions", [])
             if dimensions:
