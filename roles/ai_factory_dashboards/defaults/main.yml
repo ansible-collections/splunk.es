@@ -1,22 +1,22 @@
 ---
 # Splunk connection settings
-ai_dashboards_splunk_app: SplunkEnterpriseSecuritySuite
-ai_dashboards_metrics_index: ai_factory_metrics
-ai_dashboards_events_index: ai_factory_events
+ai_factory_dashboards_splunk_app: SplunkEnterpriseSecuritySuite
+ai_factory_dashboards_metrics_index: ai_factory_metrics
+ai_factory_dashboards_events_index: ai_factory_events
 
 # Dashboard deployment options
-ai_dashboards_deploy_gpu_utilization: true
-ai_dashboards_deploy_model_serving: true
-ai_dashboards_deploy_training_progress: true
+ai_factory_dashboards_deploy_gpu_utilization: true
+ai_factory_dashboards_deploy_model_serving: true
+ai_factory_dashboards_deploy_training_progress: true
 
 # GPU utilization dashboard settings
-ai_dashboards_gpu_temp_warning: 80
-ai_dashboards_gpu_temp_critical: 90
-ai_dashboards_gpu_util_low_threshold: 10
+ai_factory_dashboards_gpu_temp_warning: 80
+ai_factory_dashboards_gpu_temp_critical: 90
+ai_factory_dashboards_gpu_util_low_threshold: 10
 
 # Model serving dashboard settings
-ai_dashboards_latency_p99_threshold_ms: 500
-ai_dashboards_latency_p95_threshold_ms: 200
+ai_factory_dashboards_latency_p99_threshold_ms: 500
+ai_factory_dashboards_latency_p95_threshold_ms: 200
 
 # Training progress dashboard settings
-ai_dashboards_training_loss_window: "24h"
+ai_factory_dashboards_training_loss_window: "24h"

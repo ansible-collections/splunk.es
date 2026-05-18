@@ -1,7 +1,7 @@
 ---
 - name: Deploy Model Serving Latency dashboard XML
   ansible.builtin.uri:
-    url: "https://{{ ansible_host }}:{{ splunk_port | default(8089) }}/servicesNS/nobody/{{ ai_dashboards_splunk_app }}/data/ui/views"
+    url: "https://{{ ansible_host }}:{{ splunk_port | default(8089) }}/servicesNS/nobody/{{ ai_factory_dashboards_splunk_app }}/data/ui/views"
     method: POST
     user: "{{ splunk_user | default('admin') }}"
     password: "{{ splunk_password }}"
