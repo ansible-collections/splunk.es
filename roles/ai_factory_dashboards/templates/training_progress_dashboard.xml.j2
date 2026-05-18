@@ -1,0 +1,72 @@
+<dashboard version="1.1">
+  <label>AI Factory - Training Progress</label>
+  <description>Training job monitoring including loss curves, throughput, and resource utilization</description>
+
+  <row>
+    <panel>
+      <title>Training Loss by Job</title>
+      <chart>
+        <search>
+          <query>| mstats avg(training_loss) as loss WHERE index={{ ai_dashboards_metrics_index }} by job_id framework span=5m</query>
+          <earliest>-{{ ai_dashboards_training_loss_window }}</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleY.text">Loss</option>
+        <option name="charting.axisTitleX.text">Time</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Training Throughput (samples/sec)</title>
+      <chart>
+        <search>
+          <query>| mstats avg(training_throughput_samples_sec) as throughput WHERE index={{ ai_dashboards_metrics_index }} by job_id span=5m</query>
+          <earliest>-{{ ai_dashboards_training_loss_window }}</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleY.text">Samples/sec</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>GPU Utilization During Training</title>
+      <chart>
+        <search>
+          <query>| mstats avg(dcgm_gpu_utilization) as gpu_util WHERE index={{ ai_dashboards_metrics_index }} by job_id gpu_id span=5m</query>
+          <earliest>-{{ ai_dashboards_training_loss_window }}</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.axisTitleY.text">GPU Utilization (%)</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>GPU Memory During Training</title>
+      <chart>
+        <search>
+          <query>| mstats avg(dcgm_fb_used) as mem_used_mb WHERE index={{ ai_dashboards_metrics_index }} by job_id gpu_id span=5m</query>
+          <earliest>-{{ ai_dashboards_training_loss_window }}</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.axisTitleY.text">Memory Used (MB)</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Active Training Jobs</title>
+      <table>
+        <search>
+          <query>| mstats latest(training_epoch) as current_epoch latest(training_loss) as latest_loss avg(training_throughput_samples_sec) as avg_throughput WHERE index={{ ai_dashboards_metrics_index }} by job_id framework | sort -current_epoch</query>
+          <earliest>-{{ ai_dashboards_training_loss_window }}</earliest>
+          <latest>now</latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+</dashboard>

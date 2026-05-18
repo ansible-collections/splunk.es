@@ -1,0 +1,19 @@
+---
+- name: Deploy Model Serving Latency dashboard XML
+  ansible.builtin.uri:
+    url: "https://{{ ansible_host }}:{{ splunk_port | default(8089) }}/servicesNS/nobody/{{ ai_dashboards_splunk_app }}/data/ui/views"
+    method: POST
+    user: "{{ splunk_user | default('admin') }}"
+    password: "{{ splunk_password }}"
+    force_basic_auth: true
+    validate_certs: "{{ splunk_validate_certs | default(false) }}"
+    body_format: form-urlencoded
+    body:
+      name: ai_factory_model_serving
+      eai:data: "{{ lookup('template', 'model_serving_dashboard.xml.j2') }}"
+    status_code:
+      - 200
+      - 201
+      - 409
+  register: _model_dashboard_result
+  changed_when: _model_dashboard_result.status in [200, 201]
