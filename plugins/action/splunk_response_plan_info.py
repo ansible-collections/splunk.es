@@ -42,7 +42,6 @@ from ansible_collections.splunk.es.plugins.modules.splunk_response_plan_info imp
     DOCUMENTATION,
 )
 
-
 # Initialize display for debug output
 display = Display()
 

@@ -28,7 +28,6 @@ Shared utilities are in plugins/module_utils/investigation.py
 Main-only utilities are in plugins/action/splunk_investigation.py
 """
 
-
 # Main-only utilities via ActionModule class
 from ansible_collections.splunk.es.plugins.action.splunk_investigation import ActionModule
 

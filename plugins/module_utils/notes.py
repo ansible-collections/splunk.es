@@ -21,7 +21,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     DEFAULT_API_USER,
 )
 
-
 # Target type constants
 TARGET_FINDING = "finding"
 TARGET_INVESTIGATION = "investigation"

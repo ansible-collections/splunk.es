@@ -6,7 +6,6 @@
 
 import json
 
-
 try:
     from ssl import CertificateError
 except ImportError:

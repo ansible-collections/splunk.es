@@ -17,7 +17,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     STATUS_FROM_API,
 )
 
-
 # Key transformation: API param -> module param
 FINDING_KEY_TRANSFORM = {
     "rule_title": "title",

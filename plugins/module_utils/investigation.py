@@ -15,7 +15,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     STATUS_FROM_API,
 )
 
-
 # API path for investigations API (uses missioncontrol app)
 INVESTIGATION_API_PATH = (
     f"{DEFAULT_API_NAMESPACE}/{DEFAULT_API_USER}/{DEFAULT_API_APP}/public/v2/investigations"

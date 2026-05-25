@@ -29,7 +29,6 @@ from ansible_collections.splunk.es.plugins.modules.splunk_investigation_info imp
     DOCUMENTATION,
 )
 
-
 # Initialize display for debug output
 display = Display()
 

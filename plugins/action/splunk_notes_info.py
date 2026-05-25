@@ -35,7 +35,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
 )
 from ansible_collections.splunk.es.plugins.modules.splunk_notes_info import DOCUMENTATION
 
-
 # Initialize display for debug output
 display = Display()
 

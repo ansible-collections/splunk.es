@@ -32,7 +32,6 @@ from ansible_collections.splunk.es.plugins.modules.splunk_finding_info import (
     DOCUMENTATION,
 )
 
-
 # Initialize display for debug output
 display = Display()
 

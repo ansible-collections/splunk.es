@@ -20,7 +20,6 @@ from ansible.module_utils.connection import ConnectionError
 from ansible.module_utils.six.moves.urllib.error import HTTPError
 from ansible.plugins.httpapi import HttpApiBase
 
-
 BASE_HEADERS = {"Content-Type": "application/json"}
 
 

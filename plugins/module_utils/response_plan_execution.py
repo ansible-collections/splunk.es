@@ -15,7 +15,6 @@ Only include functions and constants that are reusable by both modules.
 from typing import Any
 from urllib.parse import unquote
 
-
 # Task status mappings: API value -> module value (for reading from API)
 TASK_STATUS_FROM_API = {
     "Started": "started",
