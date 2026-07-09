@@ -1,0 +1,5 @@
+---
+major_changes:
+  - ci - integration tests now run against both Splunk Server 9.4 and 10.4 with
+    Enterprise Security (ES), providing full coverage across supported major versions and
+    catching regressions against real Splunk ES instances.

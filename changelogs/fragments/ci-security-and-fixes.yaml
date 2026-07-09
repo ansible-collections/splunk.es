@@ -1,0 +1,15 @@
+---
+minor_changes:
+  - Add tests to validate the collection with Ansible 2.16 and 2.18.
+  - meta/runtime.yml - lowered ``requires_ansible`` from ``>=2.17.0`` to ``>=2.16.0``
+  - checks.yml - introduced a new dedicated workflow triggered only on
+    ``pull_request_target`` to isolate privileged jobs (``changelog`` and ``sonar``)
+    that require write access or secrets from the code-testing workflow. Each workflow
+    now has a distinct name to differentiate them in GitHub Actions and branch
+    protection rules.
+
+security_fixes:
+  - tests.yml - replaced ``pull_request_target`` trigger with ``pull_request`` for all
+    code-testing jobs (``sanity``, ``unit-galaxy``, ``ansible-lint``, ``build-import``).
+    Using ``pull_request_target`` exposed repository secrets to workflows that execute
+    untrusted fork code, creating a potential secret-exfiltration vector (pwn request).

@@ -94,7 +94,8 @@ jobs:
         working-directory: ansible_collections/splunk/es
         run: tests/integration/generate_inventory.sh
         env:
-          SPLUNK_HOSTNAME: ${{ secrets.SPLUNK_HOSTNAME }}
+          SPLUNK_ES_9_4: ${{ secrets.SPLUNK_ES_9_4 }}
+          SPLUNK_ES_10_4: ${{ secrets.SPLUNK_ES_10_4 }}
           SPLUNK_USERNAME: ${{ secrets.SPLUNK_USERNAME }}
           SPLUNK_PASSWORD: ${{ secrets.SPLUNK_PASSWORD }}
 

@@ -1,0 +1,100 @@
+---
+name: "Collection SonarCloud and Changelog"
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}-checks
+  cancel-in-progress: true
+
+on:  # yamllint disable-line rule:truthy
+  pull_request_target:
+    branches: [main]
+
+jobs:
+  changelog:
+    name: Requires changelog
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-changelog') }}
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          allow-unsafe-pr-checkout: true
+
+      - name: Validate changelog
+        uses: ansible/ansible-content-actions/.github/actions/ansible_validate_changelog@main
+
+  sonar:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    # Only run after a maintainer adds the 'safe to test' label.
+    # This is the review gate before executing untrusted fork code (unit tests) with secrets.
+    if: ${{ !github.event.pull_request || contains(github.event.pull_request.labels.*.name, 'safe to test') }}
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          show-progress: false
+          # Safe: the 'safe to test' label gate above requires a maintainer
+          # to have reviewed the PR before this job runs.
+          allow-unsafe-pr-checkout: true
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Python and testing dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible-core pytest pytest-cov pytest-ansible-units pytest-forked pytest-xdist lxml
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Install Ansible Galaxy dependencies
+        run: |
+          while IFS= read -r line; do
+            if [[ -n "$line" ]]; then
+              ansible-galaxy collection install "$line"
+            fi
+          done <<< "git+https://github.com/ansible-collections/ansible.utils.git"
+
+      - name: Checkout PR branch code
+        if: github.event_name == 'pull_request_target'
+        run: |
+          git fetch origin pull/${{ github.event.pull_request.number }}/head:pr
+          git checkout pr
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare SonarCloud args
+        id: sonar-args
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request_target" ]; then
+            ARGS="-Dsonar.scm.revision=${{ github.event.pull_request.head.sha }}"
+            ARGS="$ARGS -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}"
+            ARGS="$ARGS -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}"
+            ARGS="$ARGS -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}"
+            echo "ARGS=$ARGS" >> $GITHUB_OUTPUT
+          else
+            echo "ARGS=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run unit tests with coverage
+        run: pytest tests/unit -v --cov-report xml --cov=./
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.ANSIBLE_COLLECTIONS_ORG_SONAR_TOKEN_CICD_BOT }}
+          SONAR_SCANNER_JAVA_OPTS: "-Xss2m"
+        with:
+          args: >
+            ${{ steps.sonar-args.outputs.ARGS }}
+            -Dsonar.python.coverage.reportPaths=coverage.xml
