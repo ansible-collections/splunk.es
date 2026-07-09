@@ -13,4 +13,3 @@ security_fixes:
     code-testing jobs (``sanity``, ``unit-galaxy``, ``ansible-lint``, ``build-import``).
     Using ``pull_request_target`` exposed repository secrets to workflows that execute
     untrusted fork code, creating a potential secret-exfiltration vector (pwn request).
-
