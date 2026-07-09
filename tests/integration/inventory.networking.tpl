@@ -1,6 +1,6 @@
 [splunk]
-${SPLUNK_ES_9_4}
-${SPLUNK_ES_10_4}
+splunk-es-9.4 ansible_host=${SPLUNK_ES_9_4}
+splunk-es-10.4 ansible_host=${SPLUNK_ES_10_4}
 
 [splunk:vars]
 ansible_connection=httpapi
