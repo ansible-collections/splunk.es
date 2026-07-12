@@ -61,8 +61,7 @@ class TestAnsibleUtilsImportFallback:
 
         # Build a fake sys.modules that raises ImportError for ansible.utils
         blocked_key = (
-            "ansible_collections.ansible.utils"
-            + ".plugins.module_utils.common.argspec_validate"
+            "ansible_collections.ansible.utils" + ".plugins.module_utils.common.argspec_validate"
         )
         patched_modules = {k: v for k, v in sys.modules.items() if k != module_name}
         patched_modules[blocked_key] = None  # None causes ImportError on import
@@ -83,8 +82,7 @@ class TestAnsibleUtilsImportFallback:
         """AnsibleArgSpecValidator is set to None when the import fails."""
         module_name = "ansible_collections.splunk.es.plugins.module_utils.splunk"
         blocked_key = (
-            "ansible_collections.ansible.utils"
-            + ".plugins.module_utils.common.argspec_validate"
+            "ansible_collections.ansible.utils" + ".plugins.module_utils.common.argspec_validate"
         )
         patched_modules = {k: v for k, v in sys.modules.items() if k != module_name}
         patched_modules[blocked_key] = None
