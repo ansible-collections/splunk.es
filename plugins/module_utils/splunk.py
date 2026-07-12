@@ -15,9 +15,17 @@ except ImportError:
 from ansible.module_utils.common.text.converters import to_text
 from ansible.module_utils.connection import ConnectionError as AnsibleConnectionError
 from ansible.module_utils.six.moves.urllib.parse import urlencode
-from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
-    AnsibleArgSpecValidator,
-)
+
+
+try:
+    from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (
+        AnsibleArgSpecValidator,
+    )
+
+    HAS_ANSIBLE_UTILS = True
+except ImportError:
+    HAS_ANSIBLE_UTILS = False
+    AnsibleArgSpecValidator = None  # type: ignore[assignment,misc]
 
 from ansible_collections.splunk.es.plugins.module_utils import dict_utils as utils
 
@@ -35,6 +43,13 @@ def check_argspec(action_module, result, documentation):
     Returns:
         True if validation passed, False if validation failed.
     """
+    if not HAS_ANSIBLE_UTILS:
+        result["failed"] = True
+        result["msg"] = (
+            "The 'ansible.utils' collection is required but could not be imported. "
+            "Install it with: ansible-galaxy collection install ansible.utils"
+        )
+        return False
     aav = AnsibleArgSpecValidator(
         data=utils.remove_empties(action_module._task.args),
         schema=documentation,
