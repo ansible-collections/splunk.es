@@ -4,6 +4,40 @@ Splunk Enterprise Security Collection Release Notes
 
 .. contents:: Topics
 
+v6.0.1
+======
+
+Release Summary
+---------------
+
+Release summary for v6.0.1
+
+Major Changes
+-------------
+
+- ci - integration tests now run against both Splunk Server 9.4 and 10.4 with Enterprise Security (ES), providing full coverage across supported major versions and catching regressions against real Splunk ES instances.
+
+Minor Changes
+-------------
+
+- .ansible-lint - added ``exclude_paths`` entry for ``.ansible/`` to prevent ansible-lint from scanning installed collection dependencies.
+- .yamllint - added ``.ansible/`` to the ``ignore`` list for the same reason.
+- Add tests to validate the collection with Ansible 2.16 and 2.18.
+- certification.yml - added Red Hat partner certification workflow running ``ansible-lint`` (profile ``production``) and ``ansible-test sanity`` against Ansible stable-2.16, stable-2.18, and stable-2.20.
+- changelogs/changelog.yaml and changelogs/config.yaml - added missing ``---`` document-start marker required by the ``yaml[document-start]`` yamllint rule.
+- checks.yml - introduced a new dedicated workflow triggered only on ``pull_request_target`` to isolate privileged jobs (``changelog`` and ``sonar``) that require write access or secrets from the code-testing workflow. Each workflow now has a distinct name to differentiate them in GitHub Actions and branch protection rules.
+- meta/runtime.yml - lowered ``requires_ansible`` from ``>=2.17.0`` to ``>=2.16.0``
+
+Security Fixes
+--------------
+
+- tests.yml - replaced ``pull_request_target`` trigger with ``pull_request`` for all code-testing jobs (``sanity``, ``unit-galaxy``, ``ansible-lint``, ``build-import``). Using ``pull_request_target`` exposed repository secrets to workflows that execute untrusted fork code, creating a potential secret-exfiltration vector (pwn request).
+
+Bugfixes
+--------
+
+- plugins/module_utils/splunk.py - wrapped the ``ansible.utils`` collection import in a ``try/except`` block so that ``ansible-test sanity --test import`` no longer raises ``ModuleNotFoundError`` in the isolated sanity environment.
+
 v6.0.0
 ======
 
