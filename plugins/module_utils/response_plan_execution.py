@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, print_function
+
+
+__metaclass__ = type
 """Splunk Response Plan Execution module utilities for Ansible.
 
 This module contains shared utilities for response plan execution modules:

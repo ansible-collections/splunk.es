@@ -17,6 +17,11 @@
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+
+from __future__ import absolute_import, division, print_function
+
+
+__metaclass__ = type
 """
 The action plugin file for splunk_response_plan_info
 """

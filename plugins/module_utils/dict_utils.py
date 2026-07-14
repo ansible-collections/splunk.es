@@ -2,14 +2,18 @@
 # Copyright (c) 2018 Ansible Project
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
+
+from __future__ import absolute_import, annotations, division, print_function
+
+
+__metaclass__ = type
+
 """Dictionary utility functions for Ansible Splunk ES collection.
 
 These functions were originally provided by ansible.netcommon's
 ``network.common.utils`` module and are inlined here to remove
 that collection dependency.
 """
-
-from __future__ import annotations
 
 from collections.abc import Mapping
 from copy import deepcopy
