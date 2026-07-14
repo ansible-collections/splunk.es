@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, print_function
+
+
+__metaclass__ = type
 """Splunk Investigation module utilities for Ansible."""
 
 # Copyright 2026 Red Hat Inc.

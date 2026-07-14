@@ -1,0 +1,7 @@
+---
+minor_changes:
+  - Add ``from __future__ import absolute_import, division, print_function`` and
+    ``__metaclass__ = type`` boilerplate to all plugin Python files
+    (action, httpapi, module_utils, modules) to satisfy Ansible certification
+    requirements.
+  - Update README.md to include support information.

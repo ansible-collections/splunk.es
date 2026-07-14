@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, print_function
+
+
+__metaclass__ = type
 """Pure Python utility functions for Splunk modules.
 
 This module contains utility functions that have NO Ansible dependencies,

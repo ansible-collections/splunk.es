@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, division, print_function
+
+
+__metaclass__ = type
 """Splunk module utilities for Ansible."""
 
 # (c) 2018, Adam Miller (admiller@redhat.com)
