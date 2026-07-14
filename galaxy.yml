@@ -8,18 +8,36 @@ authors:
 dependencies:
   ansible.utils: ">=2.0.0"
 description: Ansible Security Collection for Splunk Enterprise Security SIEM
-license_file: LICENSE
+license:
+  - GPL-3.0-or-later
 tags: ["security", "splunk"]
 repository: https://github.com/ansible-collections/splunk.es
 documentation: https://github.com/ansible-collections/splunk.es
 homepage: https://github.com/ansible-collections/splunk.es
 issues: https://github.com/ansible-collections/splunk.es/issues
 readme: README.md
-version: "6.0.0"
+version: "6.0.1"
 build_ignore:
   - .ansible
+  - .ansible-lint
   - .claude
   - .cursor
+  - .darglint
+  - .flake8
+  - .git
+  - .github
   - .gitignore
-  - .vscode
+  - .isort.cfg
+  - .pre-commit-config.yaml
+  - .prettierignore
   - .pytest_cache
+  - .ruff_cache
+  - .tox
+  - .vscode
+  - .yamllint
+  - bindep.txt
+  - pyproject.toml
+  - requirements.txt
+  - sonar-project.properties
+  - test-requirements.txt
+  - tox-ansible.ini

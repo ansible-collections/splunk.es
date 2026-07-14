@@ -15,6 +15,10 @@ This Collection is meant for distribution through
 [Ansible](https://github.com/ansible/ansible) users to utilize, contribute to,
 and provide feedback about.
 
+## Description
+
+This collection provides Ansible modules and plugins to automate security operations in [Splunk Enterprise Security](https://www.splunk.com/en_us/software/enterprise-security.html), including management of correlation searches, findings, investigations, response plans, and data inputs.
+
 ## Communication
 
 * Join the Ansible forum:
@@ -32,6 +36,14 @@ For more information about communication, see the [Ansible communication guide](
 As a Red Hat Ansible [Certified Content](https://catalog.redhat.com/software/search?target_platforms=Red%20Hat%20Ansible%20Automation%20Platform), this collection is entitled to [support](https://access.redhat.com/support/) through [Ansible Automation Platform](https://www.redhat.com/en/technologies/management/ansible) (AAP).
 
 If a support case cannot be opened with Red Hat and the collection has been obtained either from [Galaxy](https://galaxy.ansible.com/ui/) or [GitHub](https://github.com/ansible-collections/splunk.es), there is community support available at no charge.
+
+## Requirements
+
+- **Ansible:** `ansible-core >= 2.16.0`
+- **Python:** Python 3.10 or later on the controller node
+- **Collection dependencies:** [`ansible.utils >= 2.0.0`](https://galaxy.ansible.com/ui/repo/published/ansible/utils/) (installed automatically by `ansible-galaxy`)
+- **Connection:** The collection communicates with Splunk ES via its REST API using the [`httpapi` connection plugin](https://docs.ansible.com/ansible/latest/plugins/connection/httpapi.html). The managed node must have the Splunk REST API reachable on port 8089 (or the configured `ansible_httpapi_port`).
+- **Splunk Enterprise Security:** A running Splunk Enterprise Security instance is required for integration tests and production use.
 
 <!--start requires_ansible-->
 ## Ansible version compatibility
@@ -99,7 +111,7 @@ Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html)
     ansible_httpapi_validate_certs=True
     ansible_connection=httpapi
 
-## Installing this collection
+## Installation
 
 You can install the splunk collection with the Ansible Galaxy CLI:
 
@@ -111,6 +123,63 @@ You can also include it in a `requirements.yml` file and install it with `ansibl
 ---
 collections:
   - name: splunk.es
+```
+
+## Use Cases
+
+### 1. Automate correlation search lifecycle management
+
+Deploy, update, and retire Splunk ES correlation searches as part of a detection-as-code workflow. Store search definitions in version control and let Ansible enforce the desired state across environments:
+
+```yaml
+- name: Ensure threat-hunting correlation search is present
+  splunk.es.splunk_correlation_searches:
+    config:
+      - name: Detect Lateral Movement via SMB
+        search: 'index=wineventlog EventCode=4624 LogonType=3 | stats count by src_ip, dest_ip'
+        description: Detects lateral movement attempts over SMB
+        scheduling:
+          schedule: "0 * * * *"
+          cron_schedule: "0 * * * *"
+    state: merged
+```
+
+### 2. Manage investigation workflows programmatically
+
+Open, update, and close security investigations from an Ansible playbook, enabling integration with external ticketing or SOAR systems:
+
+```yaml
+- name: Open investigation for confirmed incident
+  splunk.es.splunk_investigation:
+    config:
+      - name: "Ransomware outbreak — host {{ inventory_hostname }}"
+        status: In Progress
+        assignee: soc-analyst
+        sensitivity: red
+    state: merged
+  register: investigation
+
+- name: Attach response plan to investigation
+  splunk.es.splunk_response_plan_execution:
+    config:
+      - investigation_id: "{{ investigation.investigation_id }}"
+        response_plan_name: Ransomware Containment
+    state: merged
+```
+
+### 3. Enforce data input configuration at scale
+
+Ensure all Splunk forwarders and heavy forwarders have the correct monitored log paths and network inputs configured, replacing manual UI changes with an idempotent playbook:
+
+```yaml
+- name: Ensure syslog UDP input is configured
+  splunk.es.splunk_data_inputs_network:
+    config:
+      - name: "514"
+        protocol: udp
+        sourcetype: syslog
+        index: main
+    state: merged
 ```
 
 ## Using this collection
@@ -274,6 +343,38 @@ FQCN.
         - splunk.es
 ```
 
+## Testing
+
+### Test types
+
+| Type | Tool | What is covered |
+|---|---|---|
+| Sanity | `ansible-test sanity` | Code style, documentation, import correctness |
+| Unit | `pytest` via `ansible-test units` | Module utilities, argument validation, API mapping logic |
+| Integration | `ansible-test network-integration` | End-to-end module behaviour against a live Splunk ES instance |
+
+### Ansible core versions
+
+Sanity and unit tests run automatically on every pull request and on a nightly schedule against:
+
+- `stable-2.16`
+- `stable-2.18`
+- `stable-2.20`
+- `stable-2.21`
+
+### Splunk Enterprise Security versions
+
+Integration tests run against real Splunk ES instances:
+
+- **Splunk Server 9.4** with Enterprise Security
+- **Splunk Server 10.4.1** with Enterprise Security
+
+### Known exceptions and workarounds
+
+- **`ansible.utils` import in sanity tests:** The `import` sanity test runs in an isolated environment without collection dependencies. The `ansible.utils` import in `plugins/module_utils/splunk.py` is wrapped in a `try/except ImportError` block so the sanity test passes cleanly. At runtime `ansible.utils` is always present as a declared `galaxy.yml` dependency.
+- **`httpapi` connection required:** All modules communicate exclusively through the Splunk REST API using the `httpapi` connection plugin. SSH-based connections are not supported. Ensure `ansible_connection: httpapi` and `ansible_network_os: splunk.es.splunk` are set in the inventory.
+- **Certificate validation:** Splunk installations with self-signed certificates require `ansible_httpapi_validate_certs: false` in the inventory. Use a trusted certificate in production.
+
 ## Contributing to this collection
 
 We welcome community contributions to this collection. If you find problems, please open an issue or create a PR against the [Splunk collection repository](https://github.com/ansible-collections/splunk.es). See [Contributing to Ansible-maintained collections](https://docs.ansible.com/ansible/devel/community/contributing_maintained_collections.html#contributing-maintained-collections) for complete details.
@@ -292,13 +393,9 @@ Please read and familiarize yourself with this document.
 
 ## Release notes
 
-Release notes are available [here](https://github.com/ansible-collections/splunk.es/blob/main/changelogs/CHANGELOG.rst).
+Release notes are available on the [GitHub Releases page](https://github.com/ansible-collections/splunk.es/releases).
 
-## Roadmap
-
-<!-- Optional. Include the roadmap for this collection, and the proposed release/versioning strategy so users can anticipate the upgrade/update cycle. -->
-
-## More information
+## Related Information
 
 - [Ansible network resources](https://docs.ansible.com/ansible/latest/network/getting_started/network_resources.html)
 - [Ansible Collection overview](https://github.com/ansible-collections/overview)
@@ -306,7 +403,7 @@ Release notes are available [here](https://github.com/ansible-collections/splunk
 - [Ansible Developer guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html)
 - [Ansible Community code of conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html)
 
-## Licensing
+## License Information
 
 GNU General Public License v3.0 or later.
 
