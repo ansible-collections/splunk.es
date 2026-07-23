@@ -19,10 +19,11 @@ version_added: "1.0.0"
 
 import json
 
+from urllib.error import HTTPError
+
 from ansible.errors import AnsibleConnectionFailure
 from ansible.module_utils.basic import to_text
 from ansible.module_utils.connection import ConnectionError
-from ansible.module_utils.six.moves.urllib.error import HTTPError
 from ansible.plugins.httpapi import HttpApiBase
 
 

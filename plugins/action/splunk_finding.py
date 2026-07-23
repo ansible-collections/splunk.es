@@ -27,10 +27,10 @@ The action module for splunk_finding
 """
 
 from typing import Any
+from urllib.parse import quote
 
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.connection import Connection
-from ansible.module_utils.six.moves.urllib.parse import quote
 from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
 

@@ -28,9 +28,10 @@ The module file for splunk_correlation_searches
 
 import json
 
+from urllib.parse import quote
+
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.connection import Connection
-from ansible.module_utils.six.moves.urllib.parse import quote
 from ansible.plugins.action import ActionBase
 
 from ansible_collections.splunk.es.plugins.module_utils import dict_utils as utils
