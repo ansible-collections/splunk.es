@@ -1,0 +1,5 @@
+---
+trivial:
+  - Removed the unused ``tests/unit/requirements.txt`` dependency list, a legacy
+    template of dependencies (boto3, f5-sdk, pyvmomi, linode_api4 and others) for
+    modules this collection does not contain.
