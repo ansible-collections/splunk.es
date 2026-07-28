@@ -11,8 +11,7 @@ __metaclass__ = type
 
 
 from typing import Any
-
-from ansible.module_utils.six.moves.urllib.parse import quote
+from urllib.parse import quote
 
 from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     DEFAULT_API_APP,

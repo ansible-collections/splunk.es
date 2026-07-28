@@ -11,10 +11,10 @@ The action plugin file for splunk_finding_info
 """
 
 from typing import Any, Dict, List, Optional
+from urllib.parse import quote
 
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.connection import Connection
-from ansible.module_utils.six.moves.urllib.parse import quote
 from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
 

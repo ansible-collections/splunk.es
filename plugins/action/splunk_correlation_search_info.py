@@ -10,9 +10,10 @@ __metaclass__ = type
 The action plugin file for splunk_correlation_search_info
 """
 
+from urllib.parse import quote
+
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.connection import Connection
-from ansible.module_utils.six.moves.urllib.parse import quote
 from ansible.plugins.action import ActionBase
 
 from ansible_collections.splunk.es.plugins.module_utils.splunk import (

@@ -27,10 +27,10 @@ The action plugin file for splunk_response_plan_info
 """
 
 from typing import Any, Optional
+from urllib.parse import unquote
 
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.connection import Connection
-from ansible.module_utils.six.moves.urllib.parse import unquote
 from ansible.plugins.action import ActionBase
 from ansible.utils.display import Display
 
