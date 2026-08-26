@@ -1,5 +1,5 @@
 ---
-name: "Collection SonarCloud and Changelog"
+name: "Collection SonarCloud"
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}-checks
@@ -10,39 +10,24 @@ on:  # yamllint disable-line rule:truthy
     branches: [main]
 
 jobs:
-  changelog:
-    name: Requires changelog
-    runs-on: ubuntu-latest
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-changelog') }}
-    steps:
-      - name: Checkout PR branch
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-          allow-unsafe-pr-checkout: true
-
-      - name: Validate changelog
-        uses: ansible/ansible-content-actions/.github/actions/ansible_validate_changelog@main
-
   sonar:
     name: SonarCloud
     runs-on: ubuntu-latest
-    # Only run after a maintainer adds the 'safe to test' label.
-    # This is the review gate before executing untrusted fork code (unit tests) with secrets.
-    if: ${{ !github.event.pull_request || contains(github.event.pull_request.labels.*.name, 'safe to test') }}
+    # Environment gate requires a maintainer to approve the deployment before
+    # this job runs, ensuring untrusted PR code is reviewed before secrets
+    # (ANSIBLE_COLLECTIONS_ORG_SONAR_TOKEN_CICD_BOT) are accessible.
+    environment: eco-splunk-protected
     permissions:
       contents: read
       pull-requests: write
       security-events: write
     steps:
-      - name: Checkout base branch
+      - name: Checkout PR branch
         uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           show-progress: false
-          # Safe: the 'safe to test' label gate above requires a maintainer
-          # to have reviewed the PR before this job runs.
           allow-unsafe-pr-checkout: true
 
       - name: Set up Python 3.12
@@ -63,14 +48,6 @@ jobs:
               ansible-galaxy collection install "$line"
             fi
           done <<< "git+https://github.com/ansible-collections/ansible.utils.git"
-
-      - name: Checkout PR branch code
-        if: github.event_name == 'pull_request_target'
-        run: |
-          git fetch origin pull/${{ github.event.pull_request.number }}/head:pr
-          git checkout pr
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare SonarCloud args
         id: sonar-args
