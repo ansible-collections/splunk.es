@@ -51,12 +51,18 @@ jobs:
 
       - name: Prepare SonarCloud args
         id: sonar-args
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
-          if [ "${{ github.event_name }}" == "pull_request_target" ]; then
-            ARGS="-Dsonar.scm.revision=${{ github.event.pull_request.head.sha }}"
-            ARGS="$ARGS -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}"
-            ARGS="$ARGS -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}"
-            ARGS="$ARGS -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}"
+          if [ "$EVENT_NAME" == "pull_request_target" ]; then
+            ARGS="-Dsonar.scm.revision=$PR_HEAD_SHA"
+            ARGS="$ARGS -Dsonar.pullrequest.key=$PR_NUMBER"
+            ARGS="$ARGS -Dsonar.pullrequest.branch=$PR_HEAD_REF"
+            ARGS="$ARGS -Dsonar.pullrequest.base=$PR_BASE_REF"
             echo "ARGS=$ARGS" >> $GITHUB_OUTPUT
           else
             echo "ARGS=" >> $GITHUB_OUTPUT
