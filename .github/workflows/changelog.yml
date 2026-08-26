@@ -1,0 +1,24 @@
+---
+name: "Requires Changelog"
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}-changelog
+  cancel-in-progress: true
+
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+    branches: [main]
+
+jobs:
+  changelog:
+    name: Requires changelog
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-changelog') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Validate changelog
+        uses: ansible/ansible-content-actions/.github/actions/ansible_validate_changelog@main
