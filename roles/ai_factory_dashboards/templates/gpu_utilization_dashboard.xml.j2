@@ -1,0 +1,73 @@
+<dashboard version="1.1">
+  <label>AI Factory - GPU Utilization</label>
+  <description>Real-time GPU utilization, temperature, and memory monitoring for AI Factory infrastructure</description>
+
+  <row>
+    <panel>
+      <title>GPU Utilization by Host</title>
+      <chart>
+        <search>
+          <query>| mstats avg(dcgm_gpu_utilization) as gpu_util WHERE index={{ ai_dashboards_metrics_index }} by host gpu_id span=5m</query>
+          <earliest>-4h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleX.text">Time</option>
+        <option name="charting.axisTitleY.text">GPU Utilization (%)</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>GPU Memory Usage</title>
+      <chart>
+        <search>
+          <query>| mstats avg(dcgm_fb_used) as mem_used avg(dcgm_fb_free) as mem_free WHERE index={{ ai_dashboards_metrics_index }} by host gpu_id span=5m | eval mem_pct=round((mem_used/(mem_used+mem_free))*100,1)</query>
+          <earliest>-4h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.axisTitleY.text">Memory Usage (%)</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>GPU Temperature</title>
+      <chart>
+        <search>
+          <query>| mstats avg(dcgm_gpu_temp) as gpu_temp WHERE index={{ ai_dashboards_metrics_index }} by host gpu_id span=5m</query>
+          <earliest>-4h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleY.text">Temperature (C)</option>
+        <option name="charting.chart.overlayFields">threshold_warning,threshold_critical</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>GPU Power Draw</title>
+      <chart>
+        <search>
+          <query>| mstats avg(dcgm_power_usage) as power_w WHERE index={{ ai_dashboards_metrics_index }} by host gpu_id span=5m</query>
+          <earliest>-4h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleY.text">Power (Watts)</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Idle GPUs (Utilization &lt; {{ ai_dashboards_gpu_util_low_threshold }}%)</title>
+      <table>
+        <search>
+          <query>| mstats avg(dcgm_gpu_utilization) as avg_util WHERE index={{ ai_dashboards_metrics_index }} by host gpu_id span=1h | where avg_util &lt; {{ ai_dashboards_gpu_util_low_threshold }} | sort -avg_util</query>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+</dashboard>

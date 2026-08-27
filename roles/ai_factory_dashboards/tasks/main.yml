@@ -1,0 +1,12 @@
+---
+- name: Deploy GPU utilization dashboard
+  when: ai_factory_dashboards_deploy_gpu_utilization
+  ansible.builtin.include_tasks: gpu_utilization.yml
+
+- name: Deploy model serving latency dashboard
+  when: ai_factory_dashboards_deploy_model_serving
+  ansible.builtin.include_tasks: model_serving.yml
+
+- name: Deploy training progress dashboard
+  when: ai_factory_dashboards_deploy_training_progress
+  ansible.builtin.include_tasks: training_progress.yml

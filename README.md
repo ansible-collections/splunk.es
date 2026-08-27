@@ -68,6 +68,8 @@ Name | Description
 Name | Description
 --- | ---
 [splunk.es.splunk_adaptive_response_notable_events](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_adaptive_response_notable_events_module.rst)|Manage Adaptive Responses notable events resource module
+[splunk.es.splunk_ai_correlation_search](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_ai_correlation_search_module.rst)|Manage pre-built correlation searches for AI Factory alerts
+[splunk.es.splunk_ai_metrics_index](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_ai_metrics_index_module.rst)|Configure a Splunk index for AI Factory GPU and AI metrics
 [splunk.es.splunk_correlation_search_info](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_correlation_search_info_module.rst)|Gather information about Splunk Enterprise Security Correlation Searches
 [splunk.es.splunk_correlation_searches](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_correlation_searches_module.rst)|Splunk Enterprise Security Correlation searches resource module
 [splunk.es.splunk_data_inputs_monitor](https://github.com/ansible-collections/splunk.es/blob/main/docs/splunk.es.splunk_data_inputs_monitor_module.rst)|Splunk Data Inputs of type Monitor resource module

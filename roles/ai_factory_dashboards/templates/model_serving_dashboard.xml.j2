@@ -1,0 +1,71 @@
+<dashboard version="1.1">
+  <label>AI Factory - Model Serving</label>
+  <description>Inference endpoint latency, throughput, and error rates for AI Factory model serving</description>
+
+  <row>
+    <panel>
+      <title>Inference Latency (P95 / P99)</title>
+      <chart>
+        <search>
+          <query>| mstats perc95(nim_inference_latency_ms) as p95 perc99(nim_inference_latency_ms) as p99 WHERE index={{ ai_dashboards_metrics_index }} by model_name span=5m</query>
+          <earliest>-4h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleY.text">Latency (ms)</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Request Throughput</title>
+      <chart>
+        <search>
+          <query>| mstats sum(nim_inference_requests) as requests WHERE index={{ ai_dashboards_metrics_index }} by model_name span=5m</query>
+          <earliest>-4h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.axisTitleY.text">Requests / 5min</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Model Error Rate</title>
+      <chart>
+        <search>
+          <query>| mstats sum(nim_inference_errors) as errors sum(nim_inference_requests) as total WHERE index={{ ai_dashboards_metrics_index }} by model_name span=5m | eval error_rate=round((errors/total)*100,2)</query>
+          <earliest>-4h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleY.text">Error Rate (%)</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>GPU Utilization per Model Endpoint</title>
+      <chart>
+        <search>
+          <query>| mstats avg(dcgm_gpu_utilization) as gpu_util WHERE index={{ ai_dashboards_metrics_index }} by model_name gpu_id span=5m</query>
+          <earliest>-4h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.axisTitleY.text">GPU Utilization (%)</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Endpoints Exceeding Latency SLA</title>
+      <table>
+        <search>
+          <query>| mstats perc99(nim_inference_latency_ms) as p99 WHERE index={{ ai_dashboards_metrics_index }} by model_name endpoint span=15m | where p99 > {{ ai_dashboards_latency_p99_threshold_ms }} | sort -p99</query>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+</dashboard>
