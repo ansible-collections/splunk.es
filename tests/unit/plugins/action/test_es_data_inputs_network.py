@@ -29,7 +29,6 @@ from ansible.template import Templar
 from ansible_collections.splunk.es.plugins.action.splunk_data_inputs_network import ActionModule
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
-
 RESPONSE_PAYLOAD = {
     "tcp_cooked": {
         "entry": [

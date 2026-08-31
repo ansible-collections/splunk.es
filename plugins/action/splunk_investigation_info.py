@@ -4,7 +4,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-
 __metaclass__ = type
 """
 The action plugin file for splunk_investigation_info
@@ -33,7 +32,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
 from ansible_collections.splunk.es.plugins.modules.splunk_investigation_info import (
     DOCUMENTATION,
 )
-
 
 # Initialize display for debug output
 display = Display()
