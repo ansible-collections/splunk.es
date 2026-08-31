@@ -4,7 +4,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-
 __metaclass__ = type
 DOCUMENTATION = """
 ---
@@ -25,7 +24,6 @@ from ansible.errors import AnsibleConnectionFailure
 from ansible.module_utils.basic import to_text
 from ansible.module_utils.connection import ConnectionError
 from ansible.plugins.httpapi import HttpApiBase
-
 
 BASE_HEADERS = {"Content-Type": "application/json"}
 

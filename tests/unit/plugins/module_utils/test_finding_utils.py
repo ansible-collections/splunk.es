@@ -27,7 +27,6 @@ work correctly for:
 - Status and disposition value conversions
 """
 
-
 from ansible_collections.splunk.es.plugins.action.splunk_finding import (
     ActionModule,
 )
