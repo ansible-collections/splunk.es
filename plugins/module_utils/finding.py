@@ -2,7 +2,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-
 __metaclass__ = type
 """Splunk Finding module utilities for Ansible."""
 
@@ -21,7 +20,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     DISPOSITION_FROM_API,
     STATUS_FROM_API,
 )
-
 
 # Key transformation: API param -> module param
 FINDING_KEY_TRANSFORM = {
