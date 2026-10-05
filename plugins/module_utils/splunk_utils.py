@@ -2,7 +2,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-
 __metaclass__ = type
 """Pure Python utility functions for Splunk modules.
 
@@ -15,7 +14,6 @@ making them safe to import in unit tests without triggering Ansible imports.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 import re
-
 
 # UUID regex pattern for validation
 UUID_PATTERN = re.compile(
