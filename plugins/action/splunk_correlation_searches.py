@@ -20,7 +20,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-
 __metaclass__ = type
 """
 The module file for splunk_correlation_searches
