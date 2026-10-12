@@ -40,7 +40,6 @@ from ansible.template import Templar
 from ansible_collections.splunk.es.plugins.action.splunk_investigation_info import ActionModule
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
-
 # Test data: API Response Payloads
 # These represent what the Splunk API returns for investigation queries.
 
