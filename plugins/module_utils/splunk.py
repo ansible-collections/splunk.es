@@ -2,7 +2,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-
 __metaclass__ = type
 """Splunk module utilities for Ansible."""
 
@@ -10,7 +9,6 @@ __metaclass__ = type
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 import json
-
 
 try:
     from ssl import CertificateError
@@ -21,7 +19,6 @@ from urllib.parse import urlencode
 
 from ansible.module_utils.common.text.converters import to_text
 from ansible.module_utils.connection import ConnectionError as AnsibleConnectionError
-
 
 try:
     from ansible_collections.ansible.utils.plugins.module_utils.common.argspec_validate import (

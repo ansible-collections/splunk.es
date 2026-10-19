@@ -31,7 +31,6 @@ The tests use mocking to simulate Splunk API responses without requiring
 a real Splunk server connection.
 """
 
-
 import copy
 import tempfile
 
@@ -42,7 +41,6 @@ from ansible.template import Templar
 
 from ansible_collections.splunk.es.plugins.action.splunk_investigation import ActionModule
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
-
 
 # Test data: API Response Payloads
 # These represent what the Splunk API returns for investigations.
