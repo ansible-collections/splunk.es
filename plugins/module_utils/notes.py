@@ -2,7 +2,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-
 __metaclass__ = type
 """Splunk Notes module utilities for Ansible.
 
@@ -25,7 +24,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     DEFAULT_API_NAMESPACE,
     DEFAULT_API_USER,
 )
-
 
 # Target type constants
 TARGET_FINDING = "finding"

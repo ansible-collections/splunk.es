@@ -20,7 +20,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-
 __metaclass__ = type
 """
 The action module for splunk_notes
@@ -57,7 +56,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
     get_api_config_from_args,
 )
 from ansible_collections.splunk.es.plugins.modules.splunk_notes import DOCUMENTATION
-
 
 # Initialize display for debug output
 display = Display()

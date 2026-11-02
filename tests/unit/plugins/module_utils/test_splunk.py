@@ -33,7 +33,6 @@ from unittest.mock import MagicMock, patch
 from ansible_collections.splunk.es.plugins.module_utils import splunk as splunk_mod
 from ansible_collections.splunk.es.plugins.module_utils.splunk import check_argspec
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

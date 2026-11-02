@@ -20,7 +20,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-
 __metaclass__ = type
 """
 The action module for splunk_response_plan_execution
@@ -50,7 +49,6 @@ from ansible_collections.splunk.es.plugins.module_utils.splunk_utils import (
 from ansible_collections.splunk.es.plugins.modules.splunk_response_plan_execution import (
     DOCUMENTATION,
 )
-
 
 # Initialize display for debug output
 display = Display()

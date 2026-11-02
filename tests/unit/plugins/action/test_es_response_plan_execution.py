@@ -20,7 +20,6 @@
 Unit tests for the splunk_response_plan_execution action plugin.
 """
 
-
 import copy
 import tempfile
 
