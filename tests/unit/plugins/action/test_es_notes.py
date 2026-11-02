@@ -20,7 +20,6 @@
 Unit tests for the splunk_notes action plugin and module utilities.
 """
 
-
 import copy
 import tempfile
 

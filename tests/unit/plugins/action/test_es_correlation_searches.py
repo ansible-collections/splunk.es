@@ -29,7 +29,6 @@ from ansible.template import Templar
 from ansible_collections.splunk.es.plugins.action.splunk_correlation_searches import ActionModule
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
-
 RESPONSE_PAYLOAD = {
     "entry": [
         {
