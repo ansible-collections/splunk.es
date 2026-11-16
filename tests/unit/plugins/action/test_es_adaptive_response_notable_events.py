@@ -30,7 +30,6 @@ from ansible_collections.splunk.es.plugins.action.splunk_adaptive_response_notab
 )
 from ansible_collections.splunk.es.plugins.module_utils.splunk import SplunkRequest
 
-
 RESPONSE_PAYLOAD = [
     {
         "entry": [
